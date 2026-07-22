@@ -1,0 +1,20 @@
+# Ignora tudo por padrao
+*
+
+# Mas permite entrar nestas pastas (senao o git nem verifica o que esta la dentro)
+!/assets/
+!/assets/elementos/
+!/assets/personagens/
+
+# Ficheiros essenciais para o site funcionar no GitHub Pages
+!/index.html
+!/styles.css
+!/script.js
+
+# Imagens usadas pelo site
+!/assets/*.png
+!/assets/elementos/*.png
+!/assets/personagens/*.png
+
+# Mantem o proprio .gitignore visivel
+!/.gitignore
