@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO Meta Tags -->
+    <title>Ovelhas Coloridas: Uma Aventura no Espaço — Livro Infantil Oficial</title>
+    <meta name="description"
+        content="Livro infantil oficial de Ana Carvalho e Rafael Diogo. Acompanha 7 ovelhas coloridas numa expedição intergaláctica à procura do misterioso Planeta Amendoim!">
+    <meta name="keywords"
+        content="Ovelhas Coloridas, Livro Infantil, Ana Carvalho, Rafael Diogo, Planeta Amendoim, Literatura Infantil, Livro Espaço">
+    <meta name="author" content="Ana Carvalho e Rafael Diogo">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Ovelhas Coloridas: Uma Aventura no Espaço!">
+    <meta property="og:description"
+        content="7 ovelhas extraordinárias, um foguetão espacial e o misterioso Planeta Amendoim. Descobre este livro infantil ilustrado!">
+    <meta property="og:image" content="assets/capa-livro.png">
+    <meta property="og:type" content="website">
+
+    <!-- Fonts Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- Canvas para fundo estelar dinâmico -->
+    <canvas id="starfield"></canvas>
+
+    <!-- ═══ Header / Navbar ═══ -->
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#hero" class="nav-logo" id="nav-logo">
+                <img src="assets/titulo-logo.png" alt="Ovelhas Coloridas Logo" class="nav-banner-logo">
+            </a>
+
+            <nav class="nav-links" id="nav-links">
+                <a href="#hero" class="nav-link active">Início</a>
+                <a href="#sobre" class="nav-link">O Livro</a>
+                <a href="#personagens" class="nav-link">O Rebanho</a>
+                <a href="#autores" class="nav-link">Autores</a>
+                <a href="#comprar" class="nav-btn-cta">Comprar Livro</a>
+            </nav>
+
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Abrir Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ═══ Hero Section (Real HTML Typography) ═══ -->
+    <section class="hero" id="hero">
+        <!-- Background nebulas & stars -->
+        <div class="hero-bg-effects">
+            <img src="assets/elementos/nebulosa-1.png" alt="" class="bg-nebula bg-nebula-1">
+            <img src="assets/elementos/nebulosa-2.png" alt="" class="bg-nebula bg-nebula-2">
+            <img src="assets/elementos/estrelas-1.png" alt="" class="bg-stars bg-stars-1">
+            <img src="assets/elementos/estrelas-2.png" alt="" class="bg-stars bg-stars-2">
+        </div>
+
+        <!-- Floating sheep positioned in corners -->
+        <div class="float-sheep float-tl">
+            <img src="assets/personagens/ovelha-verde.png" alt="Ovelha Verde">
+        </div>
+        <div class="float-sheep float-bl">
+            <img src="assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa">
+        </div>
+        <div class="float-sheep float-tr">
+            <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul">
+        </div>
+        <div class="float-sheep float-br">
+            <img src="assets/personagens/ovelha-melancia.png" alt="Ovelha Melancia">
+        </div>
+
+        <!-- Two-column hero layout -->
+        <div class="hero-content">
+
+            <!-- LEFT: Real Typography Title & Messaging -->
+            <div class="hero-text">
+
+
+                <!-- REAL HTML TYPOGRAPHY TITLE -->
+                <h1 class="hero-title-main">
+                    Ovelhas Coloridas
+                </h1>
+
+                <h2 class="hero-tagline">
+                    Uma Aventura no Espaço!
+                </h2>
+
+                <p class="hero-description">
+                    Quando um rebanho de ovelhas, estilosas e coloridas, ficaram cansadas do dia a dia , que era sempre
+                    igual, decidem trabalhar em conjunto e embarcar numa aventura que as levará para lá do seu planeta
+                    natal, onde descobrem espécies nunca antes descobertas.
+                </p>
+
+                <p class="hero-authors">Por <span>Ana Carvalho</span> & <span>Rafael Diogo</span></p>
+
+                <div class="hero-buttons">
+                    <a href="#comprar" class="btn-primary" id="hero-cta-buy">
+                        Comprar Livro
+                        <img src="assets/personagens/ovelha-arcoiris.png" alt="" class="btn-icon">
+                    </a>
+                    <a href="#sobre" class="btn-secondary" id="hero-cta-learn">
+                        Descobrir a História
+                    </a>
+                </div>
+            </div>
+
+            <!-- RIGHT: Book Cover Display -->
+            <div class="hero-visual">
+                <div class="hero-book-wrapper">
+                    <div class="hero-book-glow"></div>
+                    <div class="hero-book">
+                        <img src="assets/capa-livro.png" alt="Capa do livro Ovelhas Coloridas: Uma Aventura no Espaço"
+                            id="hero-book-cover">
+                    </div>
+                    <!-- Mini orbiting sheep on corners of book -->
+                    <div class="orbit-sheep orbit-tl">
+                        <img src="assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja">
+                    </div>
+                    <div class="orbit-sheep orbit-br">
+                        <img src="assets/personagens/ovelha-rosa.png" alt="Ovelha Rosa">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" id="scroll-indicator">
+            <div class="scroll-mouse"></div>
+            <span>Scroll</span>
+        </div>
+    </section>
+
+    <!-- ═══ Official Book Highlights Bar ═══ -->
+    <section class="stats-bar">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-icon"><img src="assets/personagens/ovelha-azul.png" alt=""></span>
+                    <div class="stat-info">
+                        <h4>38 Páginas</h4>
+                        <p>Totalmente ilustradas a cores</p>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon"><img src="assets/personagens/ovelha-arcoiris.png" alt=""></span>
+                    <div class="stat-info">
+                        <h4>7 Personagens</h4>
+                        <p>Cada uma com a sua cor e papel</p>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon"><img src="assets/personagens/ovelha-roxa.png" alt=""></span>
+                    <div class="stat-info">
+                        <h4>Planeta Amendoim</h4>
+                        <p>Uma descoberta intergaláctica</p>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon"><img src="assets/personagens/ovelha-verde.png" alt=""></span>
+                    <div class="stat-info">
+                        <h4>Idade Recomendada</h4>
+                        <p>Dos 4 aos 10 anos</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ About Section / Synopsis ═══ -->
+    <section class="about" id="sobre">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-image-wrapper reveal">
+                    <div class="about-image-glow"></div>
+                    <img src="assets/elementos/nebulosa-3.png" alt="" class="about-bg-nebula">
+                    <div class="about-book-display">
+                        <img src="assets/contra-capa.png"
+                            alt="Contra-capa oficial do livro com sinopse e ovelhas espaciais">
+                    </div>
+                </div>
+
+                <div class="about-text">
+                    <h2 class="reveal">Sinopse:</h2>
+                    <p class="about-synopsis reveal reveal-delay-1">
+                        Quando um rebanho de ovelhas, estilosas e coloridas, ficaram cansadas do dia a dia , que era
+                        sempre igual, decidem trabalhar em conjunto e embarcar numa aventura que as levará para lá do
+                        seu planeta natal, onde descobrem espécies nunca antes descobertas.
+                    </p>
+
+                    <p class="about-synopsis reveal reveal-delay-2">
+                        Neste livro, o leitor aprende que mais importante do que o sítio onde estás, são os amigos que
+                        estão presentes.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Accurate Characters Section (Strictly from Book Page 3) ═══ -->
+    <section class="characters" id="personagens">
+        <div class="container">
+            <h2 class="section-title reveal">Conhece o Rebanho</h2>
+            <p class="section-subtitle reveal reveal-delay-1">
+                Conforme apresentadas na edição oficial do livro! Cada ovelha desempenha uma função essencial na missão
+                espacial.
+            </p>
+
+            <div class="characters-grid">
+                <!-- 1. Ovelha Arco-Íris -->
+                <div class="character-card card-rainbow reveal reveal-delay-1" id="char-arcoiris">
+                    <div class="character-card-glow"></div>
+                    <div class="character-img-wrapper">
+                        <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris" class="main-char-img">
+                    </div>
+                    <h3 class="character-name">Ovelha Arco-Íris</h3>
+                    <p class="character-role">A Principal</p>
+                </div>
+
+                <!-- 2. Ovelha Azul -->
+                <div class="character-card card-blue reveal reveal-delay-2" id="char-azul">
+                    <div class="character-card-glow"></div>
+                    <div class="character-img-wrapper">
+                        <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul" class="main-char-img">
+                    </div>
+                    <h3 class="character-name">Ovelha Azul</h3>
+                    <p class="character-role">A Engenheira</p>
+                </div>
+
+                <!-- 3. Ovelha Roxa -->
+                <div class="character-card card-purple reveal reveal-delay-3" id="char-roxa">
+                    <div class="character-card-glow"></div>
+                    <div class="character-img-wrapper">
+                        <img src="assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa" class="main-char-img">
+                    </div>
+                    <h3 class="character-name">Ovelha Roxa</h3>
+                    <p class="character-role">A Curiosa</p>
+                </div>
+
+                <!-- 4. Ovelha Melancia -->
+                <div class="character-card card-watermelon reveal reveal-delay-4" id="char-melancia">
+                    <div class="character-card-glow"></div>
+                    <div class="character-img-wrapper">
+                        <img src="assets/personagens/ovelha-melancia.png" alt="Ovelha Melancia" class="main-char-img">
+                    </div>
+                    <h3 class="character-name">Ovelha Melancia</h3>
+                    <p class="character-role">A Comilona</p>
+                </div>
+
+                <!-- 5. Ovelha Verde -->
+                <div class="character-card card-green reveal reveal-delay-5" id="char-verde">
+                    <div class="character-card-glow"></div>
+                    <div class="character-img-wrapper">
+                        <img src="assets/personagens/ovelha-verde.png" alt="Ovelha Verde" class="main-char-img">
+                    </div>
+                    <h3 class="character-name">Ovelha Verde</h3>
+                    <p class="character-role">Amiga da Rosa</p>
+                </div>
+
+                <!-- 6. Ovelha Rosa -->
+                <div class="character-card card-pink reveal reveal-delay-6" id="char-rosa">
+                    <div class="character-card-glow"></div>
+                    <div class="character-img-wrapper">
+                        <img src="assets/personagens/ovelha-rosa.png" alt="Ovelha Rosa" class="main-char-img">
+                    </div>
+                    <h3 class="character-name">Ovelha Rosa</h3>
+                    <p class="character-role">Amiga da Verde</p>
+                </div>
+
+                <!-- 7. Ovelha Laranja -->
+                <div class="character-card card-orange reveal reveal-delay-7" id="char-laranja">
+                    <div class="character-card-glow"></div>
+                    <div class="character-img-wrapper">
+                        <img src="assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja" class="main-char-img">
+                    </div>
+                    <h3 class="character-name">Ovelha Laranja</h3>
+                    <p class="character-role">O Planeador</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Authors Section ═══ -->
+    <section class="authors" id="autores">
+        <div class="container">
+            <h2 class="section-title reveal">Os Autores da História</h2>
+            <p class="section-subtitle reveal reveal-delay-1">
+                Conhece quem deu vida ao universo mágico das Ovelhas Coloridas
+            </p>
+
+            <div class="authors-content reveal reveal-delay-2">
+                <div class="authors-card">
+                    <div class="authors-header">
+                        <div class="authors-avatars">
+                            <div class="author-avatar-badge">
+                                <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris">
+                            </div>
+                            <div class="author-avatar-badge">
+                                <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul">
+                            </div>
+                        </div>
+                        <div class="authors-header-text">
+                            <h3>Ana Carvalho & Rafael Diogo</h3>
+                            <p>Autores & Ilustradores</p>
+                        </div>
+                    </div>
+
+                    <p class="authors-description">
+                        Com uma visão partilhada sobre a importância da imaginação e do carinho na infância,
+                        <strong>Ana Carvalho</strong> e <strong>Rafael Diogo</strong> uniram talentos para criar uma
+                        história onde a cor, a amizade e o respeito andam de mãos dadas.
+                    </p>
+
+
+
+                    <!-- Book Technical Specifications Grid -->
+                    <div class="book-specs">
+                        <div class="spec-box">
+                            <span class="spec-label">Título Oficial</span>
+                            <span class="spec-value">As Ovelhas Coloridas: Uma Aventura no Espaço!</span>
+                        </div>
+                        <div class="spec-box">
+                            <span class="spec-label">Texto</span>
+                            <span class="spec-value">Ana Carvalho e Rafael Diogo</span>
+                        </div>
+                        <div class="spec-box">
+                            <span class="spec-label">Ilustrações</span>
+                            <span class="spec-value">Rafael Diogo</span>
+                        </div>
+                        <div class="spec-box">
+                            <span class="spec-label">Edição</span>
+                            <span class="spec-value">Melissa Figueiredo</span>
+                        </div>
+                        <div class="spec-box">
+                            <span class="spec-label">Formato</span>
+                            <span class="spec-value">5.625 x 8.75 polegadas (Colorido)</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ CTA / Purchase Section ═══ -->
+    <section class="cta-section" id="comprar">
+        <div class="container">
+            <div class="cta-box reveal">
+                <div class="cta-bg-glow"></div>
+                <img src="assets/elementos/nebulosa-1.png" alt="" class="cta-bg-nebula">
+
+                <div class="cta-header">
+                    <h2>Garante Já o Teu Exemplar!</h2>
+                    <p>Leva o rebanho mais colorido de sempre para a estante da tua família e embarca nesta viagem
+                        cósmica.</p>
+                </div>
+
+                <div class="cta-book-showcase">
+                    <div class="cta-cover-card">
+                        <img src="assets/capa-livro.png" alt="Capa do Livro Ovelhas Coloridas">
+                        <div class="cta-price-badge">1.ª Edição</div>
+                    </div>
+                </div>
+
+                <div class="cta-actions">
+                    <a href="mailto:contacto@ovelhascoloridas.pt?subject=Encomenda%20do%20Livro%20Ovelhas%20Coloridas"
+                        class="btn-primary btn-large">
+                        Encomendar Livro (Pré-Venda)
+                        <img src="assets/personagens/ovelha-arcoiris.png" alt="" class="btn-icon">
+                    </a>
+
+                </div>
+
+                <div class="cta-sheep-parade">
+                    <img src="assets/personagens/ovelha-arcoiris.png" alt="Arco-Íris" class="cta-sheep">
+                    <img src="assets/personagens/ovelha-azul.png" alt="Azul" class="cta-sheep">
+                    <img src="assets/personagens/ovelha-laranja.png" alt="Laranja" class="cta-sheep">
+                    <img src="assets/personagens/ovelha-melancia.png" alt="Melancia" class="cta-sheep">
+                    <img src="assets/personagens/ovelha-rosa.png" alt="Rosa" class="cta-sheep">
+                    <img src="assets/personagens/ovelha-roxa.png" alt="Roxa" class="cta-sheep">
+                    <img src="assets/personagens/ovelha-verde.png" alt="Verde" class="cta-sheep">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/titulo-logo.png" alt="Ovelhas Coloridas" class="footer-banner-logo">
+                    <p>Feito com ❤️ para o livro <strong>"Ovelhas Coloridas: Uma Aventura no Espaço!"</strong></p>
+                </div>
+
+                <div class="footer-nav">
+                    <h4>Navegação</h4>
+                    <a href="#hero">Início</a>
+                    <a href="#sobre">O Livro</a>
+                    <a href="#personagens">O Rebanho</a>
+                    <a href="#autores">Autores</a>
+                </div>
+
+                <div class="footer-credits">
+                    <h4>Informação Legal</h4>
+                    <p>©
+                        <script
+                            type="text/javascript">var year = new Date(); document.write(year.getFullYear());</script>
+                        Ana Carvalho & Rafael Diogo<br>Todos os direitos reservados.
+                    </p>
+                </div>
+            </div>
+
+
+        </div>
+    </footer>
+
+    <!-- JS -->
+    <script src="script.js"></script>
+</body>
+
+</html>
