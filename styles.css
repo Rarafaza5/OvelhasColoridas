@@ -1558,3 +1558,19 @@ section {
     .hero-buttons a { width: auto; }
     .btn-primary, .btn-secondary { min-height: 44px; padding: 9px 16px; font-size: 0.82rem; }
 }
+
+/* ── Botão de Compra Bloqueado (Disponível a 02/08/2026) ── */
+.btn-disabled {
+    background: #3a3b58 !important; /* Cor cinza/espacial neutra */
+    color: #9aa0c0 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    pointer-events: none !important; /* Impede o clique real */
+    border: 1px solid #4a4b68 !important;
+}
+
+/* Remove a cor do ícone da ovelha no botão bloqueado */
+.btn-disabled .btn-icon {
+    filter: grayscale(100%) opacity(50%);
+    transform: none !important;
+}

@@ -358,3 +358,54 @@ window.addEventListener('load', () => {
 console.log('%c Ovelhas Coloridas: Uma Aventura no Espaço! ', 
     'font-size: 18px; font-weight: bold; color: #e8a0bf; background: #0f1638; padding: 6px 12px; border-radius: 6px;');
 console.log('%cPor Ana Carvalho & Rafael Diogo', 'font-size: 13px; color: #b088d4;');
+
+
+
+
+
+
+
+
+
+
+// ── Bloqueio de Compra até Lançamento (02/08/2026) ───────────
+(function initReleaseLock() {
+    // Data exata de lançamento: 2 de Agosto de 2026 às 00:00:00
+    const releaseDate = new Date('2026-08-02T00:00:00').getTime();
+    
+    function updateBuyButtons() {
+        const now = new Date().getTime();
+        
+        // Seleciona os botões de compra existentes no HTML
+        const buyButtons = document.querySelectorAll('.nav-btn-cta, #hero-cta-buy, .cta-actions .btn-primary');
+        
+        if (now < releaseDate) {
+            buyButtons.forEach(btn => {
+                // Adiciona o estilo desabilitado
+                btn.classList.add('btn-disabled');
+                
+                // Evita navegação caso o pointer-events do CSS falhe em algum browser antigo
+                btn.addEventListener('click', function preventClick(e) {
+                    if (new Date().getTime() < releaseDate) {
+                        e.preventDefault();
+                    }
+                });
+                
+                // Altera o texto mantendo o ícone da ovelha caso este exista no HTML
+                const icon = btn.querySelector('.btn-icon');
+                if (icon) {
+                    btn.innerHTML = 'Disponível a 02/08 <img src="' + icon.src + '" alt="" class="btn-icon">';
+                } else {
+                    btn.innerText = 'Disponível a 02/08';
+                }
+            });
+        }
+    }
+
+    // Corre a verificação assim que a página carrega
+    updateBuyButtons();
+    
+    // Verifica a cada 1 minuto. Assim, se um utilizador tiver a aba aberta 
+    // à meia-noite do dia 02/08/2026, os botões desbloqueiam sozinhos em tempo real!
+    setInterval(updateBuyButtons, 60000);
+})();
