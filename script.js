@@ -372,35 +372,83 @@ window.addEventListener('load', () => {
     const widget = document.getElementById('launch-countdown');
     if (!widget) return;
 
-    const elDays  = document.getElementById('cd-days');
+    const elDays = document.getElementById('cd-days');
     const elHours = document.getElementById('cd-hours');
-    const elMins  = document.getElementById('cd-mins');
-    const elSecs  = document.getElementById('cd-secs');
+    const elMins = document.getElementById('cd-mins');
+    const elSecs = document.getElementById('cd-secs');
 
     function pad(n) { return String(n).padStart(2, '0'); }
+
+    let timer;
 
     function tick() {
         const diff = releaseDate - Date.now();
 
         if (diff <= 0) {
             widget.classList.add('hidden');
-            clearInterval(timer);
+            if (timer) clearInterval(timer);
             return;
         }
 
-        const days  = Math.floor(diff / 86400000);
+        const days = Math.floor(diff / 86400000);
         const hours = Math.floor((diff % 86400000) / 3600000);
-        const mins  = Math.floor((diff % 3600000)  / 60000);
-        const secs  = Math.floor((diff % 60000)    / 1000);
+        const mins = Math.floor((diff % 3600000) / 60000);
+        const secs = Math.floor((diff % 60000) / 1000);
 
-        elDays.textContent  = pad(days);
+        elDays.textContent = pad(days);
         elHours.textContent = pad(hours);
-        elMins.textContent  = pad(mins);
-        elSecs.textContent  = pad(secs);
+        elMins.textContent = pad(mins);
+        elSecs.textContent = pad(secs);
     }
 
     tick();
-    const timer = setInterval(tick, 1000);
+    timer = setInterval(tick, 1000);
+})();
+
+
+// ── Modal: Escolha de Formato (Físico / eBook) ───────────
+(function initPurchaseModal() {
+    const trigger = document.getElementById('cta-buy-trigger');
+    const overlay = document.getElementById('purchase-modal-overlay');
+    const closeBtn = document.getElementById('purchase-modal-close');
+    const ebookLink = document.getElementById('purchase-option-ebook');
+
+    if (!trigger || !overlay || !closeBtn) return;
+
+    function openModal() {
+        overlay.classList.add('active');
+        overlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        overlay.classList.remove('active');
+        overlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    trigger.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    // Fecha ao clicar fora do cartão do modal
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+    });
+
+    // Fecha com a tecla Esc
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) closeModal();
+    });
+
+    // O link do eBook ainda não foi definido — avisa em vez de abrir um separador vazio.
+    // TODO: assim que definires o link de compra do eBook, define-o no href
+    // do elemento #purchase-option-ebook em index.html e remove este bloco.
+    if (ebookLink && ebookLink.dataset.placeholder === 'true') {
+        ebookLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('O link do eBook ainda está a ser configurado. Volta a tentar em breve! 💫');
+        });
+    }
 })();
 
 

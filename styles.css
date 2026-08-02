@@ -101,7 +101,16 @@ img {
 }
 
 /* Ensure long titles or text strings never break layout bounds on any device */
-h1, h2, h3, h4, h5, h6, p, a, span, button {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+a,
+span,
+button {
     overflow-wrap: break-word;
 }
 
@@ -2376,4 +2385,132 @@ section {
 .btn-disabled .btn-icon {
     filter: grayscale(100%) opacity(50%);
     transform: none !important;
+}
+
+/* ── Reset para <button> a usar as classes de link (.btn-primary) ── */
+button.btn-primary {
+    border: none;
+    font-family: var(--font-body);
+    cursor: pointer;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Modal: Escolha de Formato (Físico / eBook)
+   ═══════════════════════════════════════════════════════════ */
+.purchase-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(6, 8, 22, 0.72);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-medium), visibility var(--transition-medium);
+}
+
+.purchase-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.purchase-modal {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    padding: clamp(28px, 5vw, 40px);
+    background: linear-gradient(160deg, var(--space-navy), var(--space-deep));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    text-align: center;
+    transform: translateY(24px) scale(0.96);
+    opacity: 0;
+    transition: transform var(--transition-medium), opacity var(--transition-medium);
+}
+
+.purchase-modal-overlay.active .purchase-modal {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.purchase-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-full);
+    color: var(--white-muted);
+    font-size: 1.3rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.purchase-modal-close:hover {
+    background: var(--glass-bg-hover);
+    color: var(--white);
+    transform: rotate(90deg);
+}
+
+#purchase-modal-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.3rem, 3vw, 1.6rem);
+    color: var(--white);
+    margin-bottom: 22px;
+}
+
+.purchase-modal-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.purchase-option-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 26px 14px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: var(--transition-medium);
+}
+
+.purchase-option-card:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--nebula-purple);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(155, 93, 229, 0.25);
+}
+
+.purchase-option-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+}
+
+.purchase-option-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.02rem;
+    color: var(--white);
+}
+
+@media (max-width: 480px) {
+    .purchase-modal-options {
+        grid-template-columns: 1fr;
+    }
 }
