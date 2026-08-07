@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/x-icon" href="../assets/personagens/ovelha-arcoiris.png">
+
+    <!-- SEO Meta Tags -->
+    <title>Ovelhas Coloridas — Links</title>
+    <meta name="description"
+        content="Todos os links do projeto Ovelhas Coloridas: Uma Aventura no Espaço! Compra o livro, descobre as versões disponíveis e muito mais.">
+    <meta name="author" content="Ana Carvalho e Rafael Diogo">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Ovelhas Coloridas — Links">
+    <meta property="og:description" content="Todos os links do projeto Ovelhas Coloridas: Uma Aventura no Espaço!">
+    <meta property="og:image" content="../assets/capa-livro.png">
+    <meta property="og:type" content="website">
+
+    <meta name="theme-color" content="#0a0e27">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ═══ Reset & Base ═══ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-deep: #080b1e;
+            --bg-mid: #0d1235;
+            --purple: #7c3aed;
+            --purple-light: #a855f7;
+            --pink: #ec4899;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --orange: #f97316;
+            --green: #22c55e;
+            --yellow: #fbbf24;
+            --text-primary: #f0f4ff;
+            --text-secondary: #94a3c0;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover: rgba(255, 255, 255, 0.09);
+            --glow-purple: rgba(124, 58, 237, 0.35);
+            --glow-pink: rgba(236, 72, 153, 0.25);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ═══ Starfield Canvas ═══ */
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ═══ Background Blobs ═══ */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.18;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--purple), transparent 70%);
+            top: -150px;
+            left: -150px;
+            animation: blobFloat1 12s ease-in-out infinite;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--pink), transparent 70%);
+            bottom: -100px;
+            right: -100px;
+            animation: blobFloat2 15s ease-in-out infinite;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--cyan), transparent 70%);
+            top: 50%;
+            left: 60%;
+            animation: blobFloat3 10s ease-in-out infinite;
+        }
+
+        @keyframes blobFloat1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(30px, 40px) scale(1.05);
+            }
+        }
+
+        @keyframes blobFloat2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(-40px, -30px) scale(1.08);
+            }
+        }
+
+        @keyframes blobFloat3 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(20px, -20px) scale(0.95);
+            }
+        }
+
+        /* ═══ Main Layout ═══ */
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 20px 80px;
+        }
+
+        /* ═══ Header / Profile ═══ */
+        .profile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.7s cubic-bezier(.22, 1, .36, 1) both;
+        }
+
+        .profile-sheep-ring {
+            position: relative;
+            width: 110px;
+            height: 110px;
+        }
+
+        .profile-sheep-ring::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: conic-gradient(var(--purple), var(--pink), var(--orange), var(--yellow),
+                    var(--green), var(--cyan), var(--blue), var(--purple));
+            animation: spinRing 4s linear infinite;
+            z-index: 0;
+        }
+
+        .profile-sheep-ring::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border-radius: 50%;
+            background: var(--bg-deep);
+            z-index: 1;
+        }
+
+        @keyframes spinRing {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .profile-sheep-ring img {
+            position: absolute;
+            inset: 8px;
+            width: calc(100% - 16px);
+            height: calc(100% - 16px);
+            object-fit: contain;
+            z-index: 2;
+            filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.6));
+        }
+
+        .profile-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 2.4rem);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            text-align: center;
+            background: linear-gradient(135deg, #fff 0%, var(--purple-light) 50%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .profile-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .profile-authors {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 999px;
+            padding: 6px 18px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .profile-authors span {
+            color: var(--text-primary);
+        }
+
+        /* ═══ Links Container ═══ */
+        .links-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* ═══ Section Labels ═══ */
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-secondary);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-top: 12px;
+            margin-bottom: -4px;
+        }
+
+        .section-label::before,
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--card-border);
+        }
+
+        /* ═══ Link Cards ═══ */
+        .link-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: var(--text-primary);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition:
+                transform 0.25s cubic-bezier(.22, 1, .36, 1),
+                border-color 0.25s ease,
+                background 0.25s ease,
+                box-shadow 0.25s ease;
+            animation: fadeInUp 0.6s cubic-bezier(.22, 1, .36, 1) both;
+        }
+
+        .link-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--card-glow-a, transparent), var(--card-glow-b, transparent));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: inherit;
+        }
+
+        .link-card:hover {
+            transform: translateY(-3px) scale(1.01);
+            border-color: var(--card-accent, rgba(255, 255, 255, 0.2));
+            background: var(--card-hover);
+            box-shadow: 0 12px 40px var(--card-shadow, rgba(124, 58, 237, 0.2));
+        }
+
+        .link-card:hover::before {
+            opacity: 1;
+        }
+
+        .link-card:active {
+            transform: translateY(-1px) scale(0.99);
+        }
+
+        /* Card accent themes */
+        .card-amazon-pt {
+            --card-accent: rgba(255, 153, 0, 0.5);
+            --card-shadow: rgba(255, 153, 0, 0.2);
+            --card-glow-a: rgba(255, 153, 0, 0.06);
+            --card-glow-b: transparent;
+        }
+
+        .card-amazon-en {
+            --card-accent: rgba(59, 130, 246, 0.5);
+            --card-shadow: rgba(59, 130, 246, 0.2);
+            --card-glow-a: rgba(59, 130, 246, 0.06);
+            --card-glow-b: transparent;
+        }
+
+        .card-ebook {
+            --card-accent: rgba(168, 85, 247, 0.5);
+            --card-shadow: rgba(168, 85, 247, 0.2);
+            --card-glow-a: rgba(168, 85, 247, 0.06);
+            --card-glow-b: transparent;
+        }
+
+        .card-website {
+            --card-accent: rgba(236, 72, 153, 0.5);
+            --card-shadow: rgba(236, 72, 153, 0.2);
+            --card-glow-a: rgba(236, 72, 153, 0.06);
+            --card-glow-b: transparent;
+        }
+
+        .card-email {
+            --card-accent: rgba(34, 197, 94, 0.5);
+            --card-shadow: rgba(34, 197, 94, 0.2);
+            --card-glow-a: rgba(34, 197, 94, 0.06);
+            --card-glow-b: transparent;
+        }
+
+        /* ═══ Card Icon ═══ */
+        .card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.5rem;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .link-card:hover .card-icon {
+            transform: scale(1.12) rotate(-4deg);
+        }
+
+        .card-icon img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+        }
+
+        .icon-amazon-pt {
+            background: linear-gradient(135deg, #FF9900, #FF6600);
+        }
+
+        .icon-amazon-en {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        }
+
+        .icon-ebook {
+            background: linear-gradient(135deg, #a855f7, #7c3aed);
+        }
+
+        .icon-website {
+            background: linear-gradient(135deg, #ec4899, #be185d);
+        }
+
+        .icon-email {
+            background: linear-gradient(135deg, #22c55e, #15803d);
+        }
+
+        /* ═══ Card Text ═══ */
+        .card-text {
+            flex: 1;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        .card-desc {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        /* ═══ Card Badge ═══ */
+        .card-badge {
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 999px;
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, var(--cyan), var(--blue));
+            color: #fff;
+        }
+
+        .badge-buy {
+            background: linear-gradient(135deg, var(--orange), #ea580c);
+            color: #fff;
+        }
+
+        /* ═══ Arrow ═══ */
+        .card-arrow {
+            position: relative;
+            z-index: 1;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            transition: transform 0.25s ease, color 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .link-card:hover .card-arrow {
+            transform: translateX(4px);
+            color: var(--text-primary);
+        }
+
+        /* ═══ Floating Sheep Parade ═══ */
+        .sheep-parade {
+            display: flex;
+            gap: 10px;
+            margin-top: 48px;
+            animation: fadeInUp 0.8s 0.6s cubic-bezier(.22, 1, .36, 1) both;
+        }
+
+        .parade-sheep {
+            width: 48px;
+            height: 48px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(168, 85, 247, 0.4));
+            animation: sheepBounce 2.5s ease-in-out infinite;
+        }
+
+        .parade-sheep:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .parade-sheep:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .parade-sheep:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .parade-sheep:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        .parade-sheep:nth-child(5) {
+            animation-delay: 0.8s;
+        }
+
+        .parade-sheep:nth-child(6) {
+            animation-delay: 1.0s;
+        }
+
+        .parade-sheep:nth-child(7) {
+            animation-delay: 1.2s;
+        }
+
+        @keyframes sheepBounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ═══ Footer ═══ */
+        .page-footer {
+            margin-top: 48px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: fadeInUp 0.8s 0.8s cubic-bezier(.22, 1, .36, 1) both;
+        }
+
+        .page-footer a {
+            color: var(--purple-light);
+            text-decoration: none;
+        }
+
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ═══ Animations ═══ */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .link-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .link-card:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        .link-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .link-card:nth-child(4) {
+            animation-delay: 0.25s;
+        }
+
+        .link-card:nth-child(5) {
+            animation-delay: 0.3s;
+        }
+
+        .link-card:nth-child(6) {
+            animation-delay: 0.35s;
+        }
+
+        /* ═══ Responsive ═══ */
+        @media (max-width: 480px) {
+            .page-wrapper {
+                padding: 36px 14px 60px;
+            }
+
+            .card-icon {
+                width: 44px;
+                height: 44px;
+                border-radius: 12px;
+            }
+
+            .card-icon img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .sheep-parade {
+                gap: 6px;
+            }
+
+            .parade-sheep {
+                width: 38px;
+                height: 38px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Starfield Canvas -->
+    <canvas id="starfield"></canvas>
+
+    <!-- Background Blobs -->
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+    <div class="bg-blob blob-3"></div>
+
+    <!-- ═══ Page Wrapper ═══ -->
+    <div class="page-wrapper">
+
+        <!-- ═══ Profile / Header ═══ -->
+        <div class="profile">
+            <div class="profile-sheep-ring">
+                <img src="../assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris">
+            </div>
+
+            <h1 class="profile-title">Ovelhas Coloridas</h1>
+            <p class="profile-subtitle">Uma Aventura no Espaço! 🚀</p>
+
+            <div class="profile-authors">
+                ✍️ <span>Ana Carvalho</span> &amp; <span>Rafael Diogo</span>
+            </div>
+        </div>
+
+        <!-- ═══ Links ═══ -->
+        <div class="links-container">
+
+            <!-- WEBSITE -->
+            <div class="section-label">Website</div>
+
+            <a href="https://ovelhascoloridas.pt" class="link-card card-website" target="_blank" rel="noopener"
+                id="link-website">
+                <div class="card-icon icon-website">🌐</div>
+                <div class="card-text">
+                    <div class="card-title">Website Oficial</div>
+                    <div class="card-desc">ovelhascoloridas.pt</div>
+                </div>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- ─── VERSÃO PORTUGUESA ─── -->
+            <div class="section-label">Versão Portuguesa</div>
+
+            <!-- Versão Portuguesa — Físico -->
+            <a href="https://www.amazon.es/dp/B0HBZC16W6" class="link-card card-amazon-pt" target="_blank"
+                rel="noopener" id="link-amazon-pt-fisico">
+                <div class="card-icon icon-amazon-pt">
+                    <img src="../assets/personagens/ovelha-arcoiris.png" alt="">
+                </div>
+                <div class="card-text">
+                    <div class="card-title">Físico</div>
+                    <div class="card-desc">Amazon</div>
+                </div>
+                <span class="card-badge badge-buy">Comprar</span>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- Versão Portuguesa — eBook -->
+            <a href="https://www.amazon.es/dp/B0HCKP69Q8" class="link-card card-ebook" target="_blank" rel="noopener"
+                id="link-amazon-pt-ebook">
+                <div class="card-icon icon-ebook">
+                    <img src="../assets/personagens/ovelha-roxa.png" alt="">
+                </div>
+                <div class="card-text">
+                    <div class="card-title">eBook</div>
+                    <div class="card-desc">Amazon</div>
+                </div>
+                <span class="card-badge badge-buy">Comprar</span>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- ─── ENGLISH VERSION ─── -->
+            <div class="section-label">English Version</div>
+
+            <!-- English — Physical -->
+            <a href="https://www.amazon.es/dp/B0HBZC16W6" class="link-card card-amazon-en" target="_blank"
+                rel="noopener" id="link-amazon-en">
+                <div class="card-icon icon-amazon-en">
+                    <img src="../assets/personagens/ovelha-uk.png" alt="">
+                </div>
+                <div class="card-text">
+                    <div class="card-title">Physical & eBook</div>
+                    <div class="card-desc">Amazon</div>
+                </div>
+                <span class="card-badge badge-buy">Comprar</span>
+                <span class="card-arrow">→</span>
+            </a>
+
+            <!-- CONTACTO -->
+            <div class="section-label">Contacto</div>
+
+            <a href="mailto:geral@ovelhascoloridas.pt" class="link-card card-email" id="link-email">
+                <div class="card-icon icon-email">✉️</div>
+                <div class="card-text">
+                    <div class="card-title">Email</div>
+                    <div class="card-desc">geral@ovelhascoloridas.pt</div>
+                </div>
+                <span class="card-arrow">→</span>
+            </a>
+
+        </div>
+
+        <!-- ═══ Sheep Parade ═══ -->
+        <div class="sheep-parade" aria-hidden="true">
+            <img src="../assets/personagens/ovelha-arcoiris.png" alt="" class="parade-sheep">
+            <img src="../assets/personagens/ovelha-azul.png" alt="" class="parade-sheep">
+            <img src="../assets/personagens/ovelha-roxa.png" alt="" class="parade-sheep">
+            <img src="../assets/personagens/ovelha-melancia.png" alt="" class="parade-sheep">
+            <img src="../assets/personagens/ovelha-verde.png" alt="" class="parade-sheep">
+            <img src="../assets/personagens/ovelha-rosa.png" alt="" class="parade-sheep">
+            <img src="../assets/personagens/ovelha-laranja.png" alt="" class="parade-sheep">
+        </div>
+
+        <!-- ═══ Footer ═══ -->
+        <footer class="page-footer">
+            <p>© <span id="year"></span> Ana Carvalho &amp; Rafael Diogo · Todos os direitos reservados.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // ═══ Year ═══
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // ═══ Starfield ═══
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 5000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.4 + 0.2,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.006 + 0.002,
+                    phase: Math.random() * Math.PI * 2,
+                });
+            }
+        }
+
+        function drawStars(t) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const s of stars) {
+                const a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase + t * s.speed));
+                ctx.globalAlpha = a;
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        let raf;
+        function loop(t) {
+            drawStars(t);
+            raf = requestAnimationFrame(loop);
+        }
+
+        resize();
+        initStars();
+        loop(0);
+
+        window.addEventListener('resize', () => {
+            resize();
+            initStars();
+        });
+    </script>
+</body>
+
+</html>
