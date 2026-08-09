@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../assets/personagens/ovelha-arcoiris.png">
+
+    <title>Ovelhas Coloridas &mdash; Últimas Horas!</title>
+    <meta name="description" content="Conta decrescente para o lançamento de Ovelhas Coloridas: Uma Aventura no Espaço! Faltam poucas horas!">
+    <meta name="author" content="Ana Carvalho e Rafael Diogo">
+    <meta property="og:title" content="Ovelhas Coloridas — Últimas Horas!">
+    <meta property="og:image" content="../assets/capa-livro.png">
+    <meta name="theme-color" content="#0a0e27">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@300;400;600;700;800;900&display=swap"
+          rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    </noscript>
+
+    <style>
+        /* ================================================================
+           Ovelhas Coloridas — INDEXCOUNT
+           Blend: official site design system + dramatic TV countdown
+           ================================================================ */
+
+        :root {
+            /* official site tokens */
+            --space-dark:    #0a0e27;
+            --space-deep:    #0f1538;
+            --space-navy:    #151c4a;
+            --gold:          #ffd166;
+            --gold-glow:     rgba(255,209,102,0.4);
+            --nebula-pink:   #ff85a2;
+            --nebula-purple: #9b5de5;
+            --nebula-cyan:   #00f5d4;
+            --nebula-lilac:  #d8b4fe;
+            --white:         #ffffff;
+            --white-soft:    #f0edff;
+            --white-muted:   #d8d5f0;
+            --glass-bg:      rgba(255,255,255,0.05);
+            --glass-bg-h:    rgba(255,255,255,0.10);
+            --glass-border:  rgba(255,255,255,0.12);
+            --font-display:  'Fredoka', cursive, sans-serif;
+            --font-body:     'Nunito', sans-serif;
+            --radius-sm:     8px;
+            --radius-md:     16px;
+            --radius-lg:     24px;
+            --radius-xl:     32px;
+            --radius-full:   9999px;
+            --t-fast:        0.2s cubic-bezier(0.4,0,0.2,1);
+            --t-med:         0.35s cubic-bezier(0.4,0,0.2,1);
+            --navbar-h:      76px;
+            --section-py:    clamp(56px,8vw,100px);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+            scroll-padding-top: calc(var(--navbar-h) + 12px);
+        }
+        body {
+            font-family: var(--font-body);
+            background: var(--space-dark);
+            color: var(--white-soft);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        a { color: inherit; text-decoration: none; }
+        img { max-width: 100%; height: auto; display: block; }
+        h1,h2,h3,p,span,button { overflow-wrap: break-word; }
+
+        /* ── Starfield ─────────────────────────────── */
+        #starfield {
+            position: fixed; inset: 0;
+            width: 100vw; height: 100vh;
+            z-index: 0; pointer-events: none;
+        }
+
+        /* ── Navbar (from official site) ───────────── */
+        .navbar {
+            position: fixed; top:0; left:0; right:0;
+            height: var(--navbar-h); z-index: 1000;
+            transition: var(--t-med);
+        }
+        .navbar.scrolled {
+            background: rgba(10,14,39,.9);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,.4);
+        }
+        .nav-inner {
+            max-width: 1240px; margin: 0 auto;
+            padding: 0 28px; height: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-logo-img {
+            height: 44px; width: auto;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,.4));
+            transition: transform var(--t-fast);
+        }
+        .nav-logo-img:hover { transform: scale(1.05); }
+        .nav-links { display: flex; align-items: center; gap: 28px; }
+        .nav-link {
+            font-size: .92rem; font-weight: 700; color: var(--white-muted);
+            transition: var(--t-fast); position: relative;
+        }
+        .nav-link::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 0; height: 2px;
+            background: linear-gradient(90deg,var(--nebula-pink),var(--nebula-purple));
+            transition: width var(--t-med); border-radius: var(--radius-full);
+        }
+        .nav-link:hover { color: var(--white); }
+        .nav-link:hover::after { width: 100%; }
+        .nav-cta {
+            padding: 10px 22px;
+            background: linear-gradient(135deg,var(--nebula-pink),var(--nebula-purple));
+            color: var(--white); font-weight: 700; font-size: .88rem;
+            border-radius: var(--radius-full); transition: var(--t-med);
+            box-shadow: 0 4px 16px rgba(232,160,191,.3);
+        }
+        .nav-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 24px rgba(232,160,191,.5); }
+
+        /* Hamburger (mobile) */
+        .nav-ham {
+            display: none; flex-direction: column; gap: 5px;
+            background: none; border: none; cursor: pointer; padding: 5px; z-index: 1001;
+        }
+        .nav-ham span {
+            width: 24px; height: 2px; background: var(--white); border-radius: 2px;
+            transition: transform var(--t-med), opacity var(--t-fast); display: block;
+        }
+        .nav-ham.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .nav-ham.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .nav-ham.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ── HERO — Dramatic Countdown ─────────────── */
+        .hero {
+            position: relative; min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden; z-index: 1;
+            padding: calc(var(--navbar-h) + 24px) 24px 40px;
+        }
+
+        /* Nebula images (from official site) */
+        .hero-neb {
+            position: absolute; pointer-events: none; opacity: 0;
+            animation: nebIn 2s ease forwards;
+        }
+        .hero-neb-1 {
+            top: -10%; right: -6%;
+            width: clamp(300px,48vw,680px);
+            animation: nebIn 2s .1s ease forwards, floatSlow 15s 2s ease-in-out infinite alternate;
+        }
+        .hero-neb-2 {
+            bottom: -15%; left: -6%;
+            width: clamp(280px,44vw,640px);
+            animation: nebIn 2s .4s ease forwards, floatSlow 19s 2s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes nebIn { to { opacity: 0.32; } }
+        @keyframes floatSlow {
+            0%   { transform: translate(0,0) scale(1); }
+            100% { transform: translate(24px,-18px) scale(1.06); }
+        }
+
+        /* Floating corner sheep */
+        .f-sheep {
+            position: absolute; pointer-events: none; z-index: 3;
+            filter: drop-shadow(0 6px 18px rgba(0,0,0,.5));
+            opacity: 0.78; will-change: transform;
+        }
+        .f-tl { width:clamp(64px,7vw,100px); top:18%; left:2%;  animation: fA 5.5s ease-in-out infinite; }
+        .f-bl { width:clamp(56px,6vw,88px);  bottom:12%;left:2%; animation: fB 6.5s ease-in-out infinite; }
+        .f-tr { width:clamp(60px,6.5vw,94px);top:16%; right:2%; animation: fC 5s   ease-in-out infinite; }
+        .f-br { width:clamp(52px,5.5vw,80px);bottom:8%;right:2%;animation: fD 7s   ease-in-out infinite; }
+        @keyframes fA { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-14px) rotate(2deg)} }
+        @keyframes fB { 0%,100%{transform:translateY(-6px) rotate(2deg)} 50%{transform:translateY(8px) rotate(-3deg)} }
+        @keyframes fC { 0%,100%{transform:translateY(-4px) rotate(3deg)} 50%{transform:translateY(-18px) rotate(-2deg)} }
+        @keyframes fD { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-11px) rotate(4deg)} }
+
+        /* Hero core */
+        .hero-core {
+            position: relative; z-index: 2;
+            display: flex; flex-direction: column;
+            align-items: center; gap: clamp(18px,3vh,36px);
+            text-align: center; max-width: 960px; width: 100%;
+            animation: heroIn 1s .2s ease both;
+        }
+        @keyframes heroIn {
+            from { opacity:0; transform:translateY(28px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        /* Live badge */
+        .live-badge {
+            display: inline-flex; align-items: center; gap: 9px;
+            padding: 6px 20px;
+            background: rgba(255,133,162,.12);
+            border: 1px solid rgba(255,133,162,.3);
+            border-radius: var(--radius-full);
+            font-size: .8rem; font-weight: 800;
+            color: var(--nebula-pink);
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+        .live-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--nebula-pink);
+            box-shadow: 0 0 10px var(--nebula-pink);
+            animation: ldot 1.5s ease-in-out infinite;
+        }
+        @keyframes ldot { 0%,100%{opacity:1} 50%{opacity:.2} }
+
+        /* Hero titles (official site style with TV drama scale) */
+        .hero-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.8rem,7vw,6rem);
+            font-weight: 700; line-height: 1.0;
+            background: linear-gradient(145deg,#ffffff 10%,#e0c3fc 55%,#a78bfa 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 40px rgba(167,139,250,.55));
+            animation: titleGlow 6s ease-in-out infinite;
+        }
+        @keyframes titleGlow {
+            0%,100%{filter:drop-shadow(0 0 28px rgba(167,139,250,.45))}
+            50%    {filter:drop-shadow(0 0 60px rgba(167,139,250,.85)) drop-shadow(0 0 100px rgba(232,160,191,.3))}
+        }
+        .hero-tagline {
+            font-family: var(--font-display);
+            font-size: clamp(1.2rem,2.5vw,2rem);
+            font-weight: 600; color: var(--gold);
+            letter-spacing: 2px;
+            text-shadow: 0 0 28px rgba(255,209,102,.6);
+        }
+
+        /* Divider */
+        .hero-divider {
+            width: clamp(200px,35vw,500px); height: 1px;
+            background: linear-gradient(90deg,transparent,rgba(216,180,254,.45),transparent);
+        }
+
+        /* ── Countdown digits (TV drama scale) ──────── */
+        .cd-row {
+            display: flex; align-items: center;
+            gap: clamp(10px,2.5vw,40px); flex-wrap: wrap; justify-content: center;
+        }
+        .cd-block {
+            display: flex; flex-direction: column;
+            align-items: center; gap: clamp(4px,.6vh,8px);
+        }
+        .cd-num {
+            font-family: var(--font-display);
+            font-size: clamp(4rem,10vw,9.5rem);
+            font-weight: 700; line-height: 0.92;
+            color: var(--white); min-width: 2.1ch; text-align: center;
+            text-shadow:
+                0 0 40px rgba(216,180,254,.75),
+                0 0 80px rgba(155,93,229,.4),
+                0 4px 40px rgba(0,0,0,.7);
+        }
+        .cd-num.flash { animation: numfl .28s ease; }
+        @keyframes numfl {
+            0%  { color:var(--nebula-lilac); transform:scale(1.06); text-shadow:0 0 60px var(--nebula-lilac),0 0 120px var(--nebula-purple); }
+            100%{ color:var(--white);         transform:scale(1); }
+        }
+        .cd-lbl {
+            font-size: clamp(.6rem,1.1vw,.9rem);
+            font-weight: 800; letter-spacing: 3px;
+            text-transform: uppercase; color: rgba(216,180,254,.55);
+        }
+        .cd-sep {
+            font-family: var(--font-display);
+            font-size: clamp(3rem,7vw,7rem);
+            font-weight: 700; color: rgba(216,180,254,.2);
+            line-height: .92; margin-bottom: clamp(20px,3.5vh,42px);
+            animation: sepbl 1s ease-in-out infinite;
+        }
+        @keyframes sepbl { 0%,100%{opacity:1} 50%{opacity:.15} }
+
+        /* Progress bar */
+        .prog-wrap { width: clamp(280px,50vw,700px); }
+        .prog-label {
+            font-size: .75rem; font-weight: 800; letter-spacing: 2px;
+            text-transform: uppercase; color: rgba(216,180,254,.45);
+            margin-bottom: 8px;
+        }
+        .prog-track {
+            height: 3px; background: rgba(255,255,255,.06);
+            border-radius: var(--radius-full); overflow: hidden; position: relative;
+        }
+        .prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg,var(--nebula-purple),var(--nebula-pink),var(--gold));
+            border-radius: var(--radius-full); transition: width 1s linear;
+            box-shadow: 0 0 10px var(--nebula-pink), 0 0 22px rgba(232,160,191,.4);
+            position: relative;
+        }
+        .prog-fill::after {
+            content: ''; position: absolute; right:0; top:50%;
+            transform: translateY(-50%);
+            width:8px; height:8px; border-radius:50%;
+            background: var(--gold);
+            box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
+        }
+
+        /* Authors credit */
+        .hero-authors {
+            font-size: clamp(.8rem,1.1vw,.92rem);
+            font-weight: 300; letter-spacing: 2px;
+            text-transform: uppercase; color: rgba(216,180,254,.45);
+        }
+        .hero-authors strong {
+            color: rgba(216,180,254,.75); font-weight: 700; letter-spacing: 0;
+        }
+
+        /* Scroll arrow */
+        .scroll-arrow {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 6px; margin-top: 8px;
+            opacity: .45; transition: opacity var(--t-fast); cursor: pointer;
+        }
+        .scroll-arrow:hover { opacity: .9; }
+        .scroll-mouse {
+            width: 20px; height: 32px;
+            border: 2px solid rgba(216,180,254,.5); border-radius: var(--radius-full);
+            position: relative;
+        }
+        .scroll-mouse::before {
+            content: ''; position: absolute; top:6px; left:50%;
+            transform: translateX(-50%);
+            width:3px; height:6px; background: var(--white-muted);
+            border-radius: var(--radius-full);
+            animation: scr 1.8s infinite;
+        }
+        @keyframes scr {
+            0%  { opacity:1; transform:translate(-50%,0); }
+            100%{ opacity:0; transform:translate(-50%,12px); }
+        }
+        .scroll-arrow span {
+            font-size: .68rem; letter-spacing: 2px;
+            text-transform: uppercase; color: var(--white-muted);
+        }
+
+        /* ── SECTION: Book reveal ───────────────────── */
+        .section {
+            position: relative; z-index: 2;
+            padding: var(--section-py) clamp(14px,4vw,24px);
+        }
+        .container {
+            max-width: 1200px; margin: 0 auto;
+            padding: 0 clamp(14px,3vw,24px);
+            position: relative;
+        }
+
+        .sec-tag {
+            display: inline-block;
+            padding: 5px 16px;
+            background: rgba(155,93,229,.14);
+            border: 1px solid rgba(155,93,229,.28);
+            border-radius: var(--radius-full);
+            font-size: .78rem; font-weight: 800;
+            color: var(--nebula-lilac);
+            text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 12px;
+        }
+
+        .sec-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.9rem,3.5vw,2.8rem);
+            font-weight: 700; color: var(--white);
+            margin-bottom: 12px;
+            text-shadow: 0 2px 10px rgba(0,0,0,.3);
+        }
+        .sec-sub {
+            font-size: clamp(.9rem,1.4vw,1.05rem);
+            color: var(--white-muted);
+            max-width: 580px; line-height: 1.7;
+        }
+
+        /* Book + text two-col */
+        .book-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: clamp(36px,5vw,80px);
+            align-items: center;
+        }
+
+        .book-col { position: relative; }
+
+        .book-glow {
+            position: absolute; inset: -30px;
+            border-radius: var(--radius-xl);
+            background: radial-gradient(ellipse,rgba(107,63,160,.55) 0%,transparent 68%);
+            filter: blur(28px);
+            animation: glowPulse 3.5s ease-in-out infinite;
+        }
+        @keyframes glowPulse { 0%,100%{opacity:.5;transform:scale(.94)} 50%{opacity:1;transform:scale(1.06)} }
+
+        .book-cover {
+            position: relative; z-index: 1;
+            width: clamp(180px,22vw,280px);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 24px 60px rgba(0,0,0,.7), 0 0 80px rgba(107,63,160,.3);
+            animation: bookFloat 5.5s ease-in-out infinite;
+        }
+        @keyframes bookFloat {
+            0%,100%{ transform: translateY(0) rotateY(-5deg); }
+            50%    { transform: translateY(-14px) rotateY(-7deg); }
+        }
+        .book-cover:hover {
+            animation: none;
+            transform: scale(1.04) translateY(-6px) rotateY(-2deg);
+            box-shadow: 0 32px 80px rgba(0,0,0,.75), 0 0 120px rgba(176,136,212,.45);
+            transition: transform .4s ease, box-shadow .4s ease;
+        }
+
+        .text-col { display: flex; flex-direction: column; gap: 20px; }
+
+        .synopsis {
+            font-size: clamp(.95rem,1.3vw,1.08rem);
+            color: var(--white-soft); line-height: 1.78;
+        }
+
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 16px; margin-top: 8px;
+        }
+        .stat-item {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 18px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            transition: transform var(--t-med), background var(--t-med);
+        }
+        .stat-item:hover { transform: translateY(-4px); background: var(--glass-bg-h); }
+        .stat-item img { width:40px; height:40px; object-fit:contain; }
+        .stat-info h4 {
+            font-family: var(--font-display); font-size:1.05rem; color:var(--white);
+        }
+        .stat-info p { font-size:.8rem; color:var(--white-muted); }
+
+        /* ── SECTION: Characters ─────────────────────── */
+        .chars-section { background: rgba(15,21,56,.45); }
+
+        .chars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(200px,100%),1fr));
+            gap: 20px;
+        }
+
+        .char-card {
+            position: relative;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 24px 16px; text-align: center;
+            display: flex; flex-direction: column; align-items: center;
+            transition: var(--t-med); overflow: hidden; will-change: transform;
+        }
+        .char-card-glow {
+            position: absolute; top:-50%; left:-50%;
+            width:200%; height:200%;
+            background: radial-gradient(circle,rgba(255,255,255,.07) 0%,transparent 60%);
+            opacity:0; transition: opacity var(--t-med); pointer-events:none;
+        }
+        .char-card:hover { transform: translateY(-8px); border-color: rgba(255,255,255,.22); box-shadow: 0 16px 40px rgba(0,0,0,.4); }
+        .char-card:hover .char-card-glow { opacity: 1; }
+        .char-img {
+            width:120px; height:130px; object-fit:contain;
+            filter: drop-shadow(0 6px 16px rgba(0,0,0,.4));
+            transition: transform var(--t-med); margin-bottom: 14px;
+        }
+        .char-card:hover .char-img { transform: scale(1.1); }
+        .char-name {
+            font-family: var(--font-display); font-size:1.2rem;
+            color:var(--white); margin-bottom:4px;
+        }
+        .char-role {
+            font-size:.78rem; font-weight:800; text-transform:uppercase;
+            letter-spacing:.5px; padding:3px 12px; border-radius:var(--radius-full);
+            display:inline-block;
+        }
+        .r-rainbow { background:rgba(255,133,162,.18); color:#ff9ebb; }
+        .r-blue    { background:rgba(0,245,212,.18);   color:#70fce6; }
+        .r-purple  { background:rgba(155,93,229,.18);  color:#c499f8; }
+        .r-water   { background:rgba(255,100,130,.18); color:#ff8ca3; }
+        .r-green   { background:rgba(87,204,153,.18);  color:#8ee4af; }
+        .r-pink    { background:rgba(247,37,133,.18);  color:#f96eb0; }
+        .r-orange  { background:rgba(255,153,0,.18);   color:#ffb84d; }
+
+        /* ── SECTION: Launch CTA ─────────────────────── */
+        .cta-section {
+            background: linear-gradient(180deg, rgba(15,21,56,.5) 0%, rgba(10,14,39,1) 100%);
+        }
+        .cta-box {
+            position: relative;
+            background: linear-gradient(135deg,rgba(30,25,72,.92),rgba(15,21,56,.96));
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            padding: clamp(48px,7vw,80px) clamp(28px,5vw,80px);
+            text-align: center; overflow: hidden;
+            box-shadow: 0 24px 80px rgba(0,0,0,.5);
+        }
+        .cta-glow {
+            position: absolute; inset:0;
+            background: radial-gradient(circle,rgba(232,160,191,.22) 0%,transparent 70%);
+            filter: blur(60px); z-index:0;
+            animation: glowPulse 4s ease-in-out infinite;
+        }
+        .cta-content { position:relative; z-index:1; }
+        .cta-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem,4vw,3rem);
+            font-weight: 700; color:var(--white); margin-bottom:12px;
+        }
+        .cta-sub {
+            font-size: clamp(.95rem,1.3vw,1.1rem);
+            color: var(--white-muted); max-width:560px; margin:0 auto 36px;
+            line-height: 1.7;
+        }
+        .cta-btn {
+            display: inline-flex; align-items:center; gap:10px;
+            padding: 16px 44px;
+            background: linear-gradient(135deg,var(--nebula-pink),var(--nebula-purple));
+            color:var(--white); font-size:1.05rem; font-weight:700;
+            border-radius:var(--radius-full); transition:var(--t-med);
+            box-shadow: 0 4px 24px rgba(232,160,191,.35);
+        }
+        .cta-btn:hover { transform:translateY(-3px); box-shadow:0 8px 36px rgba(232,160,191,.55); }
+        .cta-btn img { width:24px; height:24px; object-fit:contain; transition:transform .3s; }
+        .cta-btn:hover img { transform:scale(1.2) rotate(15deg); }
+
+        /* Sheep parade */
+        .parade {
+            display:flex; justify-content:center; align-items:flex-end;
+            gap:clamp(10px,2vw,20px); padding-top:32px; margin-top:32px;
+            border-top:1px solid var(--glass-border); flex-wrap:wrap;
+        }
+        .parade img {
+            width:clamp(44px,6vw,70px); object-fit:contain;
+            filter:drop-shadow(0 4px 10px rgba(0,0,0,.4));
+            transition:transform var(--t-fast);
+            animation:sheepBob var(--dur,3s) var(--del,0s) ease-in-out infinite;
+        }
+        .parade img:hover { transform:translateY(-10px) scale(1.2); }
+        @keyframes sheepBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+
+        /* ── Reveal animation ─────────────────────────── */
+        .reveal {
+            opacity:0; transform:translateY(28px);
+            transition: opacity .8s ease, transform .8s ease;
+            will-change: opacity, transform;
+        }
+        .reveal.active { opacity:1; transform:translateY(0); }
+        .reveal-d1 { transition-delay:.12s; }
+        .reveal-d2 { transition-delay:.24s; }
+        .reveal-d3 { transition-delay:.36s; }
+        .reveal-d4 { transition-delay:.48s; }
+        .reveal-d5 { transition-delay:.60s; }
+        .reveal-d6 { transition-delay:.72s; }
+        .reveal-d7 { transition-delay:.84s; }
+
+        /* ── Footer ─────────────────────────────────────── */
+        .footer {
+            background:#060919;
+            border-top:1px solid var(--glass-border);
+            padding:44px 0 24px;
+            position:relative; z-index:2;
+            text-align:center;
+        }
+        .footer-logo { height:40px; width:auto; margin:0 auto 12px; }
+        .footer-p {
+            font-size:.85rem; color:var(--white-muted);
+            margin-bottom:8px;
+        }
+        .footer-p a { color:var(--nebula-lilac); transition:color var(--t-fast); }
+        .footer-p a:hover { color:var(--white); }
+        .footer-copy {
+            font-size:.78rem; color:rgba(255,255,255,.25);
+            margin-top:16px;
+        }
+
+        /* ── Celebration overlay ─────────────────────── */
+        .launch-ovl {
+            position: fixed; inset:0; z-index:2000;
+            display:flex; flex-direction:column;
+            align-items:center; justify-content:center; gap:28px;
+            background: rgba(0,0,8,.75);
+            backdrop-filter:blur(6px);
+            opacity:0; pointer-events:none;
+            transition:opacity 1.5s ease;
+        }
+        .launch-ovl.on { opacity:1; pointer-events:all; }
+        .launch-ovl h2 {
+            font-family:var(--font-display);
+            font-size:clamp(2.5rem,8vw,7rem);
+            font-weight:700; text-align:center;
+            background:linear-gradient(135deg,var(--gold) 0%,var(--nebula-pink) 50%,var(--nebula-lilac) 100%);
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+            filter:drop-shadow(0 0 50px rgba(255,209,102,.7));
+            animation:ovlPulse 2s ease-in-out infinite;
+        }
+        @keyframes ovlPulse {
+            0%,100%{filter:drop-shadow(0 0 40px rgba(255,209,102,.6))}
+            50%{filter:drop-shadow(0 0 90px rgba(255,133,162,1)) drop-shadow(0 0 160px rgba(255,209,102,.4))}
+        }
+        .launch-ovl p {
+            font-family:var(--font-display); font-size:clamp(1.1rem,2.5vw,2rem);
+            color:var(--white-soft); letter-spacing:4px; text-transform:uppercase;
+            text-shadow:0 0 28px rgba(216,180,254,.7);
+        }
+        .launch-ovl .close-btn {
+            margin-top:12px; padding:12px 32px;
+            background:var(--glass-bg); border:1px solid var(--glass-border);
+            color:var(--white); font-size:.9rem; font-weight:700;
+            border-radius:var(--radius-full); cursor:pointer; transition:var(--t-med);
+            backdrop-filter:blur(10px);
+        }
+        .launch-ovl .close-btn:hover { background:var(--glass-bg-h); }
+
+        #burst { position:fixed; inset:0; z-index:1999; pointer-events:none; opacity:0; transition:opacity .5s; }
+        #burst.on { opacity:1; }
+
+        /* ── Responsive ───────────────────────────────── */
+        @media (max-width:900px) {
+            .book-grid { grid-template-columns:1fr; justify-items:center; gap:36px; }
+            .book-col { text-align:center; }
+            .stats-row { grid-template-columns:repeat(2,1fr); }
+            .chars-grid { grid-template-columns:repeat(3,1fr); }
+        }
+        @media (max-width:768px) {
+            .nav-links { display:none; position:fixed; inset:0; background:var(--space-dark);
+                flex-direction:column; justify-content:center; align-items:center;
+                gap:28px; z-index:9999; overflow-y:auto;
+                padding:calc(var(--navbar-h) + 48px) 20px 40px; }
+            .nav-links.open { display:flex; animation:navIn .28s ease both; }
+            @keyframes navIn { from{opacity:0;transform:scale(.97) translateY(-10px)} to{opacity:1;transform:none} }
+            .nav-links .nav-link { font-size:1.4rem; }
+            .nav-ham { display:flex; }
+            .cd-sep { display:none; }
+            .chars-grid { grid-template-columns:repeat(2,1fr); }
+            .f-tl,.f-bl,.f-tr,.f-br { display:none; }
+        }
+        @media (max-width:480px) {
+            .chars-grid { grid-template-columns:repeat(2,1fr); gap:12px; }
+            .stats-row { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Starfield -->
+    <canvas id="starfield"></canvas>
+
+    <!-- Burst particles -->
+    <canvas id="burst"></canvas>
+
+    <!-- ── Navbar ───────────────────────── -->
+    <header class="navbar" id="navbar">
+        <div class="nav-inner">
+            <a href="#hero"><img src="../assets/titulo-logo.png" alt="Ovelhas Coloridas" class="nav-logo-img" width="210" height="46"></a>
+            <nav class="nav-links" id="nav-links">
+                <a href="#hero"         class="nav-link">Início</a>
+                <a href="#livro"        class="nav-link">O Livro</a>
+                <a href="#personagens"  class="nav-link">O Rebanho</a>
+                <a href="#comprar"      class="nav-cta">Comprar Livro</a>
+            </nav>
+            <button class="nav-ham" id="nav-ham" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ══════ HERO — Countdown ══════ -->
+    <section class="hero" id="hero">
+
+        <!-- Nebulae -->
+        <img src="../assets/elementos/nebulosa-1.png" alt="" class="hero-neb hero-neb-1" aria-hidden="true" width="600" height="600">
+        <img src="../assets/elementos/nebulosa-2.png" alt="" class="hero-neb hero-neb-2" aria-hidden="true" width="580" height="580">
+
+        <!-- Corner sheep -->
+        <div class="f-sheep f-tl" aria-hidden="true"><img src="../assets/personagens/ovelha-verde.png"    alt="" width="90" height="90"></div>
+        <div class="f-sheep f-bl" aria-hidden="true"><img src="../assets/personagens/ovelha-roxa.png"     alt="" width="80" height="80"></div>
+        <div class="f-sheep f-tr" aria-hidden="true"><img src="../assets/personagens/ovelha-azul.png"     alt="" width="85" height="85"></div>
+        <div class="f-sheep f-br" aria-hidden="true"><img src="../assets/personagens/ovelha-melancia.png" alt="" width="75" height="75"></div>
+
+        <div class="hero-core">
+
+            <!-- Live badge -->
+            <div class="live-badge">
+                <span class="live-dot"></span>
+                Últimas horas!
+            </div>
+
+            <!-- Titles -->
+            <div>
+                <h1 class="hero-title">Ovelhas Coloridas</h1>
+                <p class="hero-tagline">Uma Aventura no Espaço</p>
+            </div>
+
+            <div class="hero-divider"></div>
+
+            <!-- Countdown digits -->
+            <div class="cd-row" id="cd-row" aria-label="Tempo restante para o lançamento">
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-d">--</div>
+                    <div class="cd-lbl">Dias</div>
+                </div>
+                <div class="cd-sep" aria-hidden="true">:</div>
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-h">--</div>
+                    <div class="cd-lbl">Horas</div>
+                </div>
+                <div class="cd-sep" aria-hidden="true">:</div>
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-m">--</div>
+                    <div class="cd-lbl">Minutos</div>
+                </div>
+                <div class="cd-sep" aria-hidden="true">:</div>
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-s">--</div>
+                    <div class="cd-lbl">Segundos</div>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="prog-wrap">
+                <p class="prog-label">Progresso até ao lançamento &middot; 2 de agosto de 2026</p>
+                <div class="prog-track">
+                    <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+                </div>
+            </div>
+
+            <!-- Authors -->
+            <p class="hero-authors">
+                Por <strong>Ana Carvalho</strong> &amp; <strong>Rafael Diogo</strong>
+            </p>
+
+            <!-- Scroll hint -->
+            <div class="scroll-arrow" onclick="document.getElementById('livro').scrollIntoView({behavior:'smooth'})">
+                <div class="scroll-mouse"></div>
+                <span>Descobrir</span>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ══════ SECTION: O Livro ══════ -->
+    <section class="section" id="livro">
+        <div class="container">
+            <div class="book-grid">
+
+                <!-- Book cover -->
+                <div class="book-col reveal">
+                    <div class="book-glow"></div>
+                    <img src="../assets/capa-livro.png"
+                         alt="Capa do livro Ovelhas Coloridas: Uma Aventura no Espaço"
+                         class="book-cover" width="280" height="406" loading="lazy">
+                </div>
+
+                <!-- Text -->
+                <div class="text-col">
+                    <div class="reveal">
+                        <div class="sec-tag">O Livro</div>
+                        <h2 class="sec-title">Uma aventura cósmica cheia de cor e amizade</h2>
+                        <p class="sec-sub">
+                            Quando um rebanho de ovelhas estilosas e coloridas ficou cansado do dia a dia,
+                            decidiram trabalhar em conjunto e embarcar numa aventura que as levaria para lá
+                            do seu planeta natal — onde descobrem espécies novas e aprendem que o mais
+                            importante são os amigos que estão ao nosso lado.
+                        </p>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-item reveal reveal-d1">
+                            <img src="../assets/personagens/ovelha-azul.png"    alt="" loading="lazy" width="40" height="40">
+                            <div class="stat-info"><h4>38 Páginas</h4><p>Totalmente ilustradas a cores</p></div>
+                        </div>
+                        <div class="stat-item reveal reveal-d2">
+                            <img src="../assets/personagens/ovelha-arcoiris.png" alt="" loading="lazy" width="40" height="40">
+                            <div class="stat-info"><h4>7 Personagens</h4><p>Cada uma com a sua cor</p></div>
+                        </div>
+                        <div class="stat-item reveal reveal-d3">
+                            <img src="../assets/personagens/ovelha-roxa.png"    alt="" loading="lazy" width="40" height="40">
+                            <div class="stat-info"><h4>Dos 4 aos 10 anos</h4><p>Idade recomendada</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════ SECTION: Personagens ══════ -->
+    <section class="section chars-section" id="personagens">
+        <div class="container">
+            <div style="text-align:center; margin-bottom:48px;">
+                <div class="sec-tag reveal">O Rebanho</div>
+                <h2 class="sec-title reveal reveal-d1">Conhece as Ovelhas</h2>
+                <p class="sec-sub reveal reveal-d2" style="margin:0 auto;">
+                    Sete personagens únicas, cada uma com a sua cor, personalidade e papel essencial na missão espacial.
+                </p>
+            </div>
+
+            <div class="chars-grid">
+                <div class="char-card reveal reveal-d1">
+                    <div class="char-card-glow"></div>
+                    <img src="../assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris" class="char-img" loading="lazy" width="120" height="130">
+                    <h3 class="char-name">Ovelha Arco-Íris</h3>
+                    <span class="char-role r-rainbow">A Principal</span>
+                </div>
+                <div class="char-card reveal reveal-d2">
+                    <div class="char-card-glow"></div>
+                    <img src="../assets/personagens/ovelha-azul.png"     alt="Ovelha Azul"     class="char-img" loading="lazy" width="120" height="130">
+                    <h3 class="char-name">Ovelha Azul</h3>
+                    <span class="char-role r-blue">A Engenheira</span>
+                </div>
+                <div class="char-card reveal reveal-d3">
+                    <div class="char-card-glow"></div>
+                    <img src="../assets/personagens/ovelha-roxa.png"     alt="Ovelha Roxa"     class="char-img" loading="lazy" width="120" height="130">
+                    <h3 class="char-name">Ovelha Roxa</h3>
+                    <span class="char-role r-purple">A Curiosa</span>
+                </div>
+                <div class="char-card reveal reveal-d4">
+                    <div class="char-card-glow"></div>
+                    <img src="../assets/personagens/ovelha-melancia.png" alt="Ovelha Melancia"  class="char-img" loading="lazy" width="120" height="130">
+                    <h3 class="char-name">Ovelha Melancia</h3>
+                    <span class="char-role r-water">A Comilona</span>
+                </div>
+                <div class="char-card reveal reveal-d5">
+                    <div class="char-card-glow"></div>
+                    <img src="../assets/personagens/ovelha-verde.png"    alt="Ovelha Verde"    class="char-img" loading="lazy" width="120" height="130">
+                    <h3 class="char-name">Ovelha Verde</h3>
+                    <span class="char-role r-green">A Ambientalista</span>
+                </div>
+                <div class="char-card reveal reveal-d6">
+                    <div class="char-card-glow"></div>
+                    <img src="../assets/personagens/ovelha-rosa.png"     alt="Ovelha Rosa"     class="char-img" loading="lazy" width="120" height="130">
+                    <h3 class="char-name">Ovelha Rosa</h3>
+                    <span class="char-role r-pink">A Brincalhona</span>
+                </div>
+                <div class="char-card reveal reveal-d7">
+                    <div class="char-card-glow"></div>
+                    <img src="../assets/personagens/ovelha-laranja.png"  alt="Ovelha Laranja"  class="char-img" loading="lazy" width="120" height="130">
+                    <h3 class="char-name">Ovelha Laranja</h3>
+                    <span class="char-role r-orange">A Planeadora</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════ SECTION: CTA ══════ -->
+    <section class="section cta-section" id="comprar">
+        <div class="container">
+            <div class="cta-box reveal">
+                <div class="cta-glow"></div>
+                <div class="cta-content">
+                    <div class="sec-tag" style="margin-bottom:16px;">Já disponível</div>
+                    <h2 class="cta-title">Garante Já o Teu Exemplar!</h2>
+                    <p class="cta-sub">
+                        Leva o rebanho mais colorido de sempre para a estante da tua família
+                        e embarca nesta viagem cósmica.
+                    </p>
+                    <a href="https://www.amazon.es/dp/B0HBZC16W6" class="cta-btn">
+                        Comprar Livro
+                        <img src="../assets/personagens/ovelha-arcoiris.png" alt="" width="24" height="24" loading="lazy">
+                    </a>
+                    <div class="parade">
+                        <img src="../assets/personagens/ovelha-arcoiris.png" alt="" style="--dur:2.8s;--del:0s"   width="70" height="70" loading="lazy">
+                        <img src="../assets/personagens/ovelha-azul.png"     alt="" style="--dur:3.2s;--del:.3s"  width="70" height="70" loading="lazy">
+                        <img src="../assets/personagens/ovelha-laranja.png"  alt="" style="--dur:2.5s;--del:.6s"  width="70" height="70" loading="lazy">
+                        <img src="../assets/personagens/ovelha-melancia.png" alt="" style="--dur:3.5s;--del:.9s"  width="70" height="70" loading="lazy">
+                        <img src="../assets/personagens/ovelha-rosa.png"     alt="" style="--dur:2.7s;--del:1.2s" width="70" height="70" loading="lazy">
+                        <img src="../assets/personagens/ovelha-roxa.png"     alt="" style="--dur:3.0s;--del:1.5s" width="70" height="70" loading="lazy">
+                        <img src="../assets/personagens/ovelha-verde.png"    alt="" style="--dur:2.9s;--del:1.8s" width="70" height="70" loading="lazy">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Footer ─────────────────────────── -->
+    <footer class="footer">
+        <div class="container">
+            <img src="../assets/titulo-logo.png" alt="Ovelhas Coloridas" class="footer-logo" width="200" height="44" loading="lazy">
+            <p class="footer-p">Feito com ❤️ por <strong>Ana Carvalho</strong> &amp; <strong>Rafael Diogo</strong></p>
+            <p class="footer-p"><a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a></p>
+            <p class="footer-copy">&copy; <script>document.write(new Date().getFullYear())</script> Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Celebration overlay -->
+    <div class="launch-ovl" id="launch-ovl" aria-live="assertive">
+        <h2>O Rebanho Chegou!</h2>
+        <img src="../assets/personagens/ovelha-arcoiris.png" alt=""
+             style="width:clamp(80px,10vw,160px); filter:drop-shadow(0 0 40px rgba(255,133,162,.9)); animation:ovlPulse 2s ease-in-out infinite;">
+        <p>Uma Aventura no Espaço!</p>
+        <button class="close-btn" onclick="document.getElementById('launch-ovl').classList.remove('on')">Continuar</button>
+    </div>
+
+    <script>
+    /* ================================================================
+       INDEXCOUNT — Script
+       ================================================================ */
+
+    /* ── Starfield ─────────────────────────────────────────── */
+    (function () {
+        var C = document.getElementById('starfield');
+        var ctx = C.getContext('2d');
+        var W, H, stars = [], shooting = [];
+
+        function resize() { W = C.width = innerWidth; H = C.height = innerHeight; }
+
+        function mkStars(n) {
+            stars = [];
+            for (var i = 0; i < n; i++) {
+                stars.push({
+                    x: Math.random() * W, y: Math.random() * H,
+                    r: Math.random() * 1.7 + 0.2,
+                    o: Math.random() * 0.7 + 0.15,
+                    ts: Math.random() * 0.013 + 0.002,
+                    tp: Math.random() * Math.PI * 2,
+                    bl: Math.random() > 0.83
+                });
+            }
+        }
+
+        function maybeShoot() {
+            if (Math.random() < 0.003 && shooting.length < 2) {
+                shooting.push({
+                    x: Math.random() * W, y: Math.random() * H * 0.45,
+                    sp: Math.random() * 6 + 4,
+                    a: Math.PI / 4 + (Math.random() - 0.5) * 0.4,
+                    op: 1, dc: Math.random() * 0.016 + 0.01
+                });
+            }
+        }
+
+        function frame(t) {
+            t *= 0.001;
+            ctx.fillStyle = '#0a0e27'; ctx.fillRect(0, 0, W, H);
+
+            /* draw stars */
+            var w = [], b = [];
+            stars.forEach(function (s) {
+                var a = Math.max(0.05, s.o + Math.sin(t * s.ts + s.tp) * 0.28);
+                (s.bl ? b : w).push({ x:s.x, y:s.y, r:s.r, a:a });
+            });
+            [[w,'#ffffff'],[b,'#b8c8ff']].forEach(function (pair) {
+                if (!pair[0].length) return;
+                ctx.fillStyle = pair[1]; ctx.beginPath();
+                pair[0].forEach(function (s) {
+                    ctx.globalAlpha = s.a;
+                    ctx.moveTo(s.x + s.r, s.y); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                });
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
+            /* shooting stars */
+            maybeShoot();
+            shooting = shooting.filter(function (s) { return s.op > 0; });
+            shooting.forEach(function (s) {
+                var dx = Math.cos(s.a)*s.sp*6, dy = Math.sin(s.a)*s.sp*6;
+                ctx.save(); ctx.globalAlpha = s.op;
+                var g = ctx.createLinearGradient(s.x,s.y,s.x-dx,s.y-dy);
+                g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(1,'rgba(255,255,255,0)');
+                ctx.strokeStyle = g; ctx.lineWidth = 1.8; ctx.beginPath();
+                ctx.moveTo(s.x,s.y); ctx.lineTo(s.x-dx,s.y-dy); ctx.stroke(); ctx.restore();
+                s.x += Math.cos(s.a)*s.sp; s.y += Math.sin(s.a)*s.sp; s.op -= s.dc;
+            });
+
+            /* soft vignette */
+            var vig = ctx.createRadialGradient(W/2,H/2,H*.25,W/2,H/2,H*.9);
+            vig.addColorStop(0,'transparent'); vig.addColorStop(1,'rgba(0,0,16,.55)');
+            ctx.fillStyle = vig; ctx.fillRect(0,0,W,H);
+
+            requestAnimationFrame(frame);
+        }
+
+        resize(); mkStars(window.matchMedia('(max-width:768px)').matches ? 140 : 260);
+        window.addEventListener('resize', function () { resize(); mkStars(260); });
+        requestAnimationFrame(frame);
+    }());
+
+    /* ── Navbar scroll ─────────────────────────────────────── */
+    (function () {
+        var nav = document.getElementById('navbar');
+        window.addEventListener('scroll', function () {
+            nav.classList.toggle('scrolled', scrollY > 40);
+        }, { passive: true });
+    }());
+
+    /* ── Hamburger ─────────────────────────────────────────── */
+    (function () {
+        var btn   = document.getElementById('nav-ham');
+        var links = document.getElementById('nav-links');
+        btn.addEventListener('click', function () {
+            btn.classList.toggle('open');
+            links.classList.toggle('open');
+        });
+        links.querySelectorAll('a').forEach(function (a) {
+            a.addEventListener('click', function () {
+                btn.classList.remove('open'); links.classList.remove('open');
+            });
+        });
+    }());
+
+    /* ── Scroll reveal ─────────────────────────────────────── */
+    (function () {
+        var els = document.querySelectorAll('.reveal');
+        var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (e) {
+                if (e.isIntersecting) { e.target.classList.add('active'); io.unobserve(e.target); }
+            });
+        }, { threshold: 0.12 });
+        els.forEach(function (el) { io.observe(el); });
+    }());
+
+    /* ── Particle burst ────────────────────────────────────── */
+    var BC  = document.getElementById('burst');
+    var bctx = BC.getContext('2d');
+    var bparts = [];
+    var COLS = ['#ffd166','#ff85a2','#9b5de5','#00f5d4','#d8b4fe','#ffffff'];
+    function resizeBurst() { BC.width = innerWidth; BC.height = innerHeight; }
+    resizeBurst(); window.addEventListener('resize', resizeBurst);
+
+    function spawnBurst(x, y, n) {
+        for (var i = 0; i < n; i++) {
+            var a = Math.random() * Math.PI * 2, sp = Math.random() * 9 + 2;
+            bparts.push({
+                x:x, y:y, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp - Math.random()*4,
+                r: Math.random()*5+2, c:COLS[Math.floor(Math.random()*COLS.length)],
+                life:1, decay:Math.random()*.012+.005, g:.14
+            });
+        }
+    }
+
+    function drawBurst() {
+        if (!bparts.length) return;
+        bctx.clearRect(0,0,BC.width,BC.height);
+        bparts = bparts.filter(function(p){return p.life>0;});
+        bparts.forEach(function(p){
+            bctx.globalAlpha = p.life; bctx.fillStyle = p.c;
+            bctx.beginPath(); bctx.arc(p.x,p.y,p.r,0,Math.PI*2); bctx.fill();
+            p.x+=p.vx; p.y+=p.vy; p.vy+=p.g; p.life-=p.decay;
+        });
+        bctx.globalAlpha = 1;
+        requestAnimationFrame(drawBurst);
+    }
+
+    function celebrate() {
+        BC.classList.add('on');
+        var n = 0, iv = setInterval(function () {
+            spawnBurst(Math.random()*innerWidth, Math.random()*innerHeight*.65, 90);
+            drawBurst();
+            if (++n >= 20) { clearInterval(iv); setTimeout(function(){ BC.classList.remove('on'); }, 4000); }
+        }, 320);
+    }
+
+    /* ── Countdown ─────────────────────────────────────────── */
+    (function () {
+        var TARGET  = new Date('2026-08-02T00:00:00');
+        var START   = new Date(TARGET.getTime() - 30*24*60*60*1000);
+        var eD      = document.getElementById('cd-d');
+        var eH      = document.getElementById('cd-h');
+        var eM      = document.getElementById('cd-m');
+        var eS      = document.getElementById('cd-s');
+        var eFl     = document.getElementById('prog-fill');
+        var eOv     = document.getElementById('launch-ovl');
+        var launched = false;
+
+        function pad(n) { return n < 10 ? '0'+n : ''+n; }
+
+        function flip(el, val) {
+            if (el.textContent !== val) {
+                el.textContent = val;
+                el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+            }
+        }
+
+        function tick() {
+            var now  = new Date();
+            var diff = TARGET - now;
+
+            if (diff <= 0 && !launched) {
+                launched = true;
+                ['00','00','00','00'].forEach(function(v,i){
+                    [eD,eH,eM,eS][i].textContent = v;
+                });
+                eFl.style.width = '100%';
+                eOv.classList.add('on');
+                celebrate();
+                return;
+            }
+
+            if (launched) return;
+
+            var tot = Math.floor(diff / 1000);
+            flip(eD, pad(Math.floor(tot / 86400)));
+            flip(eH, pad(Math.floor((tot % 86400) / 3600)));
+            flip(eM, pad(Math.floor((tot % 3600) / 60)));
+            flip(eS, pad(tot % 60));
+
+            var pct = Math.min(100, Math.max(0, (now-START)/(TARGET-START)*100));
+            eFl.style.width = pct.toFixed(3) + '%';
+
+            setTimeout(tick, 1000);
+        }
+
+        tick();
+    }());
+    </script>
+
+</body>
+</html>

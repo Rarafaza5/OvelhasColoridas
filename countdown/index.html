@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ovelhas Coloridas &mdash; Lançamento</title>
+    <meta name="theme-color" content="#000008">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=Nunito:wght@300;400;700&display=swap"
+          rel="stylesheet">
+
+    <style>
+        /* ================================================================
+           TV COUNTDOWN — Ovelhas Coloridas
+           Designed for 16:9 screens (1080p / 4K TV), no scroll, fullscreen
+           ================================================================ */
+
+        :root {
+            --gold:          #ffd166;
+            --gold-dim:      rgba(255, 209, 102, 0.15);
+            --pink:          #ff85a2;
+            --purple:        #9b5de5;
+            --lilac:         #d8b4fe;
+            --cyan:          #00f5d4;
+            --white:         #ffffff;
+            --off-white:     #e8e4ff;
+            --muted:         rgba(232, 228, 255, 0.5);
+            --ink:           #000008;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: var(--ink);
+            font-family: 'Nunito', sans-serif;
+            color: var(--white);
+            user-select: none;
+            cursor: none;
+        }
+
+        /* ── Starfield canvas ─────────────────── */
+        #canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%; height: 100%;
+            z-index: 0;
+        }
+
+        /* ── Full-screen layout grid ──────────── */
+        .screen {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            display: grid;
+            grid-template-rows: 1fr auto 1fr;
+            align-items: center;
+            justify-items: center;
+            padding: 4vh 6vw;
+        }
+
+        /* ── TOP: logo / event label ──────────── */
+        .top-row {
+            width: 100%;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            padding-top: 1vh;
+            animation: fadeSlideDown 1.4s 0.2s ease both;
+        }
+
+        .event-tag {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: clamp(0.7rem, 1.1vw, 1rem);
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .event-tag .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--pink);
+            box-shadow: 0 0 14px var(--pink);
+            animation: liveBlink 1.6s ease-in-out infinite;
+        }
+
+        @keyframes liveBlink {
+            0%,100% { opacity: 1; box-shadow: 0 0 14px var(--pink), 0 0 28px var(--pink); }
+            50%     { opacity: 0.3; box-shadow: none; }
+        }
+
+        .date-tag {
+            font-size: clamp(0.7rem, 1vw, 0.95rem);
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ── MIDDLE: countdown core ───────────── */
+        .core {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(16px, 3vh, 36px);
+        }
+
+        /* Title */
+        .title-wrap {
+            text-align: center;
+            animation: fadeSlideDown 1.4s 0.5s ease both;
+        }
+
+        .title-main {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(2.8rem, 7vw, 6.5rem);
+            font-weight: 700;
+            line-height: 0.95;
+            letter-spacing: -1px;
+            background: linear-gradient(160deg, #ffffff 0%, #e0c3fc 45%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 40px rgba(167,139,250,0.6));
+            animation: titlePulse 6s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%,100% { filter: drop-shadow(0 0 30px rgba(167,139,250,0.5)); }
+            50%     { filter: drop-shadow(0 0 60px rgba(167,139,250,0.9)) drop-shadow(0 0 100px rgba(232,160,191,0.4)); }
+        }
+
+        .title-sub {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(1.1rem, 2.4vw, 2.2rem);
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(255,209,102,0.7);
+            margin-top: 6px;
+            text-transform: uppercase;
+        }
+
+        /* Divider line */
+        .divider {
+            width: clamp(200px, 30vw, 480px);
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(216,180,254,0.5), transparent);
+            animation: fadeSlideDown 1.4s 0.7s ease both;
+        }
+
+        /* ── Countdown numbers ──────────────────── */
+        .cd-row {
+            display: flex;
+            align-items: center;
+            gap: clamp(12px, 3vw, 52px);
+            animation: fadeSlideUp 1.4s 0.9s ease both;
+        }
+
+        .cd-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: clamp(4px, 0.8vh, 10px);
+        }
+
+        .cd-num {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(5rem, 14vw, 13rem);
+            font-weight: 700;
+            line-height: 0.9;
+            color: var(--white);
+            text-shadow:
+                0 0 40px rgba(216,180,254,0.8),
+                0 0 80px rgba(155,93,229,0.5),
+                0 4px 60px rgba(0,0,0,0.8);
+            min-width: 2.1ch;
+            text-align: center;
+            transition: color 0.15s ease;
+        }
+
+        .cd-num.flash {
+            animation: numFlash 0.25s ease;
+        }
+
+        @keyframes numFlash {
+            0%   { color: var(--lilac); text-shadow: 0 0 60px var(--lilac), 0 0 120px var(--purple); transform: scale(1.04); }
+            100% { color: var(--white); text-shadow: 0 0 40px rgba(216,180,254,.8), 0 0 80px rgba(155,93,229,.5); transform: scale(1); }
+        }
+
+        .cd-label {
+            font-size: clamp(0.6rem, 1.2vw, 1.1rem);
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* Colon separator */
+        .cd-sep {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(4rem, 10vw, 9rem);
+            font-weight: 700;
+            color: rgba(216,180,254,0.25);
+            line-height: 0.9;
+            margin-bottom: clamp(24px, 4vh, 52px);
+            animation: colonPulse 1s ease-in-out infinite;
+        }
+
+        @keyframes colonPulse {
+            0%,100% { opacity: 1; }
+            50%     { opacity: 0.15; }
+        }
+
+        /* ── Progress bar (ultra thin, cinematic) ─ */
+        .prog-wrap {
+            width: clamp(300px, 55vw, 860px);
+            animation: fadeSlideUp 1.4s 1.1s ease both;
+        }
+
+        .prog-track {
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .prog-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--pink), var(--gold));
+            border-radius: 2px;
+            transition: width 1s linear;
+            box-shadow: 0 0 12px var(--pink), 0 0 24px rgba(232,160,191,0.4);
+            position: relative;
+        }
+
+        /* Glowing head of progress bar */
+        .prog-fill::after {
+            content: '';
+            position: absolute;
+            right: 0; top: 50%;
+            transform: translateY(-50%);
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 10px var(--gold), 0 0 20px var(--gold);
+        }
+
+        /* ── BOTTOM ROW: sheep silhouettes ────── */
+        .bottom-row {
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            animation: fadeSlideUp 1.4s 1.3s ease both;
+        }
+
+        .sheep-left,
+        .sheep-right {
+            display: flex;
+            align-items: flex-end;
+            gap: clamp(6px, 1.5vw, 24px);
+        }
+
+        .sheep-left { justify-content: flex-start; }
+        .sheep-right { justify-content: flex-end; }
+
+        .tv-sheep {
+            object-fit: contain;
+            filter:
+                drop-shadow(0 0 20px rgba(155,93,229,0.5))
+                drop-shadow(0 8px 24px rgba(0,0,0,0.7));
+            animation: sheepHover var(--dur,4s) var(--del,0s) ease-in-out infinite;
+            opacity: 0.88;
+        }
+
+        @keyframes sheepHover {
+            0%,100% { transform: translateY(0) rotate(-1.5deg); }
+            50%     { transform: translateY(calc(-1 * var(--lift, 12px))) rotate(1.5deg); }
+        }
+
+        /* Center bottom: author credit */
+        .author-credit {
+            text-align: center;
+            font-size: clamp(0.6rem, 0.9vw, 0.85rem);
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding-bottom: 0.5vh;
+        }
+
+        .author-credit strong {
+            color: rgba(216,180,254,0.75);
+            font-weight: 700;
+        }
+
+        /* ── Keyframe animations ──────────────── */
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Finished / Launch state ─────────── */
+        .launch-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(16px, 3vh, 40px);
+            background: rgba(0,0,8,0.6);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1.5s ease;
+        }
+
+        .launch-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .launch-title {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(3rem, 9vw, 8rem);
+            font-weight: 700;
+            text-align: center;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--pink) 50%, var(--lilac) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 60px rgba(255,209,102,0.8));
+            animation: launchPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes launchPulse {
+            0%,100% { filter: drop-shadow(0 0 40px rgba(255,209,102,.7)); }
+            50%     { filter: drop-shadow(0 0 100px rgba(255,133,162,1)) drop-shadow(0 0 180px rgba(255,209,102,.5)); }
+        }
+
+        .launch-sub {
+            font-family: 'Fredoka', cursive;
+            font-size: clamp(1.2rem, 3vw, 2.8rem);
+            font-weight: 600;
+            color: var(--off-white);
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            text-shadow: 0 0 30px rgba(216,180,254,0.8);
+        }
+
+        /* ── Particle burst overlay (canvas layer) ── */
+        #burst {
+            position: fixed;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        #burst.active { opacity: 1; }
+
+        /* ── Fullscreen hint (bottom-right) ──── */
+        .fs-hint {
+            position: fixed;
+            bottom: 2vh; right: 2vw;
+            z-index: 20;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.15);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .fs-hint:hover { color: rgba(255,255,255,0.4); }
+    </style>
+</head>
+<body>
+
+    <!-- Starfield + nebula canvas -->
+    <canvas id="canvas"></canvas>
+
+    <!-- Celebration particle canvas -->
+    <canvas id="burst"></canvas>
+
+    <!-- Main screen layout -->
+    <div class="screen">
+
+        <!-- TOP ROW -->
+        <div class="top-row">
+            <div class="event-tag">
+                <span class="dot"></span>
+                Lançamento Oficial
+            </div>
+            <div class="date-tag">2 de agosto de 2026</div>
+        </div>
+
+        <!-- CENTER: title + countdown -->
+        <div class="core">
+
+            <!-- Title -->
+            <div class="title-wrap">
+                <div class="title-main">Ovelhas Coloridas</div>
+                <div class="title-sub">Uma Aventura no Espaço</div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Digits -->
+            <div class="cd-row" id="cd-row" aria-label="Tempo restante">
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-d">--</div>
+                    <div class="cd-label">Dias</div>
+                </div>
+                <div class="cd-sep">:</div>
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-h">--</div>
+                    <div class="cd-label">Horas</div>
+                </div>
+                <div class="cd-sep">:</div>
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-m">--</div>
+                    <div class="cd-label">Minutos</div>
+                </div>
+                <div class="cd-sep">:</div>
+                <div class="cd-block">
+                    <div class="cd-num" id="cd-s">--</div>
+                    <div class="cd-label">Segundos</div>
+                </div>
+            </div>
+
+            <!-- Progress bar -->
+            <div class="prog-wrap">
+                <div class="prog-track">
+                    <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM ROW: sheep on sides, credit in center -->
+        <div class="bottom-row">
+
+            <div class="sheep-left">
+                <img src="../assets/personagens/ovelha-roxa.png"    alt="" class="tv-sheep"
+                     style="--dur:5.2s;--del:0s;  --lift:14px; width:clamp(60px,6vw,110px);" loading="lazy">
+                <img src="../assets/personagens/ovelha-azul.png"    alt="" class="tv-sheep"
+                     style="--dur:4.5s;--del:0.7s;--lift:10px; width:clamp(70px,7vw,130px);" loading="lazy">
+                <img src="../assets/personagens/ovelha-verde.png"   alt="" class="tv-sheep"
+                     style="--dur:6.0s;--del:0.3s;--lift:16px; width:clamp(55px,5.5vw,100px);" loading="lazy">
+            </div>
+
+            <div class="author-credit">
+                Por <strong>Ana Carvalho</strong> &amp; <strong>Rafael Diogo</strong>
+            </div>
+
+            <div class="sheep-right">
+                <img src="../assets/personagens/ovelha-laranja.png" alt="" class="tv-sheep"
+                     style="--dur:5.8s;--del:0.5s;--lift:13px; width:clamp(55px,5.5vw,100px);" loading="lazy">
+                <img src="../assets/personagens/ovelha-rosa.png"    alt="" class="tv-sheep"
+                     style="--dur:4.8s;--del:1.1s;--lift:11px; width:clamp(70px,7vw,130px);" loading="lazy">
+                <img src="../assets/personagens/ovelha-melancia.png"alt="" class="tv-sheep"
+                     style="--dur:5.5s;--del:0.2s;--lift:15px; width:clamp(60px,6vw,110px);" loading="lazy">
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Launch overlay (shown at T=0) -->
+    <div class="launch-overlay" id="launch-overlay">
+        <div class="launch-title">O Rebanho Chegou!</div>
+        <img src="../assets/personagens/ovelha-arcoiris.png" alt=""
+             style="width:clamp(100px,12vw,200px); filter:drop-shadow(0 0 40px rgba(255,133,162,.9)); animation:launchPulse 2s ease-in-out infinite;">
+        <div class="launch-sub">Uma Aventura no Espaço!</div>
+    </div>
+
+    <!-- Fullscreen toggle hint -->
+    <div class="fs-hint" id="fs-hint" title="Ecrã Inteiro">[ F ]  Ecrã inteiro</div>
+
+    <script>
+    /* ================================================================
+       TV Countdown — Script
+       ================================================================ */
+
+    /* ── Canvas: starfield + nebulae + vignette ───────────────── */
+    (function () {
+        var C = document.getElementById('canvas');
+        var ctx = C.getContext('2d');
+        var W, H, stars = [], neb = [], t = 0;
+
+        function resize() {
+            W = C.width  = window.innerWidth;
+            H = C.height = window.innerHeight;
+            buildNebulae();
+        }
+
+        function buildNebulae() {
+            neb = [
+                { x: W * 0.75, y: H * 0.2,  r: W * 0.38, c: 'rgba(155,93,229,' },
+                { x: W * 0.18, y: H * 0.72, r: W * 0.3,  c: 'rgba(255,133,162,' },
+                { x: W * 0.5,  y: H * 0.5,  r: W * 0.28, c: 'rgba(0,245,212,' },
+            ];
+        }
+
+        function mkStars(n) {
+            stars = [];
+            for (var i = 0; i < n; i++) {
+                stars.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H,
+                    r: Math.random() * 1.8 + 0.2,
+                    o: Math.random() * 0.8 + 0.1,
+                    ts: Math.random() * 0.012 + 0.002,
+                    tp: Math.random() * Math.PI * 2,
+                    blue: Math.random() > 0.82
+                });
+            }
+        }
+
+        var shooting = [];
+
+        function maybeShoot() {
+            if (Math.random() < 0.002 && shooting.length < 3) {
+                shooting.push({
+                    x: Math.random() * W,
+                    y: Math.random() * H * 0.5,
+                    sp: Math.random() * 7 + 5,
+                    a: Math.PI / 4 + (Math.random() - 0.5) * 0.5,
+                    op: 1,
+                    dc: Math.random() * 0.016 + 0.01
+                });
+            }
+        }
+
+        function frame(time) {
+            t = time * 0.001;
+
+            /* Deep space background */
+            ctx.fillStyle = '#000008';
+            ctx.fillRect(0, 0, W, H);
+
+            /* Nebulae (slow pulse + very slow drift) */
+            neb.forEach(function (n, i) {
+                var pulse = 0.04 + Math.sin(t * 0.18 + i * 1.8) * 0.025;
+                var grd = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.r);
+                grd.addColorStop(0, n.c + pulse + ')');
+                grd.addColorStop(1, 'transparent');
+                ctx.fillStyle = grd;
+                ctx.fillRect(0, 0, W, H);
+            });
+
+            /* Stars */
+            stars.forEach(function (s) {
+                var tw  = Math.sin(t * s.ts + s.tp);
+                var a   = Math.max(0.05, s.o + tw * 0.3);
+                ctx.globalAlpha = a;
+                ctx.fillStyle = s.blue ? '#b8c8ff' : '#ffffff';
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+
+            /* Shooting stars */
+            maybeShoot();
+            shooting = shooting.filter(function (s) { return s.op > 0; });
+            shooting.forEach(function (s) {
+                var dx = Math.cos(s.a) * s.sp * 6;
+                var dy = Math.sin(s.a) * s.sp * 6;
+                ctx.save();
+                ctx.globalAlpha = s.op;
+                var g = ctx.createLinearGradient(s.x, s.y, s.x - dx, s.y - dy);
+                g.addColorStop(0, 'rgba(255,255,255,1)');
+                g.addColorStop(1, 'rgba(255,255,255,0)');
+                ctx.strokeStyle = g;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(s.x, s.y);
+                ctx.lineTo(s.x - dx, s.y - dy);
+                ctx.stroke();
+                ctx.restore();
+                s.x += Math.cos(s.a) * s.sp;
+                s.y += Math.sin(s.a) * s.sp;
+                s.op -= s.dc;
+            });
+
+            /* Vignette */
+            var vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.9);
+            vig.addColorStop(0, 'transparent');
+            vig.addColorStop(1, 'rgba(0,0,8,0.72)');
+            ctx.fillStyle = vig;
+            ctx.fillRect(0, 0, W, H);
+
+            requestAnimationFrame(frame);
+        }
+
+        resize();
+        mkStars(320);
+        window.addEventListener('resize', function () { resize(); mkStars(320); });
+        requestAnimationFrame(frame);
+    }());
+
+    /* ── Celebration particle burst ──────────────────────── */
+    var BC = document.getElementById('burst');
+    var bctx = BC.getContext('2d');
+    var particles = [];
+
+    function resizeBurst() { BC.width = innerWidth; BC.height = innerHeight; }
+    resizeBurst();
+    window.addEventListener('resize', resizeBurst);
+
+    var COLORS = ['#ffd166','#ff85a2','#9b5de5','#00f5d4','#d8b4fe','#ffffff'];
+
+    function spawnBurst(x, y, n) {
+        for (var i = 0; i < n; i++) {
+            var angle = Math.random() * Math.PI * 2;
+            var speed = Math.random() * 8 + 2;
+            particles.push({
+                x: x, y: y,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed - Math.random() * 4,
+                r: Math.random() * 5 + 2,
+                c: COLORS[Math.floor(Math.random() * COLORS.length)],
+                life: 1,
+                decay: Math.random() * 0.012 + 0.006,
+                gravity: 0.12
+            });
+        }
+    }
+
+    function drawBurst() {
+        if (!particles.length) return;
+        bctx.clearRect(0, 0, BC.width, BC.height);
+        particles = particles.filter(function (p) { return p.life > 0; });
+        particles.forEach(function (p) {
+            bctx.globalAlpha = p.life;
+            bctx.fillStyle = p.c;
+            bctx.beginPath();
+            bctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            bctx.fill();
+            p.x += p.vx; p.y += p.vy;
+            p.vy += p.gravity;
+            p.life -= p.decay;
+        });
+        bctx.globalAlpha = 1;
+        requestAnimationFrame(drawBurst);
+    }
+
+    function triggerCelebration() {
+        BC.classList.add('active');
+        var count = 0;
+        var interval = setInterval(function () {
+            var x = Math.random() * innerWidth;
+            var y = Math.random() * innerHeight * 0.6;
+            spawnBurst(x, y, 80);
+            drawBurst();
+            count++;
+            if (count >= 18) {
+                clearInterval(interval);
+                setTimeout(function () { BC.classList.remove('active'); }, 4000);
+            }
+        }, 350);
+    }
+
+    /* ── Countdown logic ─────────────────────────────────── */
+    (function () {
+        var TARGET = new Date('2026-08-02T00:00:00');
+        var START  = new Date(TARGET.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+        var eD  = document.getElementById('cd-d');
+        var eH  = document.getElementById('cd-h');
+        var eM  = document.getElementById('cd-m');
+        var eS  = document.getElementById('cd-s');
+        var eFl = document.getElementById('prog-fill');
+        var eOv = document.getElementById('launch-overlay');
+
+        var launched = false;
+
+        function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+        function flip(el, val) {
+            if (el.textContent !== val) {
+                el.textContent = val;
+                el.classList.remove('flash');
+                void el.offsetWidth;
+                el.classList.add('flash');
+            }
+        }
+
+        function tick() {
+            var now  = new Date();
+            var diff = TARGET - now;
+
+            if (diff <= 0 && !launched) {
+                launched = true;
+                eD.textContent = '00';
+                eH.textContent = '00';
+                eM.textContent = '00';
+                eS.textContent = '00';
+                eFl.style.width = '100%';
+                eOv.classList.add('visible');
+                triggerCelebration();
+                return;
+            }
+
+            if (launched) return;
+
+            var tot = Math.floor(diff / 1000);
+            flip(eD, pad(Math.floor(tot / 86400)));
+            flip(eH, pad(Math.floor((tot % 86400) / 3600)));
+            flip(eM, pad(Math.floor((tot % 3600) / 60)));
+            flip(eS, pad(tot % 60));
+
+            var pct = Math.min(100, Math.max(0, (now - START) / (TARGET - START) * 100));
+            eFl.style.width = pct.toFixed(3) + '%';
+
+            setTimeout(tick, 1000);
+        }
+
+        tick();
+    }());
+
+    /* ── Fullscreen toggle ───────────────────────────────── */
+    document.getElementById('fs-hint').addEventListener('click', function () {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(function () {});
+        } else {
+            document.exitFullscreen();
+        }
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'f' || e.key === 'F') {
+            document.getElementById('fs-hint').click();
+        }
+    });
+    </script>
+</body>
+</html>

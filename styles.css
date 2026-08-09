@@ -2420,8 +2420,8 @@ button.btn-primary {
 .purchase-modal {
     position: relative;
     width: 100%;
-    max-width: 460px;
-    padding: clamp(28px, 5vw, 40px);
+    max-width: 580px;
+    padding: clamp(24px, 5vw, 40px);
     background: linear-gradient(160deg, var(--space-navy), var(--space-deep));
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-xl);
@@ -2435,6 +2435,28 @@ button.btn-primary {
 .purchase-modal-overlay.active .purchase-modal {
     transform: translateY(0) scale(1);
     opacity: 1;
+}
+
+/* Section divider labels inside modal */
+.purchase-modal-section-label {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--white-muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.purchase-modal-section-label::before,
+.purchase-modal-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--glass-border);
 }
 
 .purchase-modal-close {
@@ -2471,8 +2493,9 @@ button.btn-primary {
 
 .purchase-modal-options {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
+    /* 3 equal columns — collapses automatically when space is tight */
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
 }
 
 .purchase-option-card {
@@ -2509,7 +2532,7 @@ button.btn-primary {
     color: var(--white);
 }
 
-@media (max-width: 480px) {
+@media (max-width: 520px) {
     .purchase-modal-options {
         grid-template-columns: 1fr;
     }
