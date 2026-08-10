@@ -1,0 +1,467 @@
+/* ═══════════════════════════════════════════════════════════════
+   COOKIE CONSENT BANNER — Ovelhas Coloridas
+   RGPD / GDPR compliant — styled to match the space theme
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Overlay (backdrop for settings panel) ── */
+#cc-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 11, 30, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 99998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+#cc-overlay.cc-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ── Main Banner ── */
+#cc-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 99999;
+    padding: 0 20px 20px;
+    transform: translateY(110%);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+#cc-banner.cc-visible {
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.cc-banner-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    background: rgba(13, 18, 53, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 20px;
+    padding: 20px 24px;
+    box-shadow:
+        0 -8px 40px rgba(124, 58, 237, 0.2),
+        0 4px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Sheep icon */
+.cc-sheep-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.5));
+    animation: cc-sheep-float 3s ease-in-out infinite;
+}
+
+@keyframes cc-sheep-float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Text block */
+.cc-text {
+    flex: 1;
+    min-width: 200px;
+}
+
+.cc-text h3 {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #f0f4ff;
+    margin: 0 0 4px;
+    line-height: 1.3;
+}
+
+.cc-text p {
+    font-size: 0.82rem;
+    color: #94a3c0;
+    margin: 0;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.cc-text a {
+    color: #a855f7;
+    text-decoration: none;
+    font-weight: 700;
+    transition: color 0.2s;
+}
+
+.cc-text a:hover {
+    color: #d8b4fe;
+    text-decoration: underline;
+}
+
+/* Buttons */
+.cc-buttons {
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.cc-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cc-btn:hover {
+    transform: translateY(-2px);
+}
+
+.cc-btn:active {
+    transform: translateY(0);
+}
+
+/* Accept button */
+.cc-btn-accept {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+}
+
+.cc-btn-accept:hover {
+    box-shadow: 0 6px 28px rgba(124, 58, 237, 0.6);
+}
+
+/* Reject button */
+.cc-btn-reject {
+    background: rgba(255, 255, 255, 0.06);
+    color: #94a3c0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cc-btn-reject:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #f0f4ff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Settings button */
+.cc-btn-settings {
+    background: transparent;
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    font-size: 0.8rem;
+    padding: 8px 14px;
+}
+
+.cc-btn-settings:hover {
+    background: rgba(124, 58, 237, 0.1);
+    border-color: rgba(124, 58, 237, 0.7);
+    color: #a855f7;
+}
+
+/* ── Preferences / Settings Panel ── */
+#cc-settings-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.95);
+    z-index: 100000;
+    width: 90%;
+    max-width: 540px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: rgba(13, 18, 53, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(124, 58, 237, 0.4);
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 20px 80px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.04);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#cc-settings-panel.cc-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.cc-settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.cc-settings-title {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #f0f4ff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cc-settings-title img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.cc-close-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #94a3c0;
+    width: 36px;
+    height: 36px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.cc-close-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #f0f4ff;
+}
+
+.cc-settings-desc {
+    font-size: 0.83rem;
+    color: #94a3c0;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* Cookie categories */
+.cc-category {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.cc-category-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.cc-category-info {
+    flex: 1;
+}
+
+.cc-category-name {
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #f0f4ff;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cc-category-desc {
+    font-size: 0.78rem;
+    color: #94a3c0;
+    margin-top: 4px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+/* Toggle switch */
+.cc-toggle-wrapper {
+    flex-shrink: 0;
+}
+
+.cc-toggle {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s ease;
+    outline: none;
+}
+
+.cc-toggle::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #94a3c0;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s;
+}
+
+.cc-toggle:checked {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    border-color: #7c3aed;
+}
+
+.cc-toggle:checked::before {
+    transform: translateX(20px);
+    background: #fff;
+}
+
+.cc-toggle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Always-on badge */
+.cc-always-on {
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+    border-radius: 999px;
+    padding: 3px 10px;
+    flex-shrink: 0;
+}
+
+/* Settings footer buttons */
+.cc-settings-footer {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* ── Floating revoke button (after accepting) ── */
+#cc-revoke-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9000;
+    background: rgba(13, 18, 53, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    border-radius: 999px;
+    padding: 8px 16px 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-family: 'Fredoka', 'Nunito', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #94a3c0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.3s, transform 0.3s, border-color 0.3s;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+}
+
+#cc-revoke-btn.cc-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+#cc-revoke-btn:hover {
+    border-color: rgba(124, 58, 237, 0.6);
+    color: #f0f4ff;
+}
+
+#cc-revoke-btn img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+}
+
+/* ── Scrollbar for settings panel ── */
+#cc-settings-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+#cc-settings-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#cc-settings-panel::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.35);
+    border-radius: 3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .cc-banner-inner {
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .cc-sheep-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .cc-buttons {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .cc-btn {
+        padding: 9px 16px;
+        font-size: 0.83rem;
+    }
+
+    #cc-settings-panel {
+        padding: 20px;
+    }
+
+    #cc-revoke-btn {
+        bottom: 16px;
+        right: 16px;
+        font-size: 0.72rem;
+        padding: 7px 12px 7px 8px;
+    }
+}

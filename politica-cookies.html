@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
+
+    <title>Política de Cookies — Ovelhas Coloridas</title>
+    <meta name="description"
+        content="Política de Cookies do site Ovelhas Coloridas. Sabe quais os cookies que utilizamos e como podes gerir as tuas preferências.">
+    <meta name="robots" content="noindex, follow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+            rel="stylesheet">
+    </noscript>
+
+    <!-- Cookie Consent CSS -->
+    <link rel="stylesheet" href="cookie-consent.css">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-deep: #080b1e;
+            --purple: #7c3aed;
+            --purple-light: #a855f7;
+            --pink: #ec4899;
+            --text-primary: #f0f4ff;
+            --text-secondary: #94a3c0;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Starfield */
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Background blobs */
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--purple), transparent 70%);
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--pink), transparent 70%);
+            bottom: 100px;
+            right: -80px;
+        }
+
+        /* Layout */
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 60px 24px 120px;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--purple-light);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            background: rgba(124, 58, 237, 0.08);
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.6);
+        }
+
+        /* Header */
+        .policy-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .policy-header img {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.5));
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 2.6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--purple-light) 50%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.15;
+        }
+
+        .policy-updated {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        /* Sections */
+        .policy-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f0f4ff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        p,
+        li {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            font-weight: 500;
+        }
+
+        p+p {
+            margin-top: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        ul li {
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--purple-light);
+            font-weight: 700;
+        }
+
+        a {
+            color: var(--purple-light);
+            font-weight: 700;
+        }
+
+        a:hover {
+            color: #d8b4fe;
+        }
+
+        /* Cookie table */
+        .cookie-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.83rem;
+        }
+
+        .cookie-table th {
+            text-align: left;
+            color: var(--purple-light);
+            font-weight: 800;
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(124, 58, 237, 0.3);
+        }
+
+        .cookie-table td {
+            padding: 10px 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            border-bottom: 1px solid var(--card-border);
+            vertical-align: top;
+        }
+
+        .cookie-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Manage consent button */
+        .manage-consent-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            color: #fff;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            margin-top: 16px;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+        }
+
+        .manage-consent-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 28px rgba(124, 58, 237, 0.6);
+            color: #fff;
+        }
+
+        /* Footer */
+        .policy-footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .policy-footer a {
+            color: var(--purple-light);
+        }
+
+        @media (max-width: 600px) {
+            .page-wrapper {
+                padding: 40px 16px 100px;
+            }
+
+            .cookie-table th,
+            .cookie-table td {
+                padding: 8px;
+                font-size: 0.78rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="starfield"></canvas>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="page-wrapper">
+
+        <a href="index.html" class="back-link" id="back-to-home">← Voltar ao Site</a>
+
+        <div class="policy-header">
+            <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris">
+            <h1>Política de Cookies</h1>
+        </div>
+        <p class="policy-updated">Última atualização: Agosto de 2026</p>
+
+        <!-- O que são cookies -->
+        <div class="policy-section">
+            <h2>🍪 O que são cookies?</h2>
+            <p>
+                Cookies são pequenos ficheiros de texto que um site guarda no teu dispositivo (computador, tablet ou
+                telemóvel) quando o visitas. São amplamente utilizados para fazer os sites funcionar ou funcionar de
+                forma mais eficiente, bem como para fornecer informações aos proprietários do site.
+            </p>
+            <p>
+                Este site é o portal oficial do livro infantil <strong>«Ovelhas Coloridas: Uma Aventura no
+                    Espaço!»</strong>
+                de Ana Carvalho e Rafael Diogo.
+            </p>
+        </div>
+
+        <!-- Cookies que usamos -->
+        <div class="policy-section">
+            <h2>📋 Que cookies utilizamos?</h2>
+            <p>Utilizamos dois tipos de cookies:</p>
+
+            <table class="cookie-table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Nome / Origem</th>
+                        <th>Finalidade</th>
+                        <th>Duração</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Essencial</strong></td>
+                        <td><code>oc_cookie_consent</code> (localStorage)</td>
+                        <td>Guarda as tuas preferências de consentimento de cookies para não voltarmos a perguntar em
+                            cada visita.</td>
+                        <td>Permanente (até limpares os dados do browser)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Analítico</strong></td>
+                        <td>Google Analytics 4<br><code>_ga</code>, <code>_ga_*</code></td>
+                        <td>
+                            Recolhe informações anónimas sobre como os visitantes usam o site:
+                            páginas vistas, tempo na página, origem do tráfego, dispositivo, etc.
+                            Ajuda-nos a melhorar o site. Fornecido pela Google LLC.
+                        </td>
+                        <td>2 anos (cookie _ga)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Google Analytics -->
+        <div class="policy-section">
+            <h2>📊 Google Analytics em detalhe</h2>
+            <p>
+                Utilizamos o Google Analytics 4 com o ID <strong>G-BGCQT355WJ</strong>. Este serviço é fornecido
+                pela Google LLC (1600 Amphitheatre Parkway, Mountain View, CA 94043, EUA).
+            </p>
+            <p>Os dados recolhidos pelo Google Analytics (quando aceitas) incluem:</p>
+            <ul>
+                <li>Número de visitantes e sessões</li>
+                <li>Tempo médio de permanência nas páginas</li>
+                <li>Percentagem de scroll (até onde leste a página)</li>
+                <li>Origem do tráfego (pesquisa, direto, redes sociais)</li>
+                <li>País/região do visitante (sem IP completo)</li>
+                <li>Dispositivo e sistema operativo utilizado</li>
+                <li>Interações com botões de compra e links</li>
+            </ul>
+            <p style="margin-top: 12px;">
+                Implementámos o <strong>Google Consent Mode v2</strong>, o que significa que o Google Analytics
+                <em>só recolhe dados analíticos completos</em> depois de dares o teu consentimento expresso.
+                Antes do consentimento, nenhum cookie de analytics é colocado.
+            </p>
+            <p>
+                Para saberes mais sobre como a Google trata os dados:
+                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Política de Privacidade da
+                    Google</a>
+            </p>
+        </div>
+
+        <!-- Gerir preferências -->
+        <div class="policy-section">
+            <h2>⚙️ Como gerir as tuas preferências?</h2>
+            <p>
+                Podes alterar ou revogar o teu consentimento a qualquer momento, clicando no botão abaixo:
+            </p>
+            <button type="button" class="manage-consent-btn" id="open-cookie-settings">
+                🍪 Gerir Preferências de Cookies
+            </button>
+            <p style="margin-top: 20px;">
+                Também podes gerir ou eliminar cookies diretamente no teu browser:
+            </p>
+            <ul>
+                <li><a href="https://support.google.com/chrome/answer/95647" target="_blank" rel="noopener">Google
+                        Chrome</a></li>
+                <li><a href="https://support.mozilla.org/pt-PT/kb/limpar-cookies-e-dados-de-site-no-firefox"
+                        target="_blank" rel="noopener">Mozilla Firefox</a></li>
+                <li><a href="https://support.microsoft.com/pt-pt/microsoft-edge/eliminar-cookies-no-microsoft-edge-63947406-40ac-c3b8-57b9-2a946a29ae09"
+                        target="_blank" rel="noopener">Microsoft Edge</a></li>
+                <li><a href="https://support.apple.com/pt-pt/guide/safari/sfri11471/mac" target="_blank"
+                        rel="noopener">Safari</a></li>
+            </ul>
+            <p style="margin-top: 12px;">
+                Podes também instalar a ferramenta de opt-out do Google Analytics:
+                <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics
+                    Opt-out Browser Add-on</a>
+            </p>
+        </div>
+
+        <!-- Contacto -->
+        <div class="policy-section">
+            <h2>✉️ Contacto</h2>
+            <p>
+                Para questões relacionadas com a nossa política de cookies ou tratamento de dados, podes contactar-nos:
+            </p>
+            <p style="margin-top: 8px;">
+                <strong>Email:</strong> <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+            </p>
+        </div>
+
+        <footer class="policy-footer">
+            <p>© <span id="year"></span> Ana Carvalho &amp; Rafael Diogo · Todos os direitos reservados.</p>
+            <p style="margin-top: 6px;"><a href="index.html">← Voltar ao site</a></p>
+        </footer>
+
+    </div>
+
+    <!-- Cookie Consent JS -->
+    <link rel="stylesheet" href="cookie-consent.css">
+    <script src="cookie-consent.js"></script>
+
+    <script>
+        // Year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Manage consent button opens the panel
+        document.getElementById('open-cookie-settings').addEventListener('click', function () {
+            const revokeBtn = document.getElementById('cc-revoke-btn');
+            if (revokeBtn) revokeBtn.click();
+        });
+
+        // Simple starfield
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 6000);
+            for (let i = 0; i < count; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    r: Math.random() * 1.3 + 0.2,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.006 + 0.002,
+                    phase: Math.random() * Math.PI * 2
+                });
+            }
+        }
+
+        function drawStars(t) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const s of stars) {
+                const a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase + t * s.speed));
+                ctx.globalAlpha = a;
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function loop(t) {
+            drawStars(t);
+            requestAnimationFrame(loop);
+        }
+
+        resize();
+        initStars();
+        loop(0);
+        window.addEventListener('resize', function () { resize(); initStars(); });
+    </script>
+</body>
+
+</html>

@@ -5,6 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Google Consent Mode v2 — default DENIED before user consents (RGPD) -->
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            wait_for_update: 500
+        });
+    </script>
+
     <link rel="icon" type="image/x-icon" href="../assets/personagens/ovelha-arcoiris.png">
 
     <!-- SEO Meta Tags -->
@@ -27,6 +40,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
         rel="stylesheet">
+
+    <!-- Cookie Consent CSS -->
+    <link rel="stylesheet" href="../cookie-consent.css">
 
     <style>
         /* ═══ Reset & Base ═══ */
@@ -804,6 +820,8 @@
             initStars();
         });
     </script>
+    <!-- Cookie Consent + Google Analytics (RGPD Compliant) -->
+    <script src="../cookie-consent.js"></script>
 </body>
 
 </html>
