@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Página não encontrada — Ovelhas Coloridas</title>
+<meta name="theme-color" content="#0a0e27">
+<meta name="robots" content="noindex">
+
+<!-- Redireciona automaticamente para a página inicial ao fim de alguns segundos -->
+<meta http-equiv="refresh" content="6; url=/">
+
+<style>
+  :root{
+    --bg-deep: #0a0e27;
+    --bg-deep-2: #131a3d;
+    --purple: #8b5cf6;
+    --pink: #ec4899;
+    --blue: #38bdf8;
+    --orange: #fb923c;
+    --green: #4ade80;
+    --white: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: radial-gradient(ellipse at top, var(--bg-deep-2) 0%, var(--bg-deep) 60%);
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  .sky {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    opacity: 0.8;
+    animation: twinkle 3s ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  .nebula {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.35;
+  }
+
+  .nebula.n1 {
+    width: 400px; height: 400px;
+    background: var(--purple);
+    top: -100px; left: -100px;
+  }
+
+  .nebula.n2 {
+    width: 350px; height: 350px;
+    background: var(--pink);
+    bottom: -120px; right: -80px;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .logo {
+    max-width: 220px;
+    width: 60%;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.5));
+  }
+
+  .sheep-row {
+    display: flex;
+    gap: 14px;
+    margin: 10px 0 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .sheep-row img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    animation: float 3.5s ease-in-out infinite;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.4));
+  }
+
+  .sheep-row img:nth-child(2) { animation-delay: 0.4s; }
+  .sheep-row img:nth-child(3) { animation-delay: 0.8s; }
+  .sheep-row img:nth-child(4) { animation-delay: 1.2s; }
+  .sheep-row img:nth-child(5) { animation-delay: 1.6s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    margin: 0;
+    background: linear-gradient(90deg, var(--purple), var(--pink), var(--orange));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 2px;
+  }
+
+  h2 {
+    font-size: clamp(1.1rem, 4vw, 1.6rem);
+    font-weight: 600;
+    margin: 14px 0 6px;
+  }
+
+  p {
+    max-width: 480px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.8);
+    margin: 0 0 26px;
+    font-size: 1rem;
+  }
+
+  .countdown {
+    font-weight: 700;
+    color: var(--blue);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(90deg, var(--purple), var(--pink));
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 14px 28px;
+    border-radius: 50px;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 12px 28px rgba(236, 72, 153, 0.45);
+  }
+
+  .btn img {
+    width: 26px;
+    height: 26px;
+  }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    padding: 20px;
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="sky" id="sky">
+  <div class="nebula n1"></div>
+  <div class="nebula n2"></div>
+</div>
+
+<div class="container">
+  <img class="logo" src="/assets/titulo-logo.png" alt="Ovelhas Coloridas" onerror="this.style.display='none'">
+
+  <div class="sheep-row">
+    <img src="/assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris" onerror="this.style.display='none'">
+    <img src="/assets/personagens/ovelha-azul.png" alt="Ovelha Azul" onerror="this.style.display='none'">
+    <img src="/assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa" onerror="this.style.display='none'">
+    <img src="/assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja" onerror="this.style.display='none'">
+    <img src="/assets/personagens/ovelha-rosa.png" alt="Ovelha Rosa" onerror="this.style.display='none'">
+  </div>
+
+  <h1>404</h1>
+  <h2>Ups! Esta ovelha perdeu-se no espaço 🚀</h2>
+  <p>
+    A página que procuras não existe ou foi desviada da sua rota rumo ao
+    Planeta Amendoim. Vamos levar-te de volta ao rebanho em
+    <span class="countdown" id="countdown">6</span> segundos, ou clica no botão abaixo.
+  </p>
+
+  <a class="btn" href="/">
+    <img src="/assets/personagens/ovelha-arcoiris.png" alt="" onerror="this.style.display='none'">
+    Voltar ao Início
+  </a>
+</div>
+
+<footer>
+  Feito com ❤️ para o livro "Ovelhas Coloridas: Uma Aventura no Espaço!"
+</footer>
+
+<script>
+  // Contador regressivo visual (o redirecionamento real é feito pela meta refresh acima)
+  (function () {
+    var el = document.getElementById('countdown');
+    var seconds = 6;
+    var timer = setInterval(function () {
+      seconds -= 1;
+      if (seconds <= 0) {
+        clearInterval(timer);
+        window.location.href = '/';
+      } else {
+        el.textContent = seconds;
+      }
+    }, 1000);
+  })();
+
+  // Gera estrelas aleatórias no fundo
+  (function () {
+    var sky = document.getElementById('sky');
+    var total = 60;
+    for (var i = 0; i < total; i++) {
+      var star = document.createElement('div');
+      star.className = 'star';
+      var size = Math.random() * 2 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.animationDelay = (Math.random() * 3) + 's';
+      sky.appendChild(star);
+    }
+  })();
+</script>
+
+</body>
+</html>
