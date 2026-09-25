@@ -1100,7 +1100,9 @@
                 
                 const clientName = t.customerName ? `<strong>${t.customerName}</strong>` : `<span style="color:var(--white-muted)">Sem nome</span>`;
                 
-                const fullUrl = window.location.href.split('?')[0].replace(/admin\.html.*$/, 'avaliar.html') + `?token=${t.token}`;
+                const fullUrl = window.OvelhasFirebase && window.OvelhasFirebase.buildAvaliarUrl 
+                    ? window.OvelhasFirebase.buildAvaliarUrl(t.token) 
+                    : `${window.location.origin}/avaliar.html?token=${t.token}`;
 
                 return `
                     <tr>
