@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gestão de Testemunhos — Ovelhas Coloridas</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --space-dark: #0a0e27;
+            --space-deep: #0f1538;
+            --space-navy: #151c4a;
+            --space-purple: #1e1948;
+            --gold: #ffd166;
+            --gold-glow: rgba(255, 209, 102, 0.4);
+            --nebula-pink: #ff85a2;
+            --nebula-purple: #9b5de5;
+            --nebula-cyan: #00f5d4;
+            --nebula-green: #10b981;
+            --white: #ffffff;
+            --white-soft: #f0edff;
+            --white-muted: #a3a1c2;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-hover: rgba(255, 255, 255, 0.08);
+            --danger: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.15);
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --font-display: 'Fredoka', cursive, sans-serif;
+            --font-body: 'Nunito', sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, var(--space-dark) 0%, var(--space-deep) 50%, var(--space-purple) 100%);
+            color: var(--white-soft);
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+
+        /* Top Header */
+        .admin-header {
+            background: rgba(10, 14, 39, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .header-brand img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+        }
+
+        .header-title h1 {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            color: var(--white);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-title p {
+            font-size: 0.82rem;
+            color: var(--white-muted);
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            padding: 6px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+            box-shadow: 0 0 8px #34d399;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+        }
+
+        /* Container & Layout */
+        .admin-container {
+            max-width: 1200px;
+            margin: 32px auto 0;
+            padding: 0 20px;
+        }
+
+        /* KPI Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.gold { background: rgba(255, 209, 102, 0.15); color: var(--gold); }
+        .stat-icon.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .stat-icon.purple { background: rgba(155, 93, 229, 0.15); color: var(--nebula-purple); }
+        .stat-icon.cyan { background: rgba(0, 245, 212, 0.15); color: var(--nebula-cyan); }
+
+        .stat-val {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.1;
+        }
+
+        .stat-lbl {
+            font-size: 0.85rem;
+            color: var(--white-muted);
+            margin-top: 4px;
+        }
+
+        /* Section Cards */
+        .admin-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: 28px;
+            backdrop-filter: blur(16px);
+            margin-bottom: 32px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-desc {
+            font-size: 0.9rem;
+            color: var(--white-muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* Generator Box */
+        .generator-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 14px;
+            align-items: end;
+        }
+
+        @media (max-width: 768px) {
+            .generator-form {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--white-soft);
+        }
+
+        .form-control {
+            background: rgba(15, 21, 56, 0.7);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 0.95rem;
+            padding: 12px 16px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-control:focus {
+            border-color: var(--nebula-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 245, 212, 0.15);
+        }
+
+        select.form-control {
+            cursor: pointer;
+            color: var(--white);
+        }
+
+        select.form-control option {
+            background: var(--space-deep);
+            color: var(--white);
+        }
+
+        .btn-magic {
+            background: linear-gradient(135deg, #ffd166 0%, #ff85a2 50%, #9b5de5 100%);
+            color: #0a0e27;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 18px rgba(255, 209, 102, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 47px;
+        }
+
+        .btn-magic:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255, 209, 102, 0.45);
+        }
+
+        /* Result Link Display */
+        .generated-result-box {
+            display: none;
+            margin-top: 24px;
+            background: rgba(0, 245, 212, 0.06);
+            border: 1px solid rgba(0, 245, 212, 0.3);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .result-header h4 {
+            color: var(--nebula-cyan);
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .result-input-wrap {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .result-input {
+            flex: 1;
+            background: rgba(10, 14, 39, 0.9);
+            border: 1px solid rgba(0, 245, 212, 0.4);
+            border-radius: 10px;
+            color: #ffffff;
+            font-family: monospace;
+            font-size: 0.95rem;
+            padding: 10px 14px;
+        }
+
+        .btn-copy {
+            background: var(--nebula-cyan);
+            color: var(--space-dark);
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            padding: 0 20px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background: #4efee8;
+            transform: scale(1.02);
+        }
+
+        .btn-test {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 0 16px;
+            cursor: pointer;
+            font-family: var(--font-body);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-test:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .copy-message-template {
+            background: rgba(10, 14, 39, 0.6);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: var(--white-soft);
+            border-left: 3px solid var(--gold);
+        }
+
+        .copy-message-template p {
+            margin-bottom: 6px;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-link-action {
+            background: transparent;
+            border: none;
+            color: var(--gold);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+        }
+
+        /* Tables & Lists */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.88rem;
+        }
+
+        th {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--white-muted);
+            font-weight: 700;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            vertical-align: middle;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-verified {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(6, 95, 70, 0.4) 100%);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.2);
+        }
+
+        .badge-unverified {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--white-muted);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .badge-active {
+            background: rgba(52, 211, 153, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .badge-used {
+            background: rgba(155, 93, 229, 0.15);
+            color: #c084fc;
+            border: 1px solid rgba(155, 93, 229, 0.3);
+        }
+
+        .badge-hidden {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Stars Display */
+        .stars-display {
+            color: var(--gold);
+            font-size: 0.95rem;
+            letter-spacing: 2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stars-score {
+            font-weight: 800;
+            color: var(--white);
+            margin-left: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Review Card Layout (for grid/list) */
+        .reviews-stream {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .review-admin-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 20px;
+            align-items: start;
+            transition: all 0.2s;
+        }
+
+        .review-admin-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.18);
+        }
+
+        .review-admin-card.hidden-review {
+            opacity: 0.6;
+            border-left: 4px solid var(--danger);
+        }
+
+        .review-admin-card.verified-review {
+            border-left: 4px solid #34d399;
+        }
+
+        @media (max-width: 768px) {
+            .review-admin-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .review-sheep-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .review-sheep-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .review-main-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .review-header-line {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .reviewer-name {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--white);
+        }
+
+        .review-date {
+            font-size: 0.78rem;
+            color: var(--white-muted);
+        }
+
+        .review-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--gold);
+        }
+
+        .review-body {
+            font-size: 0.92rem;
+            color: var(--white-soft);
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 4px;
+        }
+
+        /* Review Actions */
+        .review-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            min-width: 180px;
+        }
+
+        .btn-action {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: var(--font-body);
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-toggle-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border-color: rgba(52, 211, 153, 0.3);
+        }
+
+        .btn-toggle-badge:hover {
+            background: rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-toggle-badge.active-verified {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+        }
+
+        .btn-toggle-visible {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--white-soft);
+            border-color: var(--glass-border);
+        }
+
+        .btn-toggle-visible:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-delete {
+            background: var(--danger-bg);
+            color: #fca5a5;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-delete:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background: rgba(15, 21, 56, 0.95);
+            border: 1px solid var(--nebula-cyan);
+            border-radius: 12px;
+            padding: 14px 20px;
+            color: var(--white);
+            font-size: 0.9rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.success { border-color: #34d399; }
+        .toast.error { border-color: var(--danger); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--white-muted);
+        }
+
+        .empty-state img {
+            width: 70px;
+            margin: 0 auto 14px;
+            opacity: 0.8;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--white-muted);
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            font-family: var(--font-body);
+            transition: all 0.2s;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: var(--nebula-purple);
+            color: #ffffff;
+            border-color: var(--nebula-purple);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header do Painel -->
+    <header class="admin-header">
+        <div class="header-inner">
+            <div class="header-brand">
+                <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris">
+                <div class="header-title">
+                    <h1>Painel de Avaliações <span>✨</span></h1>
+                    <p>Ovelhas Coloridas: Uma Aventura no Espaço</p>
+                </div>
+            </div>
+
+            <div class="header-status" id="connection-status">
+                <span class="status-dot"></span>
+                <span>Firebase Conectado</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-container">
+
+        <!-- Métricas Rápidas -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon gold">⭐</div>
+                <div>
+                    <div class="stat-val" id="stat-avg-rating">0.0</div>
+                    <div class="stat-lbl">Média de Classificação</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">💬</div>
+                <div>
+                    <div class="stat-val" id="stat-total-reviews">0</div>
+                    <div class="stat-lbl">Total de Críticas</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">✓</div>
+                <div>
+                    <div class="stat-val" id="stat-verified-count">0</div>
+                    <div class="stat-lbl">Compras Confirmadas</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon cyan">🔗</div>
+                <div>
+                    <div class="stat-val" id="stat-tokens-count">0</div>
+                    <div class="stat-lbl">Links Gerados</div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ═══ SECÇÃO 1: GERADOR DE LINKS DE COMPRA CONFIRMADA ═══ -->
+        <section class="admin-card">
+            <div class="card-header-bar">
+                <h2 class="card-title">
+                    <span>🚀</span> Gerar Link de Avaliação ("Compra Confirmada")
+                </h2>
+                <span class="badge badge-verified">✓ Selo Automático</span>
+            </div>
+
+            <p class="card-desc">
+                Gera um link exclusivo para enviares ao comprador (por WhatsApp, Email ou Instagram).
+                Ao aceder através deste link, a crítica submetida pelo cliente fica <strong>automaticamente marcada como "Compra Confirmada"</strong> e recebe o badge oficial destacado no site!
+            </p>
+
+            <form id="token-generator-form" class="generator-form">
+                <div class="form-group">
+                    <label for="customer-name-input">Nome do Cliente ou Referência (Opcional):</label>
+                    <input type="text" id="customer-name-input" class="form-control" placeholder="Ex: Joana Santos (Encomenda #142)">
+                </div>
+
+                <div class="form-group">
+                    <label for="token-type-select">Tipo de Link:</label>
+                    <select id="token-type-select" class="form-control">
+                        <option value="1">Uso Único (Recomendado)</option>
+                        <option value="99999">Múltiplos Usos (Campanha / Permanente)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-magic" id="btn-generate-token">
+                    <span>✨</span> Gerar Link
+                </button>
+            </form>
+
+            <!-- Caixa de Exibição do Link Gerado -->
+            <div class="generated-result-box" id="generated-result-box">
+                <div class="result-header">
+                    <h4>🎉 Link de Compra Confirmada Gerado!</h4>
+                    <span class="badge badge-active" id="res-badge-type">Uso Único</span>
+                </div>
+
+                <div class="result-input-wrap">
+                    <input type="text" readonly id="generated-url-field" class="result-input">
+                    <button type="button" class="btn-copy" id="btn-copy-url">
+                        📋 Copiar Link
+                    </button>
+                    <a href="#" target="_blank" id="btn-open-preview" class="btn-test">
+                        ↗ Testar Link
+                    </a>
+                </div>
+
+                <!-- Template de Mensagem para o Cliente -->
+                <div class="copy-message-template">
+                    <p><strong>💡 Mensagem pronta para enviar ao leitor:</strong></p>
+                    <div id="ready-message-text" style="font-style: italic; color: #e2e8f0; margin-bottom: 8px;">
+                        "Olá! Muito obrigado por teres adquirido o livro 'Ovelhas Coloridas: Uma Aventura no Espaço!' 🚀 A tua opinião é muito especial para nós. Podes partilhar o que achaste da história neste link exclusivo com selo de leitor verificado: [LINK]"
+                    </div>
+                    <div class="template-actions">
+                        <button type="button" class="btn-link-action" id="btn-copy-ready-msg">
+                            Copiar texto completo para WhatsApp
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ═══ SECÇÃO 2: HISTÓRICO DE LINKS GERADOS ═══ -->
+        <section class="admin-card">
+            <div class="card-header-bar">
+                <h2 class="card-title">
+                    <span>📋</span> Histórico de Links de Compra Confirmada
+                </h2>
+                <span id="tokens-counter-badge" class="badge badge-active">0 links</span>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Cliente / Ref.</th>
+                            <th>Token</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tokens-table-body">
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <p>A carregar links gerados...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+
+        <!-- ═══ SECÇÃO 3: GESTÃO DE CRÍTICAS E TESTEMUNHOS ═══ -->
+        <section class="admin-card">
+            <div class="card-header-bar">
+                <h2 class="card-title">
+                    <span>🌟</span> Críticas e Testemunhos Recebidos
+                </h2>
+
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">Todas (<span id="count-all">0</span>)</button>
+                    <button class="filter-tab" data-filter="verified">✓ Compras Confirmadas (<span id="count-verified">0</span>)</button>
+                    <button class="filter-tab" data-filter="hidden">Ocultas (<span id="count-hidden">0</span>)</button>
+                </div>
+            </div>
+
+            <div class="reviews-stream" id="reviews-stream">
+                <div class="empty-state">
+                    <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul">
+                    <p>A carregar críticas do Firestore...</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // State
+        let allReviews = [];
+        let allTokens = [];
+        let currentFilter = 'all';
+
+        // Toast Helper
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? '✓' : '⚠️';
+            toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
+        }
+
+        // Helpers
+        function formatDate(timestamp, fallbackIso) {
+            let d;
+            if (timestamp && timestamp.toDate) {
+                d = timestamp.toDate();
+            } else if (timestamp && timestamp.seconds) {
+                d = new Date(timestamp.seconds * 1000);
+            } else if (fallbackIso) {
+                d = new Date(fallbackIso);
+            } else {
+                return 'Hoje';
+            }
+            return d.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderStars(rating) {
+            const num = Number(rating) || 0;
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (num >= i) {
+                    stars += '★';
+                } else if (num >= i - 0.5) {
+                    stars += '★';
+                } else {
+                    stars += '☆';
+                }
+            }
+            return `<span class="stars-display">${stars} <span class="stars-score">${num.toFixed(1)}</span></span>`;
+        }
+
+        // Gerar Novo Token de Compra Confirmada
+        const tokenForm = document.getElementById('token-generator-form');
+        tokenForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-generate-token');
+            const customerName = document.getElementById('customer-name-input').value.trim();
+            const maxUses = parseInt(document.getElementById('token-type-select').value, 10) || 1;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span>⏳</span> A gerar...';
+
+            try {
+                const res = await window.OvelhasFirebase.createVerifiedPurchaseToken(customerName, maxUses);
+                
+                // Exibe a caixa de resultado
+                const resultBox = document.getElementById('generated-result-box');
+                const urlField = document.getElementById('generated-url-field');
+                const previewBtn = document.getElementById('btn-open-preview');
+                const badgeType = document.getElementById('res-badge-type');
+
+                urlField.value = res.url;
+                previewBtn.href = res.url;
+                badgeType.textContent = maxUses > 1 ? 'Múltiplos Usos' : 'Uso Único';
+
+                // Atualiza template de mensagem
+                const readyMsg = document.getElementById('ready-message-text');
+                const greet = customerName ? `Olá ${customerName.split(' ')[0]}!` : 'Olá!';
+                readyMsg.textContent = `"${greet} Muito obrigado por teres adquirido o livro 'Ovelhas Coloridas: Uma Aventura no Espaço!' 🚀 A tua opinião é muito especial para nós. Podes partilhar o que achaste da história neste link exclusivo com selo de leitor verificado: ${res.url}"`;
+
+                resultBox.style.display = 'block';
+                resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                showToast("Link de Compra Confirmada gerado com sucesso!", "success");
+                document.getElementById('customer-name-input').value = '';
+            } catch (err) {
+                console.error(err);
+                showToast("Erro ao gerar link: " + err.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>✨</span> Gerar Link';
+            }
+        });
+
+        // Botão Copiar URL
+        document.getElementById('btn-copy-url').addEventListener('click', () => {
+            const urlField = document.getElementById('generated-url-field');
+            if (!urlField.value) return;
+            navigator.clipboard.writeText(urlField.value).then(() => {
+                showToast("Link copiado para a área de transferência! 📋", "success");
+            }).catch(() => {
+                urlField.select();
+                document.execCommand('copy');
+                showToast("Link copiado! 📋", "success");
+            });
+        });
+
+        // Copiar Mensagem Completa
+        document.getElementById('btn-copy-ready-msg').addEventListener('click', () => {
+            const msg = document.getElementById('ready-message-text').textContent;
+            navigator.clipboard.writeText(msg).then(() => {
+                showToast("Mensagem completa copiada para enviar pelo WhatsApp! 💬", "success");
+            });
+        });
+
+        // Atualizar Estatísticas Rápidas
+        function updateStats() {
+            const total = allReviews.length;
+            const verified = allReviews.filter(r => r.verifiedPurchase).length;
+            const avg = total > 0 ? (allReviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0) / total).toFixed(1) : '0.0';
+            
+            document.getElementById('stat-total-reviews').textContent = total;
+            document.getElementById('stat-avg-rating').textContent = avg;
+            document.getElementById('stat-verified-count').textContent = verified;
+            document.getElementById('stat-tokens-count').textContent = allTokens.length;
+
+            document.getElementById('count-all').textContent = total;
+            document.getElementById('count-verified').textContent = verified;
+            document.getElementById('count-hidden').textContent = allReviews.filter(r => r.approved === false).length;
+            document.getElementById('tokens-counter-badge').textContent = `${allTokens.length} links`;
+        }
+
+        // Renderizar Lista de Tokens
+        function renderTokensTable() {
+            const tbody = document.getElementById('tokens-table-body');
+            if (!allTokens.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <p>Ainda não foi gerado nenhum link de Compra Confirmada.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = allTokens.map(t => {
+                const dateStr = formatDate(t.createdAt);
+                const isSingleUse = (t.maxUses || 1) === 1;
+                const isUsed = t.used || (t.useCount >= (t.maxUses || 1));
+                const statusBadge = isUsed 
+                    ? `<span class="badge badge-used">✓ Já Usado (${t.useCount || 1}/${t.maxUses || 1})</span>`
+                    : `<span class="badge badge-active">🟢 Disponível (${t.useCount || 0}/${t.maxUses || 1})</span>`;
+                
+                const clientName = t.customerName ? `<strong>${t.customerName}</strong>` : `<span style="color:var(--white-muted)">Sem nome</span>`;
+                
+                const fullUrl = window.location.href.split('?')[0].replace(/admin\.html.*$/, 'avaliar.html') + `?token=${t.token}`;
+
+                return `
+                    <tr>
+                        <td style="white-space:nowrap">${dateStr}</td>
+                        <td>${clientName}</td>
+                        <td><code>${t.token}</code></td>
+                        <td>${isSingleUse ? 'Uso Único' : 'Múltiplo'}</td>
+                        <td>${statusBadge}</td>
+                        <td style="white-space:nowrap">
+                            <button type="button" class="btn-action" style="display:inline-flex; padding:4px 8px; margin-right:4px;" onclick="copyTokenUrl('${fullUrl}')" title="Copiar Link">📋 Copiar</button>
+                            <a href="${fullUrl}" target="_blank" class="btn-action" style="display:inline-flex; padding:4px 8px; text-decoration:none; margin-right:4px;" title="Abrir">↗ Abrir</a>
+                            <button type="button" class="btn-action btn-delete" style="display:inline-flex; padding:4px 8px;" onclick="handleDeleteToken('${t.id}')" title="Eliminar Token">🗑</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.copyTokenUrl = function(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                showToast("Link de compra confirmada copiado! 📋", "success");
+            });
+        };
+
+        window.handleDeleteToken = async function(tokenId) {
+            if (!confirm("Tens a certeza que desejas eliminar este token de compra confirmada?")) return;
+            try {
+                await window.OvelhasFirebase.deleteTokenDoc(tokenId);
+                showToast("Token eliminado com sucesso.", "success");
+            } catch (err) {
+                showToast("Erro ao eliminar token: " + err.message, "error");
+            }
+        };
+
+        // Renderizar Críticas
+        function renderReviews() {
+            const container = document.getElementById('reviews-stream');
+            
+            let filtered = allReviews;
+            if (currentFilter === 'verified') {
+                filtered = allReviews.filter(r => r.verifiedPurchase);
+            } else if (currentFilter === 'hidden') {
+                filtered = allReviews.filter(r => r.approved === false);
+            }
+
+            if (!filtered.length) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <img src="assets/personagens/ovelha-laranja.png" alt="Ovelha">
+                        <p>Nenhuma crítica encontrada neste filtro.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(r => {
+                const charData = window.OvelhasFirebase.SHEEP_CHARACTERS[r.character] || window.OvelhasFirebase.SHEEP_CHARACTERS['ovelha-arcoiris'];
+                const isVerified = !!r.verifiedPurchase;
+                const isApproved = r.approved !== false;
+                const dateStr = formatDate(r.createdAt, r.createdAtClient);
+
+                return `
+                    <div class="review-admin-card ${!isApproved ? 'hidden-review' : ''} ${isVerified ? 'verified-review' : ''}">
+                        <div class="review-sheep-avatar" style="border-color: ${charData.color}">
+                            <img src="${charData.image}" alt="${charData.name}">
+                        </div>
+
+                        <div class="review-main-info">
+                            <div class="review-header-line">
+                                <span class="reviewer-name">${r.name || 'Leitor Espacial'}</span>
+                                ${renderStars(r.rating)}
+                                ${isVerified ? '<span class="badge badge-verified">✓ Compra Confirmada</span>' : '<span class="badge badge-unverified">Sem Selo</span>'}
+                                ${!isApproved ? '<span class="badge badge-hidden">Oculto no Site</span>' : ''}
+                                <span class="review-date">${dateStr}</span>
+                            </div>
+
+                            ${r.title ? `<div class="review-title">"${r.title}"</div>` : ''}
+                            
+                            <div class="review-body">
+                                ${r.comment ? r.comment.replace(/\n/g, '<br>') : ''}
+                            </div>
+
+                            <div style="font-size:0.75rem; color:var(--white-muted); margin-top:4px;">
+                                Personagem favorita: <strong>${charData.name}</strong> 
+                                ${r.tokenUsed ? `• Token: <code>${r.tokenUsed}</code>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="review-actions">
+                            <button type="button" class="btn-action btn-toggle-badge ${isVerified ? 'active-verified' : ''}" onclick="handleToggleVerified('${r.id}', ${isVerified})">
+                                ${isVerified ? '✓ Selo Confirmado' : '+ Ativar Selo Compra'}
+                            </button>
+
+                            <button type="button" class="btn-action btn-toggle-visible" onclick="handleToggleApproval('${r.id}', ${isApproved})">
+                                ${isApproved ? '👁 Ocultar do Site' : '✓ Mostrar no Site'}
+                            </button>
+
+                            <button type="button" class="btn-action btn-delete" onclick="handleDeleteReview('${r.id}')">
+                                🗑 Eliminar Crítica
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Ações de Críticas
+        window.handleToggleVerified = async function(reviewId, currentStatus) {
+            try {
+                await window.OvelhasFirebase.toggleReviewVerified(reviewId, currentStatus);
+                showToast(currentStatus ? "Selo de compra confirmada removido." : "Selo de Compra Confirmada ativado! ✓", "success");
+            } catch (err) {
+                showToast("Erro: " + err.message, "error");
+            }
+        };
+
+        window.handleToggleApproval = async function(reviewId, currentStatus) {
+            try {
+                await window.OvelhasFirebase.toggleReviewApproval(reviewId, currentStatus);
+                showToast(currentStatus ? "Crítica ocultada do site." : "Crítica visível no site público.", "success");
+            } catch (err) {
+                showToast("Erro: " + err.message, "error");
+            }
+        };
+
+        window.handleDeleteReview = async function(reviewId) {
+            if (!confirm("Tens a certeza que desejas eliminar permanentemente esta crítica?")) return;
+            try {
+                await window.OvelhasFirebase.deleteReviewDoc(reviewId);
+                showToast("Crítica eliminada com sucesso.", "success");
+            } catch (err) {
+                showToast("Erro ao eliminar crítica: " + err.message, "error");
+            }
+        };
+
+        // Filtros de Críticas
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentFilter = tab.getAttribute('data-filter');
+                renderReviews();
+            });
+        });
+
+        // Subscrições em Tempo Real do Firestore
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!window.OvelhasFirebase) {
+                console.error("Firebase module não encontrado.");
+                return;
+            }
+
+            // Escuta todas as reviews
+            window.OvelhasFirebase.onAllReviewsAdmin((reviews) => {
+                allReviews = reviews;
+                updateStats();
+                renderReviews();
+            });
+
+            // Escuta todos os tokens
+            window.OvelhasFirebase.onAllTokensAdmin((tokens) => {
+                allTokens = tokens;
+                updateStats();
+                renderTokensTable();
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -75,6 +75,7 @@
                 <a href="#sobre" class="nav-link">O Livro</a>
                 <a href="#personagens" class="nav-link">O Rebanho</a>
                 <a href="#autores" class="nav-link">Autores</a>
+                <a href="#testemunhos" class="nav-link">Críticas</a>
                 <a href="#comprar" class="nav-btn-cta">Comprar Livro</a>
             </nav>
 
@@ -408,6 +409,43 @@
             </div>
         </section>
 
+        <!-- ═══ Testimonials & Reviews Section ═══ -->
+        <section class="testimonials-section" id="testemunhos">
+            <div class="container">
+                <div class="testimonials-header">
+                    <h2 class="section-title reveal">O Que Dizem os Nossos Leitores</h2>
+                    <p class="section-subtitle reveal reveal-delay-1">
+                        Críticas e testemunhos reais de pequenos e grandes astronautas que já viajaram pelo universo das Ovelhas Coloridas!
+                    </p>
+
+                    <!-- Summary Score Bar -->
+                    <div class="reviews-summary-bar reveal reveal-delay-2" id="reviews-summary-bar">
+                        <div class="summary-score-box">
+                            <span class="summary-score-num" id="summary-score-num">5.0</span>
+                            <div class="summary-stars-wrap">
+                                <div class="summary-stars" id="summary-stars">★★★★★</div>
+                                <span class="summary-count" id="summary-count">A carregar opiniões...</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-cta-wrap">
+                            <a href="avaliar.html" class="btn-leave-review" id="btn-leave-review">
+                                <span>✨</span> Deixar uma Avaliação
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Grid of Reviews -->
+                <div class="testimonials-grid" id="testimonials-grid">
+                    <div class="testimonials-loading" id="testimonials-loading">
+                        <div class="loading-spinner"></div>
+                        <p>A procurar opiniões nas estrelas...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ═══ CTA / Purchase Section ═══ -->
         <section class="cta-section" id="comprar">
             <div class="container">
@@ -502,6 +540,7 @@
                     <a href="#sobre">O Livro</a>
                     <a href="#personagens">O Rebanho</a>
                     <a href="#autores">Autores</a>
+                    <a href="#testemunhos">Críticas</a>
                 </div>
 
                 <div class="footer-credits">
@@ -570,6 +609,13 @@
         </div>
     </div>
 
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+    <!-- Firebase Config & Logic -->
+    <script src="firebase-config.js"></script>
+    <!-- Reviews Display Logic -->
+    <script src="reviews-display.js"></script>
     <!-- JS -->
     <script src="script.js"></script>
     <!-- Cookie Consent + Google Analytics (RGPD Compliant) -->

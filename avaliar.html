@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliar o Livro — Ovelhas Coloridas: Uma Aventura no Espaço</title>
+    <meta name="description" content="Partilha a tua opinião e avaliação sobre o livro infantil Ovelhas Coloridas: Uma Aventura no Espaço!">
+    <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+
+    <style>
+        :root {
+            --space-dark: #0a0e27;
+            --space-deep: #0f1538;
+            --space-navy: #151c4a;
+            --space-purple: #1e1948;
+            --gold: #ffd166;
+            --gold-glow: rgba(255, 209, 102, 0.4);
+            --nebula-pink: #ff85a2;
+            --nebula-purple: #9b5de5;
+            --nebula-cyan: #00f5d4;
+            --nebula-green: #10b981;
+            --white: #ffffff;
+            --white-soft: #f0edff;
+            --white-muted: #a3a1c2;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --font-display: 'Fredoka', cursive, sans-serif;
+            --font-body: 'Nunito', sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--space-dark);
+            color: var(--white-soft);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            overflow-x: hidden;
+            padding: 24px 16px 60px;
+        }
+
+        /* Starfield backdrop */
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .review-wrapper {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 680px;
+            margin: 0 auto;
+        }
+
+        /* Header Brand */
+        .page-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .page-logo-link {
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+
+        .page-logo-link:hover {
+            transform: scale(1.03);
+        }
+
+        .page-logo {
+            max-width: 210px;
+            height: auto;
+            margin-bottom: 8px;
+        }
+
+        .page-tagline {
+            font-size: 0.95rem;
+            color: var(--white-muted);
+        }
+
+        /* Verified Banner */
+        .verified-badge-banner {
+            display: none;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 95, 70, 0.35) 100%);
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+            backdrop-filter: blur(10px);
+            align-items: center;
+            gap: 14px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .verified-banner-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #10b981;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 14px rgba(52, 211, 153, 0.6);
+        }
+
+        .verified-banner-text h3 {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            color: #34d399;
+            margin-bottom: 2px;
+        }
+
+        .verified-banner-text p {
+            font-size: 0.85rem;
+            color: #d1fae5;
+            line-height: 1.4;
+        }
+
+        /* Card Form */
+        .review-card {
+            background: rgba(15, 21, 56, 0.75);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(24px, 5vw, 40px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .card-heading {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .card-heading h1 {
+            font-family: var(--font-display);
+            font-size: clamp(1.5rem, 4vw, 1.9rem);
+            color: var(--white);
+            margin-bottom: 6px;
+        }
+
+        .card-heading p {
+            color: var(--white-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Form Fields */
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field-label {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .field-label .required {
+            color: var(--nebula-pink);
+            font-size: 0.8rem;
+            font-family: var(--font-body);
+        }
+
+        .input-text, .input-textarea {
+            width: 100%;
+            background: rgba(10, 14, 39, 0.6);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--white);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            padding: 14px 18px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+
+        .input-text:focus, .input-textarea:focus {
+            border-color: var(--nebula-cyan);
+            background: rgba(10, 14, 39, 0.85);
+            box-shadow: 0 0 0 4px rgba(0, 245, 212, 0.15);
+        }
+
+        .input-textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        /* Star Rating Interactive System (0 to 5 stars) */
+        .rating-interactive-box {
+            background: rgba(10, 14, 39, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 18px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stars-row {
+            display: inline-flex;
+            gap: 8px;
+            font-size: clamp(2.2rem, 6vw, 2.8rem);
+            line-height: 1;
+            cursor: pointer;
+            user-select: none;
+            direction: ltr;
+        }
+
+        .star-item {
+            color: rgba(255, 255, 255, 0.2);
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.15s ease, filter 0.15s ease;
+            position: relative;
+            padding: 0 2px;
+        }
+
+        .star-item.active, .star-item.hovered {
+            color: var(--gold);
+            filter: drop-shadow(0 0 10px rgba(255, 209, 102, 0.6));
+        }
+
+        .star-item:hover {
+            transform: scale(1.22);
+        }
+
+        .rating-feedback-text {
+            font-family: var(--font-display);
+            font-size: 1.05rem;
+            color: var(--gold);
+            min-height: 24px;
+            font-weight: 600;
+        }
+
+        /* Option to select 0 stars if desired */
+        .zero-stars-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .zero-stars-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+            color: var(--white-muted);
+            font-size: 0.78rem;
+            padding: 4px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-body);
+        }
+
+        .zero-stars-btn:hover, .zero-stars-btn.active {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        /* Character Selection Grid */
+        .characters-picker-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 520px) {
+            .characters-picker-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .character-option-card {
+            background: rgba(10, 14, 39, 0.5);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 10px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .character-option-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .character-option-card.selected {
+            background: rgba(155, 93, 229, 0.2);
+            border-color: var(--gold);
+            box-shadow: 0 0 16px rgba(255, 209, 102, 0.35);
+            transform: scale(1.03);
+        }
+
+        .character-option-card img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+        }
+
+        .char-opt-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--white);
+            line-height: 1.2;
+        }
+
+        .char-opt-role {
+            font-size: 0.7rem;
+            color: var(--white-muted);
+        }
+
+        /* Submit Button */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #ffd166 0%, #ff85a2 50%, #9b5de5 100%);
+            color: #0a0e27;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.15rem;
+            border: none;
+            border-radius: 14px;
+            padding: 16px 28px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 24px rgba(255, 209, 102, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 32px rgba(255, 209, 102, 0.5);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Success Screen */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 20px 10px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-sheep {
+            width: 140px;
+            height: 140px;
+            object-fit: contain;
+            margin: 0 auto 20px;
+            animation: floatSheep 3s ease-in-out infinite;
+        }
+
+        @keyframes floatSheep {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .success-screen h2 {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            color: var(--white);
+            margin-bottom: 12px;
+        }
+
+        .success-screen p {
+            color: var(--white-soft);
+            font-size: 1rem;
+            max-width: 480px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+
+        .badge-success-highlight {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(52, 211, 153, 0.4);
+            border-radius: 999px;
+            padding: 8px 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .btn-return-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 28px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-return-home:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .back-to-site-link {
+            display: block;
+            text-align: center;
+            margin-top: 24px;
+            color: var(--white-muted);
+            font-size: 0.9rem;
+            text-decoration: underline;
+        }
+
+        .back-to-site-link:hover {
+            color: var(--white);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <div class="review-wrapper">
+
+        <!-- Top Branding -->
+        <header class="page-header">
+            <a href="index.html" class="page-logo-link" title="Voltar à página inicial">
+                <img src="assets/titulo-logo.png" alt="Ovelhas Coloridas Logo" class="page-logo">
+            </a>
+            <p class="page-tagline">Uma Aventura no Espaço — Espaço dos Leitores</p>
+        </header>
+
+        <!-- Banner Exclusivo: Compra Confirmada -->
+        <div class="verified-badge-banner" id="verified-badge-banner">
+            <div class="verified-banner-icon">✓</div>
+            <div class="verified-banner-text">
+                <h3>Compra Confirmada Verificada!</h3>
+                <p>O teu link é oficial. A tua avaliação receberá automaticamente o <strong>selo dourado/verde de leitor verificado</strong> no site!</p>
+            </div>
+        </div>
+
+        <!-- Formulário de Avaliação -->
+        <div class="review-card" id="review-card">
+
+            <div class="card-heading">
+                <h1>O que achaste do livro? 🚀</h1>
+                <p>A tua opinião faz o nosso rebanho brilhar ainda mais nas estrelas!</p>
+            </div>
+
+            <form id="review-form">
+
+                <div class="form-section">
+
+                    <!-- Classificação de 0 a 5 Estrelas -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <span>A tua Avaliação (0 a 5 estrelas):</span>
+                            <span class="required">* Obrigatório</span>
+                        </label>
+
+                        <div class="rating-interactive-box">
+                            <div class="stars-row" id="stars-row" role="radiogroup" aria-label="Avaliação de 1 a 5 estrelas">
+                                <span class="star-item" data-value="1" title="1 Estrela">★</span>
+                                <span class="star-item" data-value="2" title="2 Estrelas">★</span>
+                                <span class="star-item" data-value="3" title="3 Estrelas">★</span>
+                                <span class="star-item" data-value="4" title="4 Estrelas">★</span>
+                                <span class="star-item" data-value="5" title="5 Estrelas">★</span>
+                            </div>
+
+                            <div class="rating-feedback-text" id="rating-feedback-text">
+                                Escolhe entre 0 e 5 estrelas
+                            </div>
+
+                            <div class="zero-stars-row">
+                                <button type="button" class="zero-stars-btn" id="zero-stars-btn">
+                                    Atribuir 0 estrelas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nome do Leitor -->
+                    <div class="form-group">
+                        <label for="reviewer-name" class="field-label">
+                            <span>O teu Nome / Família:</span>
+                            <span class="required">* Obrigatório</span>
+                        </label>
+                        <input type="text" id="reviewer-name" class="input-text" placeholder="Ex: Marta Santos (ou Marta & pequeno Tomás)" required maxlength="60">
+                    </div>
+
+                    <!-- Escolha da Ovelha Favorita -->
+                    <div class="form-group">
+                        <label class="field-label">
+                            <span>Qual foi a tua personagem favorita?</span>
+                        </label>
+                        <div class="characters-picker-grid" id="characters-picker">
+                            <div class="character-option-card selected" data-char="ovelha-arcoiris">
+                                <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris">
+                                <span class="char-opt-name">Arco-Íris</span>
+                                <span class="char-opt-role">A Principal</span>
+                            </div>
+                            <div class="character-option-card" data-char="ovelha-azul">
+                                <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul">
+                                <span class="char-opt-name">Azul</span>
+                                <span class="char-opt-role">A Engenheira</span>
+                            </div>
+                            <div class="character-option-card" data-char="ovelha-roxa">
+                                <img src="assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa">
+                                <span class="char-opt-name">Roxa</span>
+                                <span class="char-opt-role">A Curiosa</span>
+                            </div>
+                            <div class="character-option-card" data-char="ovelha-melancia">
+                                <img src="assets/personagens/ovelha-melancia.png" alt="Ovelha Melancia">
+                                <span class="char-opt-name">Melancia</span>
+                                <span class="char-opt-role">A Comilona</span>
+                            </div>
+                            <div class="character-option-card" data-char="ovelha-verde">
+                                <img src="assets/personagens/ovelha-verde.png" alt="Ovelha Verde">
+                                <span class="char-opt-name">Verde</span>
+                                <span class="char-opt-role">A Ambientalista</span>
+                            </div>
+                            <div class="character-option-card" data-char="ovelha-rosa">
+                                <img src="assets/personagens/ovelha-rosa.png" alt="Ovelha Rosa">
+                                <span class="char-opt-name">Rosa</span>
+                                <span class="char-opt-role">A Brincalhona</span>
+                            </div>
+                            <div class="character-option-card" data-char="ovelha-laranja">
+                                <img src="assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja">
+                                <span class="char-opt-name">Laranja</span>
+                                <span class="char-opt-role">A Planeadora</span>
+                            </div>
+                            <div class="character-option-card" data-char="elefante-amendoim">
+                                <img src="assets/personagens/elefante-amendoim.png" alt="Elefante Amendoim">
+                                <span class="char-opt-name">Elefante</span>
+                                <span class="char-opt-role">Do Amendoim</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Título da Crítica -->
+                    <div class="form-group">
+                        <label for="review-title" class="field-label">
+                            <span>Título da Crítica (Opcional):</span>
+                        </label>
+                        <input type="text" id="review-title" class="input-text" placeholder="Ex: As ilustrações são lindas e a história muito divertida!" maxlength="100">
+                    </div>
+
+                    <!-- Opinião Completa -->
+                    <div class="form-group">
+                        <label for="review-comment" class="field-label">
+                            <span>A tua Opinião:</span>
+                            <span class="required">* Obrigatório</span>
+                        </label>
+                        <textarea id="review-comment" class="input-textarea" placeholder="Conta-nos o que mais gostaram no livro, como foi a reação das crianças ao Planeta Amendoim, ou o que sentiram ao ler..." required maxlength="1200"></textarea>
+                    </div>
+
+                    <!-- Botão Submeter -->
+                    <button type="submit" class="btn-submit" id="btn-submit-review">
+                        <span>🚀</span> Enviar Crítica Espacial
+                    </button>
+
+                </div>
+            </form>
+
+            <!-- Ecrã de Agradecimento e Sucesso -->
+            <div class="success-screen" id="success-screen">
+                <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Feliz" class="success-sheep" id="success-sheep-img">
+                <h2>Muito Obrigado pela Avaliação! 🌟</h2>
+                
+                <div class="badge-success-highlight" id="success-verified-badge" style="display:none;">
+                    <span>✓</span> Compra Confirmada Registada!
+                </div>
+
+                <p>
+                    A tua crítica foi registada com sucesso e já está disponível para iluminar o caminho de outros leitores que queiram viajar até ao Planeta Amendoim!
+                </p>
+
+                <a href="index.html" class="btn-return-home">
+                    Voltar ao Site Principal 🌌
+                </a>
+            </div>
+
+        </div>
+
+        <a href="index.html" class="back-to-site-link">← Voltar à página inicial de Ovelhas Coloridas</a>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="firebase-config.js"></script>
+
+    <script>
+        // Starfield Canvas
+        (function initCanvas() {
+            const canvas = document.getElementById('starfield');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let stars = [];
+
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                stars = [];
+                for (let i = 0; i < 90; i++) {
+                    stars.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        radius: Math.random() * 1.5 + 0.3,
+                        alpha: Math.random() * 0.7 + 0.3,
+                        speed: Math.random() * 0.02 + 0.005
+                    });
+                }
+            }
+
+            function draw(time) {
+                ctx.fillStyle = '#0a0e27';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                stars.forEach(s => {
+                    const tw = Math.sin(time * s.speed);
+                    ctx.globalAlpha = s.alpha * (0.6 + tw * 0.4);
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                requestAnimationFrame(draw);
+            }
+
+            window.addEventListener('resize', resize);
+            resize();
+            requestAnimationFrame(draw);
+        })();
+
+        // Form State
+        let selectedRating = null; // 0 to 5
+        let selectedCharacter = 'ovelha-arcoiris';
+        let verifiedToken = null;
+
+        // Feedback descritivo de rating
+        const ratingDescriptions = {
+            0: "0/5 — Não gostámos do livro",
+            1: "⭐ 1/5 — Abaixo das expectativas",
+            2: "⭐⭐ 2/5 — Razoável",
+            3: "⭐⭐⭐ 3/5 — Bom, história engraçada!",
+            4: "⭐⭐⭐⭐ 4/5 — Muito bom! Adorámos!",
+            5: "⭐⭐⭐⭐⭐ 5/5 — Incrível! Uma viagem espacial perfeita! 🪐✨"
+        };
+
+        const stars = document.querySelectorAll('.star-item');
+        const feedbackEl = document.getElementById('rating-feedback-text');
+        const zeroBtn = document.getElementById('zero-stars-btn');
+
+        function updateStarsVisual(rating) {
+            stars.forEach(s => {
+                const val = parseInt(s.getAttribute('data-value'), 10);
+                if (rating !== null && rating >= val) {
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+
+            if (rating === 0) {
+                zeroBtn.classList.add('active');
+            } else {
+                zeroBtn.classList.remove('active');
+            }
+
+            if (rating !== null && ratingDescriptions[rating] !== undefined) {
+                feedbackEl.textContent = ratingDescriptions[rating];
+            } else {
+                feedbackEl.textContent = "Escolhe entre 0 e 5 estrelas";
+            }
+        }
+
+        // Eventos das estrelas
+        stars.forEach(star => {
+            star.addEventListener('mouseenter', () => {
+                const hoverVal = parseInt(star.getAttribute('data-value'), 10);
+                stars.forEach(s => {
+                    const v = parseInt(s.getAttribute('data-value'), 10);
+                    if (v <= hoverVal) s.classList.add('hovered');
+                    else s.classList.remove('hovered');
+                });
+            });
+
+            star.addEventListener('mouseleave', () => {
+                stars.forEach(s => s.classList.remove('hovered'));
+            });
+
+            star.addEventListener('click', () => {
+                selectedRating = parseInt(star.getAttribute('data-value'), 10);
+                updateStarsVisual(selectedRating);
+            });
+        });
+
+        // Evento 0 Estrelas
+        zeroBtn.addEventListener('click', () => {
+            selectedRating = 0;
+            updateStarsVisual(0);
+        });
+
+        // Seleção de Personagem
+        const charCards = document.querySelectorAll('.character-option-card');
+        charCards.forEach(card => {
+            card.addEventListener('click', () => {
+                charCards.forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                selectedCharacter = card.getAttribute('data-char');
+            });
+        });
+
+        // Verificar Token no URL ao carregar
+        window.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tokenParam = urlParams.get('token');
+
+            if (tokenParam && tokenParam.trim()) {
+                verifiedToken = tokenParam.trim();
+                const check = await window.OvelhasFirebase.validateVerifiedToken(verifiedToken);
+                
+                if (check.valid) {
+                    const banner = document.getElementById('verified-badge-banner');
+                    banner.style.display = 'flex';
+                    
+                    // Se o admin registou um nome de cliente, pré-preenche suavemente
+                    if (check.data && check.data.customerName) {
+                        const nameField = document.getElementById('reviewer-name');
+                        if (!nameField.value) {
+                            nameField.value = check.data.customerName;
+                        }
+                    }
+                } else {
+                    console.log("Token inválido ou já usado:", check.reason);
+                }
+            }
+        });
+
+        // Submissão do Formulário
+        const form = document.getElementById('review-form');
+        const submitBtn = document.getElementById('btn-submit-review');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (selectedRating === null) {
+                alert("Por favor, seleciona uma classificação de 0 a 5 estrelas!");
+                document.getElementById('stars-row').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            const name = document.getElementById('reviewer-name').value.trim();
+            const title = document.getElementById('review-title').value.trim();
+            const comment = document.getElementById('review-comment').value.trim();
+
+            if (!name) {
+                alert("Por favor, introduz o teu nome.");
+                return;
+            }
+            if (!comment) {
+                alert("Por favor, escreve a tua opinião sobre o livro.");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span>🚀</span> A enviar para o espaço...';
+
+            try {
+                const res = await window.OvelhasFirebase.submitReview({
+                    name: name,
+                    rating: selectedRating,
+                    title: title,
+                    comment: comment,
+                    character: selectedCharacter,
+                    token: verifiedToken
+                });
+
+                // Transição para o ecrã de sucesso
+                document.querySelector('.card-heading').style.display = 'none';
+                form.style.display = 'none';
+                const successScreen = document.getElementById('success-screen');
+                successScreen.style.display = 'block';
+
+                // Imagem de sucesso condizente com a ovelha selecionada
+                const charData = window.OvelhasFirebase.SHEEP_CHARACTERS[selectedCharacter];
+                if (charData) {
+                    document.getElementById('success-sheep-img').src = charData.image;
+                }
+
+                if (res.verified) {
+                    document.getElementById('success-verified-badge').style.display = 'inline-flex';
+                }
+
+                successScreen.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            } catch (err) {
+                console.error(err);
+                alert("Ocorreu um erro ao enviar a avaliação: " + err.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>🚀</span> Enviar Crítica Espacial';
+            }
+        });
+    </script>
+</body>
+
+</html>
