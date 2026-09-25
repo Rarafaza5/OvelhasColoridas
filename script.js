@@ -507,3 +507,64 @@ console.log('%cPor Ana Carvalho & Rafael Diogo', 'font-size: 13px; color: #b088d
     // à meia-noite do dia 02/08/2026, os botões desbloqueiam sozinhos em tempo real!
     setInterval(updateBuyButtons, 60000);
 })();
+
+
+// ── Event Announcement Banner (dismiss + localStorage) ────
+(function initEventBanner() {
+    const banner = document.getElementById('event-banner');
+    const closeBtn = document.getElementById('event-banner-close');
+    if (!banner || !closeBtn) return;
+
+    const STORAGE_KEY = 'oc_event_banner_dismissed_nov2026';
+
+    // Se o utilizador já fechou o banner nesta sessão/dispositivo, esconde imediatamente
+    if (sessionStorage.getItem(STORAGE_KEY) === '1') {
+        banner.classList.add('banner-hidden');
+    }
+
+    closeBtn.addEventListener('click', () => {
+        banner.classList.add('banner-hidden');
+        sessionStorage.setItem(STORAGE_KEY, '1');
+    });
+})();
+
+
+// ── Event Section Countdown (to 7 Nov 2026 15:00) ────────
+(function initEventCountdown() {
+    const eventDate = new Date('2026-11-07T15:00:00').getTime();
+    const daysEl   = document.getElementById('ecd-days');
+    const hoursEl  = document.getElementById('ecd-hours');
+    const minsEl   = document.getElementById('ecd-mins');
+    const unitsEl  = document.getElementById('event-countdown-units');
+    const msgEl    = document.getElementById('event-happened-msg');
+
+    if (!daysEl || !hoursEl || !minsEl) return;
+
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+    function updateEventCountdown() {
+        const now = Date.now();
+        const diff = eventDate - now;
+
+        if (diff <= 0) {
+            // Evento já aconteceu
+            if (unitsEl) unitsEl.style.display = 'none';
+            if (msgEl) msgEl.style.display = 'block';
+            const labelEl = document.querySelector('.event-countdown-label');
+            if (labelEl) labelEl.style.display = 'none';
+            return;
+        }
+
+        const totalSecs = Math.floor(diff / 1000);
+        const days  = Math.floor(totalSecs / 86400);
+        const hours = Math.floor((totalSecs % 86400) / 3600);
+        const mins  = Math.floor((totalSecs % 3600) / 60);
+
+        daysEl.textContent  = pad(days);
+        hoursEl.textContent = pad(hours);
+        minsEl.textContent  = pad(mins);
+    }
+
+    updateEventCountdown();
+    setInterval(updateEventCountdown, 30000); // atualiza a cada 30 segundos
+})();

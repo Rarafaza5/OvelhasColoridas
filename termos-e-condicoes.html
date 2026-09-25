@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Termos e Condições — Ovelhas Coloridas: Uma Aventura no Espaço</title>
+    <meta name="description" content="Termos e Condições de utilização do site oficial do livro Ovelhas Coloridas: Uma Aventura no Espaço.">
+    <meta name="robots" content="noindex, follow">
+    <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    </noscript>
+
+    <link rel="stylesheet" href="cookie-consent.css">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-deep: #080b1e;
+            --purple: #7c3aed;
+            --purple-light: #a855f7;
+            --pink: #ec4899;
+            --text-primary: #f0f4ff;
+            --text-secondary: #94a3c0;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--purple), transparent 70%);
+            top: -100px; left: -100px;
+        }
+
+        .blob-2 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, var(--pink), transparent 70%);
+            bottom: 100px; right: -80px;
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 60px 24px 120px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--purple-light);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            background: rgba(124, 58, 237, 0.08);
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.6);
+        }
+
+        .policy-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .policy-header img {
+            width: 52px; height: 52px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.5));
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 2.6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--purple-light) 50%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.15;
+        }
+
+        .policy-updated {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .policy-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f0f4ff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--purple-light);
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        p, li {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            font-weight: 500;
+        }
+
+        p + p { margin-top: 10px; }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        ul li {
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--purple-light);
+            font-weight: 700;
+        }
+
+        a {
+            color: var(--purple-light);
+            font-weight: 700;
+        }
+
+        a:hover { color: #d8b4fe; }
+
+        .highlight-box {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 14px;
+        }
+
+        .highlight-box p {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .warning-box {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-top: 14px;
+        }
+
+        .warning-box p {
+            color: #fca5a5;
+            font-size: 0.88rem;
+        }
+
+        .policy-footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .policy-footer a { color: var(--purple-light); }
+
+        @media (max-width: 600px) {
+            .page-wrapper { padding: 40px 16px 100px; }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="starfield"></canvas>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="page-wrapper">
+
+        <a href="index.html" class="back-link">← Voltar ao Site</a>
+
+        <div class="policy-header">
+            <img src="assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja">
+            <h1>Termos e Condições</h1>
+        </div>
+        <p class="policy-updated">Última atualização: Setembro de 2026</p>
+
+        <!-- 1. Aceitação -->
+        <div class="policy-section">
+            <h2>📜 Aceitação dos Termos</h2>
+            <p>
+                Ao acederes e utilizares o site <strong>ovelhascoloridas.pt</strong> (o "Site"), declaras ter lido, compreendido e aceite estes Termos e Condições de utilização, bem como a nossa <a href="politica-privacidade.html">Política de Privacidade</a> e <a href="politica-cookies.html">Política de Cookies</a>.
+            </p>
+            <p>
+                Se não concordares com algum dos termos aqui descritos, deves cessar a utilização do Site imediatamente. A utilização continuada do Site após quaisquer alterações aos Termos constitui a aceitação dessas alterações.
+            </p>
+            <div class="highlight-box">
+                <p>📬 <strong>Entidade responsável:</strong><br>
+                Ana Carvalho &amp; Rafael Diogo<br>
+                Email: <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- 2. Propósito do Site -->
+        <div class="policy-section">
+            <h2>🚀 Propósito e Natureza do Site</h2>
+            <p>
+                Este Site tem caráter exclusivamente <strong>informativo e promocional</strong>, destinando-se a:
+            </p>
+            <ul>
+                <li>Apresentar o livro infantil <strong>«Ovelhas Coloridas: Uma Aventura no Espaço!»</strong></li>
+                <li>Divulgar informação sobre os autores e as personagens do livro</li>
+                <li>Facilitar o acesso à compra do livro através de plataformas externas (Amazon)</li>
+                <li>Publicar testemunhos e avaliações de leitores</li>
+                <li>Anunciar eventos e apresentações do livro</li>
+            </ul>
+            <p style="margin-top:10px;">
+                O Site não é uma loja online — as transações de compra são processadas exclusivamente pela Amazon, plataforma de terceiros, ao abrigo das suas próprias condições gerais.
+            </p>
+        </div>
+
+        <!-- 3. Propriedade Intelectual -->
+        <div class="policy-section">
+            <h2>©️ Propriedade Intelectual</h2>
+            <p>
+                Todo o conteúdo original deste Site está protegido por direitos de autor e propriedade intelectual, incluindo mas não se limitando a:
+            </p>
+            <ul>
+                <li>Texto do livro e sinopse</li>
+                <li>Ilustrações e arte das personagens (Ovelha Arco-Íris, Ovelha Azul, Ovelha Roxa, Ovelha Melancia, Ovelha Verde, Ovelha Rosa, Ovelha Laranja, Elefante Amendoim)</li>
+                <li>Logótipo e identidade visual do livro</li>
+                <li>Design e código fonte do Site</li>
+                <li>Fotografias e elementos gráficos originais</li>
+            </ul>
+            <p style="margin-top:12px;">
+                <strong>© <span class="year-span"></span> Ana Carvalho &amp; Rafael Diogo — Todos os direitos reservados.</strong>
+            </p>
+            <p style="margin-top:8px;">
+                É <strong>proibida</strong> a reprodução, distribuição, modificação, transmissão ou qualquer utilização do conteúdo deste Site sem autorização expressa e por escrito dos autores, exceto nos casos expressamente permitidos pela lei (ex.: citação para fins académicos ou jornalísticos, com atribuição).
+            </p>
+            <p style="margin-top:8px;">
+                Para pedidos de licenciamento ou autorização de reprodução, contacta: <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+            </p>
+        </div>
+
+        <!-- 4. Conteúdo Gerado pelo Utilizador (Avaliações) -->
+        <div class="policy-section">
+            <h2>💬 Avaliações e Testemunhos de Leitores</h2>
+
+            <h3>4.1 Submissão de Avaliações</h3>
+            <p>
+                Ao submeter uma avaliação ou testemunho através do nosso formulário, o utilizador:
+            </p>
+            <ul>
+                <li>Confirma que o conteúdo submetido é da sua autoria ou que tem autorização para o partilhar.</li>
+                <li>Concede aos autores do site uma <strong>licença não exclusiva, gratuita e perpétua</strong> para publicar, exibir e reproduzir o referido conteúdo no Site e em materiais promocionais relacionados com o livro.</li>
+                <li>Concorda que a avaliação poderá ser editada para corrigir erros tipográficos óbvios, sem alterar o sentido da mensagem.</li>
+                <li>Confirma que a informação prestada é verdadeira e que não está a submeter conteúdo de terceiros sem autorização.</li>
+            </ul>
+
+            <h3>4.2 Conteúdo Proibido</h3>
+            <p>É estritamente proibida a submissão de avaliações que contenham:</p>
+            <ul>
+                <li>Linguagem ofensiva, discriminatória, racista, sexista ou de ódio.</li>
+                <li>Conteúdo pornográfico, violento ou impróprio para menores.</li>
+                <li>Informação falsa, difamatória ou enganosa.</li>
+                <li>Dados pessoais de terceiros (endereços, contactos, etc.).</li>
+                <li>Conteúdo publicitário ou de spam não solicitado.</li>
+                <li>Links para sites externos não autorizados.</li>
+            </ul>
+
+            <h3>4.3 Moderação</h3>
+            <p>
+                Os autores reservam-se o direito de ocultar, editar ou eliminar qualquer avaliação que viole estes termos, sem aviso prévio e sem necessidade de justificação. Este direito de moderação é exercido para manter a qualidade e segurança da comunidade de leitores.
+            </p>
+
+            <div class="warning-box">
+                <p>⚠️ Avaliações falsas ou manipuladas (ex.: submetidas por bots ou partes interessadas sem experiência real com o livro) poderão ser removidas e o respetivo acesso bloqueado.</p>
+            </div>
+        </div>
+
+        <!-- 5. Links Externos -->
+        <div class="policy-section">
+            <h2>🔗 Links para Sites Externos</h2>
+            <p>
+                O Site contém links para plataformas de terceiros, nomeadamente:
+            </p>
+            <ul>
+                <li><strong>Amazon.es</strong> — para compra do livro físico, eBook e versão inglesa.</li>
+                <li><strong>Instagram (@ovelhas_coloridas)</strong> — rede social dos autores.</li>
+                <li><strong>Cascais 360 (360.cascais.pt)</strong> — informação sobre eventos do município.</li>
+                <li><strong>Google Maps</strong> — para localização do local dos eventos.</li>
+            </ul>
+            <p style="margin-top:10px;">
+                Estes links são fornecidos apenas para conveniência do utilizador. <strong>Não nos responsabilizamos pelo conteúdo, políticas de privacidade ou práticas de qualquer site de terceiros.</strong> A inclusão de um link não implica o nosso endosso desse site ou dos seus conteúdos.
+            </p>
+            <p style="margin-top:8px;">
+                Aconselhamos a leitura das políticas de privacidade e condições de utilização de cada plataforma de terceiros antes de interagir com elas.
+            </p>
+        </div>
+
+        <!-- 6. Disponibilidade do Site -->
+        <div class="policy-section">
+            <h2>⚡ Disponibilidade e Manutenção</h2>
+            <p>
+                Embora nos esforcemos por manter o Site disponível 24 horas por dia, 7 dias por semana, não garantimos a disponibilidade contínua e ininterrupta do mesmo. O Site pode estar temporariamente indisponível devido a:
+            </p>
+            <ul>
+                <li>Manutenção técnica programada.</li>
+                <li>Falhas de servidores ou infraestrutura de terceiros.</li>
+                <li>Circunstâncias fora do nosso controlo razoável (força maior).</li>
+            </ul>
+            <p style="margin-top:10px;">
+                <strong>Excluímos qualquer responsabilidade por danos</strong> (diretos ou indiretos) resultantes da indisponibilidade temporária do Site ou de erros no seu conteúdo.
+            </p>
+        </div>
+
+        <!-- 7. Exclusão de Garantias -->
+        <div class="policy-section">
+            <h2>⚠️ Limitação de Responsabilidade</h2>
+            <p>
+                O Site é disponibilizado <strong>"tal como está"</strong> (<em>as is</em>), sem garantias de qualquer tipo, expressas ou implícitas, incluindo mas não se limitando a garantias de adequação a um fim específico, correção ou completude das informações.
+            </p>
+            <p style="margin-top:8px;">
+                Não nos responsabilizamos por quaisquer perdas ou danos — diretos, indiretos, acidentais ou consequentes — resultantes da utilização ou impossibilidade de utilização do Site, das suas informações ou de qualquer link externo presente no mesmo.
+            </p>
+            <p style="margin-top:8px;">
+                As informações sobre eventos (datas, locais, horários) são fornecidas de boa-fé com base em dados disponíveis no momento da publicação. Recomendamos a verificação direta junto dos organizadores para confirmação dos detalhes.
+            </p>
+        </div>
+
+        <!-- 8. Legislação Aplicável -->
+        <div class="policy-section">
+            <h2>⚖️ Lei Aplicável e Foro Competente</h2>
+            <p>
+                Estes Termos e Condições são regidos e interpretados de acordo com a <strong>lei portuguesa</strong>. Qualquer litígio emergente da utilização deste Site ou da interpretação destes Termos será submetido à jurisdição exclusiva dos tribunais portugueses competentes.
+            </p>
+            <p style="margin-top:8px;">
+                Na eventualidade de alguma disposição destes Termos ser considerada inválida ou inaplicável, as restantes disposições manter-se-ão em pleno vigor e efeito.
+            </p>
+        </div>
+
+        <!-- 9. Atualizações -->
+        <div class="policy-section">
+            <h2>🔄 Alterações aos Termos</h2>
+            <p>
+                Reservamo-nos o direito de atualizar estes Termos e Condições a qualquer momento, publicando a versão revista nesta página com a data de "última atualização" correspondente. Recomendamos a consulta periódica desta página.
+            </p>
+            <p style="margin-top:8px;">
+                Para questões sobre estes Termos, contacta-nos em: <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="policy-footer">
+            <p>© <span id="year"></span> Ana Carvalho &amp; Rafael Diogo — Todos os direitos reservados.</p>
+            <p style="margin-top:8px;">
+                <a href="index.html">Início</a> ·
+                <a href="politica-privacidade.html">Política de Privacidade</a> ·
+                <a href="politica-cookies.html">Política de Cookies</a> ·
+                <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+            </p>
+        </div>
+
+    </div>
+
+    <script src="cookie-consent.js"></script>
+    <script>
+        const yr = new Date().getFullYear();
+        document.getElementById('year').textContent = yr;
+        document.querySelectorAll('.year-span').forEach(el => el.textContent = yr);
+
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 6000);
+            for (let i = 0; i < count; i++) {
+                stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.3 + 0.2, alpha: Math.random(), speed: Math.random() * 0.006 + 0.002, phase: Math.random() * Math.PI * 2 });
+            }
+        }
+        function drawStars(t) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const s of stars) {
+                const a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase + t * s.speed));
+                ctx.globalAlpha = a; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+        function loop(t) { drawStars(t); requestAnimationFrame(loop); }
+        resize(); initStars(); loop(0);
+        window.addEventListener('resize', function () { resize(); initStars(); });
+    </script>
+</body>
+</html>

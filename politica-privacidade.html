@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidade — Ovelhas Coloridas: Uma Aventura no Espaço</title>
+    <meta name="description" content="Política de Privacidade do site Ovelhas Coloridas. Sabe como tratamos os teus dados pessoais de acordo com o RGPD.">
+    <meta name="robots" content="noindex, follow">
+    <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    </noscript>
+
+    <link rel="stylesheet" href="cookie-consent.css">
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg-deep: #080b1e;
+            --purple: #7c3aed;
+            --purple-light: #a855f7;
+            --pink: #ec4899;
+            --text-primary: #f0f4ff;
+            --text-secondary: #94a3c0;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.08);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #starfield {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .bg-blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .blob-1 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--purple), transparent 70%);
+            top: -100px; left: -100px;
+        }
+
+        .blob-2 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, var(--pink), transparent 70%);
+            bottom: 100px; right: -80px;
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 60px 24px 120px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--purple-light);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 40px;
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            background: rgba(124, 58, 237, 0.08);
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .back-link:hover {
+            background: rgba(124, 58, 237, 0.15);
+            border-color: rgba(124, 58, 237, 0.6);
+        }
+
+        .policy-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 12px;
+        }
+
+        .policy-header img {
+            width: 52px; height: 52px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.5));
+        }
+
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(1.8rem, 5vw, 2.6rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, var(--purple-light) 50%, var(--pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.15;
+        }
+
+        .policy-updated {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 40px;
+        }
+
+        .policy-section {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 18px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f0f4ff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--purple-light);
+            margin-top: 16px;
+            margin-bottom: 8px;
+        }
+
+        p, li {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            line-height: 1.75;
+            font-weight: 500;
+        }
+
+        p + p { margin-top: 10px; }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        ul li {
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--purple-light);
+            font-weight: 700;
+        }
+
+        a {
+            color: var(--purple-light);
+            font-weight: 700;
+        }
+
+        a:hover { color: #d8b4fe; }
+
+        .highlight-box {
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 14px;
+        }
+
+        .highlight-box p {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .rights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .right-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 14px;
+        }
+
+        .right-item .right-emoji {
+            font-size: 1.4rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .right-item strong {
+            display: block;
+            font-size: 0.88rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .right-item p {
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .policy-footer {
+            margin-top: 60px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .policy-footer a { color: var(--purple-light); }
+
+        @media (max-width: 600px) {
+            .page-wrapper { padding: 40px 16px 100px; }
+            .rights-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="starfield"></canvas>
+    <div class="bg-blob blob-1"></div>
+    <div class="bg-blob blob-2"></div>
+
+    <div class="page-wrapper">
+
+        <a href="index.html" class="back-link">← Voltar ao Site</a>
+
+        <div class="policy-header">
+            <img src="assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa">
+            <h1>Política de Privacidade</h1>
+        </div>
+        <p class="policy-updated">Última atualização: Setembro de 2026</p>
+
+        <!-- 1. Introdução -->
+        <div class="policy-section">
+            <h2>🛸 Quem somos?</h2>
+            <p>
+                Este site é o portal oficial do livro infantil <strong>«Ovelhas Coloridas: Uma Aventura no Espaço!»</strong>,
+                da autoria de <strong>Ana Carvalho e Rafael Diogo</strong>.
+            </p>
+            <div class="highlight-box">
+                <p>📬 <strong>Responsável pelo tratamento de dados:</strong><br>
+                Ana Carvalho &amp; Rafael Diogo<br>
+                Email: <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+                </p>
+            </div>
+            <p style="margin-top:14px;">
+                Comprometemo-nos a proteger a tua privacidade e a tratar os teus dados pessoais com
+                responsabilidade, em conformidade com o <strong>Regulamento Geral sobre a Proteção de Dados
+                (RGPD — Regulamento UE 2016/679)</strong> e a legislação portuguesa aplicável.
+            </p>
+        </div>
+
+        <!-- 2. Dados Recolhidos -->
+        <div class="policy-section">
+            <h2>📋 Que dados pessoais recolhemos?</h2>
+
+            <h3>2.1 Avaliações e Testemunhos</h3>
+            <p>Quando submetes uma crítica ou avaliação do livro através da nossa página de avaliação (<code>avaliar.html</code>), recolhemos:</p>
+            <ul>
+                <li><strong>Nome ou identificação</strong> — o nome que indicares voluntariamente (pode ser um nome próprio, alcunha ou referência familiar como "Família Silva").</li>
+                <li><strong>Classificação</strong> — avaliação numérica de 0 a 5 estrelas.</li>
+                <li><strong>Texto da crítica</strong> — o comentário/opinião que partilhares sobre o livro.</li>
+                <li><strong>Título da crítica</strong> — opcional, se fornecido.</li>
+                <li><strong>Personagem favorita</strong> — escolha entre as personagens do livro.</li>
+                <li><strong>Data e hora da submissão</strong> — timestamp automático.</li>
+                <li><strong>Token de compra confirmada</strong> — se acedeste por um link verificado, guardamos esse token (sem dados de pagamento).</li>
+            </ul>
+            <p style="margin-top:10px;">Estes dados são armazenados na plataforma <strong>Google Firebase / Cloud Firestore</strong>, nos servidores da Google (UE / EEA).</p>
+
+            <h3>2.2 Cookies e Dados de Navegação</h3>
+            <p>Utilizamos cookies de análise (Google Analytics 4) para compreendermos como os visitantes interagem com o site. Consulta a nossa <a href="politica-cookies.html">Política de Cookies</a> para informação detalhada.</p>
+            <p style="margin-top:8px;">Os dados de análise recolhidos incluem: endereço IP anonimizado, tipo de dispositivo e browser, páginas visitadas, duração da visita e origem do tráfego. <strong>Nunca recolhemos dados de análise sem o teu consentimento.</strong></p>
+
+            <h3>2.3 Dados que NÃO recolhemos</h3>
+            <ul>
+                <li>Não recolhemos dados de pagamento (as compras são processadas pela Amazon).</li>
+                <li>Não recolhemos endereços de email ou números de telefone através do site.</li>
+                <li>Não criamos contas de utilizador.</li>
+                <li>Não utilizamos tecnologias de rastreio cross-site.</li>
+            </ul>
+        </div>
+
+        <!-- 3. Finalidade e Base Legal -->
+        <div class="policy-section">
+            <h2>🎯 Para que fins tratamos os dados?</h2>
+
+            <ul>
+                <li>
+                    <strong>Publicação de avaliações no site</strong> — O nome, classificação e texto da tua crítica podem ser exibidos publicamente na secção de testemunhos do site. Base legal: <em>consentimento implícito na submissão voluntária</em> (Art. 6.º, n.º 1, al. a) do RGPD).
+                </li>
+                <li>
+                    <strong>Verificação de Compra Confirmada</strong> — Quando acedes através de um link verificado, o token é validado para atribuir o badge de leitor verificado. Base legal: <em>interesse legítimo dos autores em garantir a autenticidade das avaliações</em> (Art. 6.º, n.º 1, al. f) do RGPD).
+                </li>
+                <li>
+                    <strong>Análise estatística do site</strong> — Dados de navegação anónimos para melhorar o desempenho e o conteúdo do site. Base legal: <em>consentimento</em> (solicitado através do painel de cookies). (Art. 6.º, n.º 1, al. a) do RGPD).
+                </li>
+            </ul>
+            <p style="margin-top:12px;">
+                <strong>Nunca vendemos, cedemos ou partilhamos os teus dados com terceiros para fins de marketing.</strong>
+            </p>
+        </div>
+
+        <!-- 4. Conservação de Dados -->
+        <div class="policy-section">
+            <h2>🗓️ Durante quanto tempo conservamos os dados?</h2>
+            <ul>
+                <li><strong>Avaliações e testemunhos:</strong> conservados indefinidamente enquanto o site estiver ativo, ou até que solicites a eliminação por email.</li>
+                <li><strong>Tokens de compra confirmada:</strong> conservados até serem utilizados ou eliminados pelo administrador.</li>
+                <li><strong>Dados de análise (Google Analytics):</strong> conservados durante 14 meses, conforme as definições padrão da Google Analytics 4, com anonimização do IP.</li>
+            </ul>
+        </div>
+
+        <!-- 5. Subcontratantes / Terceiros -->
+        <div class="policy-section">
+            <h2>🤝 Com quem partilhamos os dados?</h2>
+            <p>Utilizamos os seguintes subcontratantes para operar o site:</p>
+            <ul>
+                <li>
+                    <strong>Google LLC (Firebase / Cloud Firestore)</strong> — plataforma de base de dados onde são armazenadas as avaliações e tokens. Dados tratados nos termos dos <a href="https://firebase.google.com/support/privacy" target="_blank" rel="noopener">Termos de Privacidade da Firebase</a>. A Google processa dados na UE/EEA.
+                </li>
+                <li>
+                    <strong>Google LLC (Google Analytics 4)</strong> — ferramenta de análise de tráfego com anonimização de IP e suporte a Consent Mode v2 (RGPD). Política de privacidade: <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.
+                </li>
+                <li>
+                    <strong>Amazon Services Europe S.à r.l.</strong> — links para compra do livro (Amazon.es / KDP). O processamento de pagamentos e dados de compra é da responsabilidade exclusiva da Amazon, ao abrigo das suas próprias políticas de privacidade.
+                </li>
+                <li>
+                    <strong>Google Fonts</strong> — as fontes tipográficas são carregadas a partir dos servidores do Google. O teu endereço IP poderá ser temporariamente processado pela Google para esse efeito.
+                </li>
+            </ul>
+            <p style="margin-top:12px;">
+                Não existem transferências de dados para países fora do Espaço Económico Europeu (EEE) sem as salvaguardas adequadas. A Google é certificada ao abrigo das salvaguardas standard contratuais da UE.
+            </p>
+        </div>
+
+        <!-- 6. Os Teus Direitos -->
+        <div class="policy-section">
+            <h2>⚖️ Os teus direitos ao abrigo do RGPD</h2>
+            <p>Como titular dos dados, tens os seguintes direitos:</p>
+
+            <div class="rights-grid">
+                <div class="right-item">
+                    <span class="right-emoji">🔍</span>
+                    <strong>Direito de Acesso</strong>
+                    <p>Podes solicitar uma cópia dos dados que temos sobre ti.</p>
+                </div>
+                <div class="right-item">
+                    <span class="right-emoji">✏️</span>
+                    <strong>Direito de Retificação</strong>
+                    <p>Podes pedir a correção de dados incorretos ou incompletos.</p>
+                </div>
+                <div class="right-item">
+                    <span class="right-emoji">🗑️</span>
+                    <strong>Direito ao Apagamento</strong>
+                    <p>Podes pedir a eliminação da tua avaliação ou dados pessoais ("direito a ser esquecido").</p>
+                </div>
+                <div class="right-item">
+                    <span class="right-emoji">📦</span>
+                    <strong>Direito à Portabilidade</strong>
+                    <p>Podes solicitar os teus dados num formato estruturado e legível por máquina.</p>
+                </div>
+                <div class="right-item">
+                    <span class="right-emoji">🚫</span>
+                    <strong>Direito de Oposição</strong>
+                    <p>Podes opor-te ao tratamento baseado em interesse legítimo.</p>
+                </div>
+                <div class="right-item">
+                    <span class="right-emoji">⏸️</span>
+                    <strong>Direito de Limitação</strong>
+                    <p>Podes pedir a suspensão temporária do tratamento dos teus dados.</p>
+                </div>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 20px;">
+                <p>Para exercer qualquer um destes direitos, envia um email para
+                <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+                com o assunto <strong>"RGPD — [Tipo de Pedido]"</strong>.
+                Responderemos no prazo de 30 dias úteis.</p>
+            </div>
+
+            <p style="margin-top: 14px;">
+                Tens ainda o direito de apresentar uma reclamação junto da autoridade de controlo portuguesa:
+                <strong>Comissão Nacional de Proteção de Dados (CNPD)</strong> —
+                <a href="https://www.cnpd.pt" target="_blank" rel="noopener">www.cnpd.pt</a>
+            </p>
+        </div>
+
+        <!-- 7. Cookies -->
+        <div class="policy-section">
+            <h2>🍪 Gestão de Cookies</h2>
+            <p>
+                Podes gerir as tuas preferências de cookies em qualquer momento através da nossa
+                <a href="politica-cookies.html">Política de Cookies</a>
+                ou clicando em <strong>"Gerir Cookies"</strong> no rodapé da página principal.
+                Os cookies de análise (Google Analytics) só são ativados com o teu consentimento explícito.
+            </p>
+        </div>
+
+        <!-- 8. Segurança -->
+        <div class="policy-section">
+            <h2>🔒 Segurança dos dados</h2>
+            <p>
+                Os dados são armazenados na plataforma Firebase da Google, que implementa medidas técnicas e organizacionais robustas, incluindo encriptação em trânsito (TLS/HTTPS) e em repouso. O acesso administrativo ao painel de gestão de avaliações é restrito ao URL direto, sem indexação nos motores de busca.
+            </p>
+            <p>
+                Não obstante os esforços implementados, nenhum sistema de transmissão ou armazenamento eletrónico é 100% seguro. Em caso de violação de dados que possa afetar os teus direitos, serás notificado nos termos previstos no RGPD.
+            </p>
+        </div>
+
+        <!-- 9. Menores -->
+        <div class="policy-section">
+            <h2>👶 Proteção de menores</h2>
+            <p>
+                Este site é sobre um livro infantil, mas não recolhe dados diretamente de crianças. As avaliações são destinadas a pais, educadores e adultos responsáveis. Encorajamos os encarregados de educação a supervisionarem a utilização do site por parte de crianças.
+            </p>
+            <p style="margin-top:8px;">
+                Não enviamos comunicações de marketing e não criamos perfis de utilizadores, garantindo assim a conformidade com regulamentação adicional relativa à proteção de menores online.
+            </p>
+        </div>
+
+        <!-- 10. Atualizações -->
+        <div class="policy-section">
+            <h2>🔄 Alterações a esta política</h2>
+            <p>
+                Reservamo-nos o direito de atualizar esta Política de Privacidade periodicamente, para refletir alterações legais, tecnológicas ou nos nossos serviços. A data de "última atualização" no início desta página indica quando foi revista pela última vez.
+            </p>
+            <p style="margin-top:8px;">
+                Aconselhamos a consulta regular desta página. O uso continuado do site após alterações constitui a aceitação da versão mais recente.
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="policy-footer">
+            <p>© <span id="year"></span> Ana Carvalho &amp; Rafael Diogo — Todos os direitos reservados.</p>
+            <p style="margin-top:8px;">
+                <a href="index.html">Início</a> ·
+                <a href="politica-cookies.html">Política de Cookies</a> ·
+                <a href="termos-e-condicoes.html">Termos e Condições</a> ·
+                <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+            </p>
+        </div>
+
+    </div>
+
+    <script src="cookie-consent.js"></script>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function initStars() {
+            stars = [];
+            const count = Math.floor((canvas.width * canvas.height) / 6000);
+            for (let i = 0; i < count; i++) {
+                stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.3 + 0.2, alpha: Math.random(), speed: Math.random() * 0.006 + 0.002, phase: Math.random() * Math.PI * 2 });
+            }
+        }
+        function drawStars(t) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (const s of stars) {
+                const a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase + t * s.speed));
+                ctx.globalAlpha = a; ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+        function loop(t) { drawStars(t); requestAnimationFrame(loop); }
+        resize(); initStars(); loop(0);
+        window.addEventListener('resize', function () { resize(); initStars(); });
+    </script>
+</body>
+</html>
