@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
+
     <!-- Google Consent Mode v2 — default DENIED before user consents (RGPD) -->
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -18,844 +20,763 @@
         });
     </script>
 
-    <link rel="icon" type="image/x-icon" href="../assets/personagens/ovelha-arcoiris.png">
-
     <!-- SEO Meta Tags -->
-    <title>Ovelhas Coloridas — Links</title>
+    <title>Ovelhas Coloridas: Uma Aventura no Espaço</title>
     <meta name="description"
-        content="Todos os links do projeto Ovelhas Coloridas: Uma Aventura no Espaço! Compra o livro, descobre as versões disponíveis e muito mais.">
+        content="Livro infantil oficial de Ana Carvalho e Rafael Diogo. Acompanha 7 ovelhas coloridas numa expedição intergaláctica à procura do misterioso Planeta Amendoim!">
+    <meta name="keywords"
+        content="Ovelhas Coloridas, Livro Infantil, Ana Carvalho, Rafael Diogo, Planeta Amendoim, Literatura Infantil, Livro Espaço">
     <meta name="author" content="Ana Carvalho e Rafael Diogo">
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Ovelhas Coloridas — Links">
-    <meta property="og:description" content="Todos os links do projeto Ovelhas Coloridas: Uma Aventura no Espaço!">
-    <meta property="og:image" content="../assets/capa-livro.png">
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Ovelhas Coloridas: Uma Aventura no Espaço!">
+    <meta property="og:description"
+        content="7 ovelhas extraordinárias, um foguetão espacial e o misterioso Planeta Amendoim. Descobre este livro infantil ilustrado!">
+    <meta property="og:image" content="assets/capa-livro.png">
     <meta property="og:type" content="website">
 
+    <!-- Browser Theme & Performance Preloads -->
     <meta name="theme-color" content="#0a0e27">
+    <link rel="preload" as="image" href="assets/capa-livro.png" fetchpriority="high">
 
-    <!-- Fonts -->
+    <!-- Fonts — non-blocking async load to eliminate render-blocking penalty -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
-        rel="stylesheet">
+        rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link
+            href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap"
+            rel="stylesheet">
+    </noscript>
 
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
     <!-- Cookie Consent CSS -->
-    <link rel="stylesheet" href="../cookie-consent.css">
-
-    <style>
-        /* ═══ Reset & Base ═══ */
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg-deep: #080b1e;
-            --bg-mid: #0d1235;
-            --purple: #7c3aed;
-            --purple-light: #a855f7;
-            --pink: #ec4899;
-            --blue: #3b82f6;
-            --cyan: #06b6d4;
-            --orange: #f97316;
-            --green: #22c55e;
-            --yellow: #fbbf24;
-            --text-primary: #f0f4ff;
-            --text-secondary: #94a3c0;
-            --card-bg: rgba(255, 255, 255, 0.04);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-hover: rgba(255, 255, 255, 0.09);
-            --glow-purple: rgba(124, 58, 237, 0.35);
-            --glow-pink: rgba(236, 72, 153, 0.25);
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: 'Nunito', sans-serif;
-            background: var(--bg-deep);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* ═══ Starfield Canvas ═══ */
-        #starfield {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        /* ═══ Background Blobs ═══ */
-        .bg-blob {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.18;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .blob-1 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, var(--purple), transparent 70%);
-            top: -150px;
-            left: -150px;
-            animation: blobFloat1 12s ease-in-out infinite;
-        }
-
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, var(--pink), transparent 70%);
-            bottom: -100px;
-            right: -100px;
-            animation: blobFloat2 15s ease-in-out infinite;
-        }
-
-        .blob-3 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, var(--cyan), transparent 70%);
-            top: 50%;
-            left: 60%;
-            animation: blobFloat3 10s ease-in-out infinite;
-        }
-
-        @keyframes blobFloat1 {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            50% {
-                transform: translate(30px, 40px) scale(1.05);
-            }
-        }
-
-        @keyframes blobFloat2 {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            50% {
-                transform: translate(-40px, -30px) scale(1.08);
-            }
-        }
-
-        @keyframes blobFloat3 {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            50% {
-                transform: translate(20px, -20px) scale(0.95);
-            }
-        }
-
-        /* ═══ Main Layout ═══ */
-        .page-wrapper {
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 48px 20px 80px;
-        }
-
-        /* ═══ Header / Profile ═══ */
-        .profile {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.7s cubic-bezier(.22, 1, .36, 1) both;
-        }
-
-        .profile-sheep-ring {
-            position: relative;
-            width: 110px;
-            height: 110px;
-        }
-
-        .profile-sheep-ring::before {
-            content: '';
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            background: conic-gradient(var(--purple), var(--pink), var(--orange), var(--yellow),
-                    var(--green), var(--cyan), var(--blue), var(--purple));
-            animation: spinRing 4s linear infinite;
-            z-index: 0;
-        }
-
-        .profile-sheep-ring::after {
-            content: '';
-            position: absolute;
-            inset: 3px;
-            border-radius: 50%;
-            background: var(--bg-deep);
-            z-index: 1;
-        }
-
-        @keyframes spinRing {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .profile-sheep-ring img {
-            position: absolute;
-            inset: 8px;
-            width: calc(100% - 16px);
-            height: calc(100% - 16px);
-            object-fit: contain;
-            z-index: 2;
-            filter: drop-shadow(0 0 16px rgba(168, 85, 247, 0.6));
-        }
-
-        .profile-title {
-            font-family: 'Fredoka', sans-serif;
-            font-size: clamp(1.8rem, 5vw, 2.4rem);
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            text-align: center;
-            background: linear-gradient(135deg, #fff 0%, var(--purple-light) 50%, var(--pink) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1.1;
-        }
-
-        .profile-subtitle {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .profile-authors {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 999px;
-            padding: 6px 18px;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            font-weight: 700;
-            letter-spacing: 0.03em;
-        }
-
-        .profile-authors span {
-            color: var(--text-primary);
-        }
-
-        /* ═══ Links Container ═══ */
-        .links-container {
-            width: 100%;
-            max-width: 500px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        /* ═══ Section Labels ═══ */
-        .section-label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-secondary);
-            font-size: 0.78rem;
-            font-weight: 800;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-top: 12px;
-            margin-bottom: -4px;
-        }
-
-        .section-label::before,
-        .section-label::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: var(--card-border);
-        }
-
-        /* ═══ Link Cards ═══ */
-        .link-card {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 18px;
-            padding: 16px 20px;
-            text-decoration: none;
-            color: var(--text-primary);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition:
-                transform 0.25s cubic-bezier(.22, 1, .36, 1),
-                border-color 0.25s ease,
-                background 0.25s ease,
-                box-shadow 0.25s ease;
-            animation: fadeInUp 0.6s cubic-bezier(.22, 1, .36, 1) both;
-        }
-
-        .link-card::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, var(--card-glow-a, transparent), var(--card-glow-b, transparent));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border-radius: inherit;
-        }
-
-        .link-card:hover {
-            transform: translateY(-3px) scale(1.01);
-            border-color: var(--card-accent, rgba(255, 255, 255, 0.2));
-            background: var(--card-hover);
-            box-shadow: 0 12px 40px var(--card-shadow, rgba(124, 58, 237, 0.2));
-        }
-
-        .link-card:hover::before {
-            opacity: 1;
-        }
-
-        .link-card:active {
-            transform: translateY(-1px) scale(0.99);
-        }
-
-        /* Card accent themes */
-        .card-amazon-pt {
-            --card-accent: rgba(255, 153, 0, 0.5);
-            --card-shadow: rgba(255, 153, 0, 0.2);
-            --card-glow-a: rgba(255, 153, 0, 0.06);
-            --card-glow-b: transparent;
-        }
-
-        .card-amazon-en {
-            --card-accent: rgba(59, 130, 246, 0.5);
-            --card-shadow: rgba(59, 130, 246, 0.2);
-            --card-glow-a: rgba(59, 130, 246, 0.06);
-            --card-glow-b: transparent;
-        }
-
-        .card-ebook {
-            --card-accent: rgba(168, 85, 247, 0.5);
-            --card-shadow: rgba(168, 85, 247, 0.2);
-            --card-glow-a: rgba(168, 85, 247, 0.06);
-            --card-glow-b: transparent;
-        }
-
-        .card-website {
-            --card-accent: rgba(236, 72, 153, 0.5);
-            --card-shadow: rgba(236, 72, 153, 0.2);
-            --card-glow-a: rgba(236, 72, 153, 0.06);
-            --card-glow-b: transparent;
-        }
-
-        .card-email {
-            --card-accent: rgba(34, 197, 94, 0.5);
-            --card-shadow: rgba(34, 197, 94, 0.2);
-            --card-glow-a: rgba(34, 197, 94, 0.06);
-            --card-glow-b: transparent;
-        }
-
-        .card-event {
-            --card-accent: rgba(251, 191, 36, 0.6);
-            --card-shadow: rgba(251, 191, 36, 0.25);
-            --card-glow-a: rgba(251, 191, 36, 0.12);
-            --card-glow-b: rgba(236, 72, 153, 0.06);
-            border-color: rgba(251, 191, 36, 0.35);
-        }
-
-        .icon-event {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #080b1e;
-        }
-
-        .badge-event {
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #080b1e;
-            font-weight: 900;
-        }
-
-
-        /* ═══ Card Icon ═══ */
-        .card-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 1.5rem;
-            position: relative;
-            z-index: 1;
-            transition: transform 0.3s cubic-bezier(.22, 1, .36, 1);
-        }
-
-        .link-card:hover .card-icon {
-            transform: scale(1.12) rotate(-4deg);
-        }
-
-        .card-icon img {
-            width: 36px;
-            height: 36px;
-            object-fit: contain;
-        }
-
-        .icon-amazon-pt {
-            background: linear-gradient(135deg, #FF9900, #FF6600);
-        }
-
-        .icon-amazon-en {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        }
-
-        .icon-ebook {
-            background: linear-gradient(135deg, #a855f7, #7c3aed);
-        }
-
-        .icon-website {
-            background: linear-gradient(135deg, #ec4899, #be185d);
-        }
-
-        .icon-email {
-            background: linear-gradient(135deg, #22c55e, #15803d);
-        }
-
-        /* ═══ Card Text ═══ */
-        .card-text {
-            flex: 1;
-            position: relative;
-            z-index: 1;
-        }
-
-        .card-title {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-
-        .card-desc {
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            margin-top: 2px;
-            font-weight: 600;
-        }
-
-        /* ═══ Card Badge ═══ */
-        .card-badge {
-            font-size: 0.7rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 3px 10px;
-            border-radius: 999px;
-            flex-shrink: 0;
-            position: relative;
-            z-index: 1;
-        }
-
-        .badge-new {
-            background: linear-gradient(135deg, var(--cyan), var(--blue));
-            color: #fff;
-        }
-
-        .badge-buy {
-            background: linear-gradient(135deg, var(--orange), #ea580c);
-            color: #fff;
-        }
-
-        /* ═══ Arrow ═══ */
-        .card-arrow {
-            position: relative;
-            z-index: 1;
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            transition: transform 0.25s ease, color 0.25s ease;
-            flex-shrink: 0;
-        }
-
-        .link-card:hover .card-arrow {
-            transform: translateX(4px);
-            color: var(--text-primary);
-        }
-
-        /* ═══ Floating Sheep Parade ═══ */
-        .sheep-parade {
-            display: flex;
-            gap: 10px;
-            margin-top: 48px;
-            animation: fadeInUp 0.8s 0.6s cubic-bezier(.22, 1, .36, 1) both;
-        }
-
-        .parade-sheep {
-            width: 48px;
-            height: 48px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 12px rgba(168, 85, 247, 0.4));
-            animation: sheepBounce 2.5s ease-in-out infinite;
-        }
-
-        .parade-sheep:nth-child(1) {
-            animation-delay: 0s;
-        }
-
-        .parade-sheep:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .parade-sheep:nth-child(3) {
-            animation-delay: 0.4s;
-        }
-
-        .parade-sheep:nth-child(4) {
-            animation-delay: 0.6s;
-        }
-
-        .parade-sheep:nth-child(5) {
-            animation-delay: 0.8s;
-        }
-
-        .parade-sheep:nth-child(6) {
-            animation-delay: 1.0s;
-        }
-
-        .parade-sheep:nth-child(7) {
-            animation-delay: 1.2s;
-        }
-
-        @keyframes sheepBounce {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-
-        /* ═══ Footer ═══ */
-        .page-footer {
-            margin-top: 48px;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            font-weight: 600;
-            animation: fadeInUp 0.8s 0.8s cubic-bezier(.22, 1, .36, 1) both;
-        }
-
-        .page-footer a {
-            color: var(--purple-light);
-            text-decoration: none;
-        }
-
-        .page-footer a:hover {
-            text-decoration: underline;
-        }
-
-        /* ═══ Animations ═══ */
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-24px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(24px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .link-card:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .link-card:nth-child(2) {
-            animation-delay: 0.15s;
-        }
-
-        .link-card:nth-child(3) {
-            animation-delay: 0.2s;
-        }
-
-        .link-card:nth-child(4) {
-            animation-delay: 0.25s;
-        }
-
-        .link-card:nth-child(5) {
-            animation-delay: 0.3s;
-        }
-
-        .link-card:nth-child(6) {
-            animation-delay: 0.35s;
-        }
-
-        /* ═══ Responsive ═══ */
-        @media (max-width: 480px) {
-            .page-wrapper {
-                padding: 36px 14px 60px;
-            }
-
-            .card-icon {
-                width: 44px;
-                height: 44px;
-                border-radius: 12px;
-            }
-
-            .card-icon img {
-                width: 28px;
-                height: 28px;
-            }
-
-            .sheep-parade {
-                gap: 6px;
-            }
-
-            .parade-sheep {
-                width: 38px;
-                height: 38px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="cookie-consent.css">
 </head>
 
 <body>
-    <!-- Starfield Canvas -->
+
+    <!-- Canvas para fundo estelar dinâmico -->
     <canvas id="starfield"></canvas>
 
-    <!-- Background Blobs -->
-    <div class="bg-blob blob-1"></div>
-    <div class="bg-blob blob-2"></div>
-    <div class="bg-blob blob-3"></div>
+    <!-- ═══ Header / Navbar ═══ -->
+    <header class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#hero" class="nav-logo" id="nav-logo">
+                <img src="assets/titulo-logo.png" alt="Ovelhas Coloridas Logo" class="nav-banner-logo" width="220"
+                    height="48">
+            </a>
 
-    <!-- ═══ Page Wrapper ═══ -->
-    <div class="page-wrapper">
+            <nav class="nav-links" id="nav-links">
+                <a href="#hero" class="nav-link active">Início</a>
+                <a href="#sobre" class="nav-link">O Livro</a>
+                <a href="#personagens" class="nav-link">O Rebanho</a>
+                <a href="#autores" class="nav-link">Autores</a>
+                <a href="#testemunhos" class="nav-link">Críticas</a>
+                <a href="#comprar" class="nav-btn-cta">Comprar Livro</a>
+            </nav>
 
-        <!-- ═══ Profile / Header ═══ -->
-        <div class="profile">
-            <div class="profile-sheep-ring">
-                <img src="../assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris">
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Abrir Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ═══ Main Landmark ═══ -->
+    <main>
+
+        <!-- ═══ Event Announcement Banner ═══ -->
+        <div class="event-banner" id="event-banner" role="alert" aria-live="polite">
+            <div class="event-banner-inner">
+                <div class="event-banner-content">
+                    <span class="event-banner-badge">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm-7-9c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        Próximo Evento
+                    </span>
+                    <p class="event-banner-text">
+                        <strong>Apresentação do Livro em Cascais!</strong>
+                        <span class="event-banner-sep">·</span>
+                        <span class="event-details-inline">
+                            <span class="event-detail-item">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+                                7 Nov 2026 · 15h00
+                            </span>
+                            <span class="event-detail-item">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                Biblioteca Infantil, Cascais
+                            </span>
+                            <span class="event-detail-item event-badge-free">🎟️ Entrada Gratuita</span>
+                        </span>
+                    </p>
+                    <a href="https://360.cascais.pt/pt/agenda/apresentacao-do-livro-ovelhas-coloridas-de-ana-carvalho-e-rafael-diogo?id=5358"
+                       target="_blank" rel="noopener noreferrer"
+                       class="event-banner-cta" id="event-banner-cta-link">
+                        Saber Mais
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                    </a>
+                </div>
+                <button type="button" class="event-banner-close" id="event-banner-close" aria-label="Fechar aviso de evento">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══ Hero Section (Real HTML Typography) ═══ -->
+        <section class="hero" id="hero">
+            <!-- Background nebulas & stars -->
+            <div class="hero-bg-effects">
+                <img src="assets/elementos/nebulosa-1.png" alt="" class="bg-nebula bg-nebula-1" loading="lazy"
+                    width="600" height="600">
+                <img src="assets/elementos/nebulosa-2.png" alt="" class="bg-nebula bg-nebula-2" loading="lazy"
+                    width="580" height="580">
+                <img src="assets/elementos/estrelas-1.png" alt="" class="bg-stars bg-stars-1" loading="lazy" width="280"
+                    height="280">
+                <img src="assets/elementos/estrelas-2.png" alt="" class="bg-stars bg-stars-2" loading="lazy" width="240"
+                    height="240">
             </div>
 
-            <h1 class="profile-title">Ovelhas Coloridas</h1>
-            <p class="profile-subtitle">Uma Aventura no Espaço! 🚀</p>
+            <!-- Floating sheep positioned in corners -->
+            <div class="float-sheep float-tl">
+                <img src="assets/personagens/ovelha-verde.png" alt="Ovelha Verde" width="90" height="90">
+            </div>
+            <div class="float-sheep float-bl">
+                <img src="assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa" width="80" height="80">
+            </div>
+            <div class="float-sheep float-tr">
+                <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul" width="85" height="85">
+            </div>
+            <div class="float-sheep float-br">
+                <img src="assets/personagens/ovelha-melancia.png" alt="Ovelha Melancia" width="75" height="75">
+            </div>
 
-            <div class="profile-authors">
-                ✍️ <span>Ana Carvalho</span> &amp; <span>Rafael Diogo</span>
+            <!-- Two-column hero layout -->
+            <div class="hero-content">
+
+                <!-- LEFT: Real Typography Title & Messaging -->
+                <div class="hero-text">
+
+
+                    <!-- REAL HTML TYPOGRAPHY TITLE -->
+                    <h1 class="hero-title-main">
+                        Ovelhas Coloridas
+                    </h1>
+
+                    <h2 class="hero-tagline">
+                        Uma Aventura no Espaço!
+                    </h2>
+
+                    <p class="hero-description">
+                        Quando um rebanho de ovelhas, estilosas e coloridas, ficaram cansadas do dia a dia, que era
+                        sempre
+                        igual, decidem trabalhar em conjunto e embarcar numa aventura que as levará para lá do seu
+                        planeta
+                        natal, onde descobrem espécies novas.
+                    </p>
+
+                    <p class="hero-authors">Por <span>Ana Carvalho</span> & <span>Rafael Diogo</span></p>
+
+                    <div class="hero-buttons">
+                        <a href="#comprar" class="btn-primary" id="hero-cta-buy">
+                            Comprar Livro
+                            <img src="assets/personagens/ovelha-arcoiris.png" alt="" class="btn-icon">
+                        </a>
+                        <a href="#sobre" class="btn-secondary" id="hero-cta-learn">
+                            Descobrir a História
+                        </a>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Book Cover Display -->
+                <div class="hero-visual">
+                    <div class="hero-book-wrapper">
+                        <div class="hero-book-glow"></div>
+                        <div class="hero-book">
+                            <img src="assets/capa-livro.png"
+                                alt="Capa do livro Ovelhas Coloridas: Uma Aventura no Espaço" id="hero-book-cover"
+                                width="290" height="420" fetchpriority="high">
+                        </div>
+                        <!-- Mini orbiting sheep on corners of book -->
+                        <div class="orbit-sheep orbit-tl">
+                            <img src="assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja" width="64"
+                                height="64">
+                        </div>
+                        <div class="orbit-sheep orbit-br">
+                            <img src="assets/personagens/ovelha-rosa.png" alt="Ovelha Rosa" width="64" height="64">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scroll-indicator" id="scroll-indicator">
+                <div class="scroll-mouse"></div>
+                <span>Scroll</span>
+            </div>
+        </section>
+
+        <!-- ═══ Official Book Highlights Bar ═══ -->
+        <section class="stats-bar">
+            <div class="container">
+                <h2 class="sr-only">Destaques do Livro</h2>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-icon"><img src="assets/personagens/ovelha-azul.png" alt="" loading="lazy"
+                                width="42" height="42"></span>
+                        <div class="stat-info">
+                            <h3>38 Páginas</h3>
+                            <p>Totalmente ilustradas a cores</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon"><img src="assets/personagens/ovelha-arcoiris.png" alt="" loading="lazy"
+                                width="42" height="42"></span>
+                        <div class="stat-info">
+                            <h3>7 Personagens</h3>
+                            <p>Cada uma com a sua cor e papel</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon"><img src="assets/personagens/ovelha-roxa.png" alt="" loading="lazy"
+                                width="42" height="42"></span>
+                        <div class="stat-info">
+                            <h3>Planeta Amendoim</h3>
+                            <p>Uma descoberta intergaláctica</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-icon"><img src="assets/personagens/ovelha-verde.png" alt="" loading="lazy"
+                                width="42" height="42"></span>
+                        <div class="stat-info">
+                            <h3>Idade Recomendada</h3>
+                            <p>Dos 4 aos 10 anos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ About Section / Synopsis ═══ -->
+        <section class="about" id="sobre">
+            <div class="container">
+                <div class="about-content">
+                    <div class="about-image-wrapper reveal">
+                        <div class="about-image-glow"></div>
+                        <img src="assets/elementos/nebulosa-3.png" alt="" class="about-bg-nebula" loading="lazy"
+                            width="600" height="600">
+                        <div class="about-book-display">
+                            <img src="assets/contra-capa.png"
+                                alt="Contra-capa oficial do livro com sinopse e ovelhas espaciais" loading="lazy"
+                                width="400" height="580">
+                        </div>
+                    </div>
+
+                    <div class="about-text">
+                        <h2 class="reveal">Sinopse:</h2>
+                        <p class="about-synopsis reveal reveal-delay-1">
+                            Quando um rebanho de ovelhas, estilosas e coloridas, ficaram cansadas do dia a dia , que era
+                            sempre igual, decidem trabalhar em conjunto e embarcar numa aventura que as levará para lá
+                            do
+                            seu planeta natal, onde descobrem espécies novas.
+                        </p>
+
+                        <p class="about-synopsis reveal reveal-delay-2">
+                            Neste livro, o leitor aprende que mais importante do que o sítio onde estás, são os amigos
+                            que
+                            estão presentes.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Accurate Characters Section (Strictly from Book Page 3) ═══ -->
+        <section class="characters" id="personagens">
+            <div class="container">
+                <h2 class="section-title reveal">Conhece o Rebanho</h2>
+                <p class="section-subtitle reveal reveal-delay-1">
+                    Conforme apresentadas na edição oficial do livro! Cada ovelha desempenha uma função essencial na
+                    missão
+                    espacial.
+                </p>
+
+                <div class="characters-grid">
+                    <!-- 1. Ovelha Arco-Íris -->
+                    <div class="character-card card-rainbow reveal reveal-delay-1" id="char-arcoiris">
+                        <div class="character-card-glow"></div>
+                        <div class="character-img-wrapper">
+                            <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris"
+                                class="main-char-img" loading="lazy" width="140" height="150">
+                        </div>
+                        <h3 class="character-name">Ovelha Arco-Íris</h3>
+                        <p class="character-role">A Principal</p>
+                    </div>
+
+                    <!-- 2. Ovelha Azul -->
+                    <div class="character-card card-blue reveal reveal-delay-2" id="char-azul">
+                        <div class="character-card-glow"></div>
+                        <div class="character-img-wrapper">
+                            <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul" class="main-char-img"
+                                loading="lazy" width="140" height="150">
+                        </div>
+                        <h3 class="character-name">Ovelha Azul</h3>
+                        <p class="character-role">A Engenheira</p>
+                    </div>
+
+                    <!-- 3. Ovelha Roxa -->
+                    <div class="character-card card-purple reveal reveal-delay-3" id="char-roxa">
+                        <div class="character-card-glow"></div>
+                        <div class="character-img-wrapper">
+                            <img src="assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa" class="main-char-img"
+                                loading="lazy" width="140" height="150">
+                        </div>
+                        <h3 class="character-name">Ovelha Roxa</h3>
+                        <p class="character-role">A Curiosa</p>
+                    </div>
+
+                    <!-- 4. Ovelha Melancia -->
+                    <div class="character-card card-watermelon reveal reveal-delay-4" id="char-melancia">
+                        <div class="character-card-glow"></div>
+                        <div class="character-img-wrapper">
+                            <img src="assets/personagens/ovelha-melancia.png" alt="Ovelha Melancia"
+                                class="main-char-img" loading="lazy" width="140" height="150">
+                        </div>
+                        <h3 class="character-name">Ovelha Melancia</h3>
+                        <p class="character-role">A Comilona</p>
+                    </div>
+
+                    <!-- 5. Ovelha Verde -->
+                    <div class="character-card card-green reveal reveal-delay-5" id="char-verde">
+                        <div class="character-card-glow"></div>
+                        <div class="character-img-wrapper">
+                            <img src="assets/personagens/ovelha-verde.png" alt="Ovelha Verde" class="main-char-img"
+                                loading="lazy" width="140" height="150">
+                        </div>
+                        <h3 class="character-name">Ovelha Verde</h3>
+                        <p class="character-role">A Ambientalista</p>
+                    </div>
+
+                    <!-- 6. Ovelha Rosa -->
+                    <div class="character-card card-pink reveal reveal-delay-6" id="char-rosa">
+                        <div class="character-card-glow"></div>
+                        <div class="character-img-wrapper">
+                            <img src="assets/personagens/ovelha-rosa.png" alt="Ovelha Rosa" class="main-char-img"
+                                loading="lazy" width="140" height="150">
+                        </div>
+                        <h3 class="character-name">Ovelha Rosa</h3>
+                        <p class="character-role">A Brincalhona</p>
+                    </div>
+
+                    <!-- 7. Ovelha Laranja -->
+                    <div class="character-card card-orange reveal reveal-delay-7" id="char-laranja">
+                        <div class="character-card-glow"></div>
+                        <div class="character-img-wrapper">
+                            <img src="assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja" class="main-char-img"
+                                loading="lazy" width="140" height="150">
+                        </div>
+                        <h3 class="character-name">Ovelha Laranja</h3>
+                        <p class="character-role">A Planeadora</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Authors Section ═══ -->
+        <section class="authors" id="autores">
+            <div class="container">
+                <h2 class="section-title reveal">Os Autores da História</h2>
+                <p class="section-subtitle reveal reveal-delay-1">
+                    Conhece quem deu vida ao universo mágico das Ovelhas Coloridas
+                </p>
+
+                <div class="authors-content reveal reveal-delay-2">
+                    <div class="authors-card">
+                        <div class="authors-header">
+                            <div class="authors-avatars">
+                                <div class="author-avatar-badge">
+                                    <img src="assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris"
+                                        loading="lazy" width="68" height="68">
+                                </div>
+                                <div class="author-avatar-badge">
+                                    <img src="assets/personagens/ovelha-azul.png" alt="Ovelha Azul" loading="lazy"
+                                        width="68" height="68">
+                                </div>
+                            </div>
+                            <div class="authors-header-text">
+                                <h3>Ana Carvalho & Rafael Diogo</h3>
+                                <p>Autores & Ilustradores</p>
+                            </div>
+                        </div>
+
+                        <p class="authors-description">
+                            Com uma visão partilhada sobre a importância da imaginação e do carinho na infância,
+                            <strong>Ana Carvalho</strong> e <strong>Rafael Diogo</strong> uniram talentos para criar uma
+                            história onde a cor, a amizade e o respeito andam de mãos dadas.
+                        </p>
+
+                        <!-- Book Technical Specifications Grid -->
+                        <div class="book-specs">
+                            <div class="spec-box">
+                                <span class="spec-label">Título Oficial</span>
+                                <span class="spec-value">As Ovelhas Coloridas: Uma Aventura no Espaço!</span>
+                            </div>
+                            <div class="spec-box">
+                                <span class="spec-label">Texto</span>
+                                <span class="spec-value">Ana Carvalho e Rafael Diogo</span>
+                            </div>
+                            <div class="spec-box">
+                                <span class="spec-label">Ilustrações</span>
+                                <span class="spec-value">Rafael Diogo</span>
+                            </div>
+                            <div class="spec-box">
+                                <span class="spec-label">Edição</span>
+                                <span class="spec-value">Melissa Figueiredo</span>
+                            </div>
+                            <div class="spec-box">
+                                <span class="spec-label">Formato</span>
+                                <span class="spec-value">5.50 x 8.50 polegadas (Colorido)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Event Section — Apresentação em Cascais ═══ -->
+        <section class="event-section" id="evento" aria-labelledby="event-section-title">
+            <div class="container">
+                <div class="event-card-main reveal">
+                    <div class="event-card-glow"></div>
+                    <img src="assets/elementos/nebulosa-4.png" alt="" class="event-bg-nebula" loading="lazy" aria-hidden="true" width="500" height="500">
+
+                    <div class="event-card-body">
+                        <!-- Left: Info -->
+                        <div class="event-card-info">
+                            <div class="event-top-badges">
+                                <span class="event-category-badge">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                    Evento Especial
+                                </span>
+                                <span class="event-free-badge">🎟️ Entrada Gratuita</span>
+                            </div>
+
+                            <h2 id="event-section-title" class="event-card-title">
+                                Apresentação Oficial do Livro
+                            </h2>
+
+                            <p class="event-card-lead">
+                                Vem conhecer pessoalmente os autores <strong>Ana Carvalho</strong> e <strong>Rafael Diogo</strong> numa sessão especial de apresentação e leitura para famílias na <strong>Biblioteca Infantil e Juvenil de Cascais</strong>!
+                            </p>
+
+                            <div class="event-details-grid">
+                                <div class="event-detail-block">
+                                    <div class="event-detail-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+                                    </div>
+                                    <div class="event-detail-text">
+                                        <span class="event-detail-label">Data & Hora</span>
+                                        <span class="event-detail-value">Sábado, 7 de Novembro de 2026</span>
+                                        <span class="event-detail-sub">das 15h00 às 15h45</span>
+                                    </div>
+                                </div>
+
+                                <div class="event-detail-block">
+                                    <div class="event-detail-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                    </div>
+                                    <div class="event-detail-text">
+                                        <span class="event-detail-label">Local</span>
+                                        <span class="event-detail-value">Biblioteca Infantil e Juvenil</span>
+                                        <span class="event-detail-sub">Av. Rei Humberto II de Itália, Parque Marechal Carmona, Cascais</span>
+                                    </div>
+                                </div>
+
+                                <div class="event-detail-block">
+                                    <div class="event-detail-icon">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                    </div>
+                                    <div class="event-detail-text">
+                                        <span class="event-detail-label">Público-Alvo</span>
+                                        <span class="event-detail-value">Famílias com crianças</span>
+                                        <span class="event-detail-sub">dos 4 aos 10 anos</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Countdown to event -->
+                            <div class="event-countdown-wrap" id="event-countdown-wrap">
+                                <p class="event-countdown-label">⏳ Faltam:</p>
+                                <div class="event-countdown-units" id="event-countdown-units">
+                                    <div class="event-cd-unit">
+                                        <span class="event-cd-num" id="ecd-days">--</span>
+                                        <span class="event-cd-tag">dias</span>
+                                    </div>
+                                    <span class="event-cd-sep">:</span>
+                                    <div class="event-cd-unit">
+                                        <span class="event-cd-num" id="ecd-hours">--</span>
+                                        <span class="event-cd-tag">horas</span>
+                                    </div>
+                                    <span class="event-cd-sep">:</span>
+                                    <div class="event-cd-unit">
+                                        <span class="event-cd-num" id="ecd-mins">--</span>
+                                        <span class="event-cd-tag">min</span>
+                                    </div>
+                                </div>
+                                <p class="event-happened-msg" id="event-happened-msg" style="display:none;">
+                                    🌟 Este evento já aconteceu! Obrigado a todos que estiveram presentes.
+                                </p>
+                            </div>
+
+                            <div class="event-card-actions">
+                                <a href="https://360.cascais.pt/pt/agenda/apresentacao-do-livro-ovelhas-coloridas-de-ana-carvalho-e-rafael-diogo?id=5358"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="btn-primary event-btn-primary" id="event-info-link">
+                                    Detalhes do Evento
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 19H5V5h7V3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"/></svg>
+                                </a>
+                                <a href="https://maps.google.com/maps?q=Biblioteca+Infantil+e+Juvenil+Cascais&ll=38.692962,-9.422077"
+                                   target="_blank" rel="noopener noreferrer"
+                                   class="btn-secondary event-btn-secondary" id="event-map-link">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                                    Ver no Mapa
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Right: Visual Sheep Cluster -->
+                        <div class="event-card-visual" aria-hidden="true">
+                            <div class="event-sheep-cluster">
+                                <img src="assets/personagens/ovelha-arcoiris.png" alt="" class="ev-sheep ev-s1" loading="lazy" width="110" height="110">
+                                <img src="assets/personagens/ovelha-azul.png" alt="" class="ev-sheep ev-s2" loading="lazy" width="80" height="80">
+                                <img src="assets/personagens/ovelha-rosa.png" alt="" class="ev-sheep ev-s3" loading="lazy" width="75" height="75">
+                                <img src="assets/personagens/ovelha-verde.png" alt="" class="ev-sheep ev-s4" loading="lazy" width="70" height="70">
+                                <img src="assets/personagens/elefante-amendoim.png" alt="" class="ev-sheep ev-s5" loading="lazy" width="90" height="90">
+                                <div class="event-visual-bubble ev-bubble1">📚</div>
+                                <div class="event-visual-bubble ev-bubble2">🌟</div>
+                                <div class="event-visual-bubble ev-bubble3">🚀</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ Testimonials & Reviews Section ═══ -->
+        <section class="testimonials-section" id="testemunhos">
+            <div class="container">
+                <div class="testimonials-header">
+                    <h2 class="section-title reveal">O Que Dizem os Nossos Leitores</h2>
+                    <p class="section-subtitle reveal reveal-delay-1">
+                        Críticas e testemunhos reais de pequenos e grandes astronautas que já viajaram pelo universo das Ovelhas Coloridas!
+                    </p>
+
+                    <!-- Summary Score Bar -->
+                    <div class="reviews-summary-bar reveal reveal-delay-2" id="reviews-summary-bar">
+                        <div class="summary-score-box">
+                            <span class="summary-score-num" id="summary-score-num">5.0</span>
+                            <div class="summary-stars-wrap">
+                                <div class="summary-stars" id="summary-stars">★★★★★</div>
+                                <span class="summary-count" id="summary-count">A carregar opiniões...</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-cta-wrap">
+                            <a href="avaliar.html" class="btn-leave-review" id="btn-leave-review">
+                                <span>✨</span> Deixar uma Avaliação
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Grid of Reviews -->
+                <div class="testimonials-grid" id="testimonials-grid">
+                    <div class="testimonials-loading" id="testimonials-loading">
+                        <div class="loading-spinner"></div>
+                        <p>A procurar opiniões nas estrelas...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══ CTA / Purchase Section ═══ -->
+        <section class="cta-section" id="comprar">
+            <div class="container">
+                <div class="cta-box reveal">
+                    <div class="cta-bg-glow"></div>
+                    <img src="assets/elementos/nebulosa-1.png" alt="" class="cta-bg-nebula" loading="lazy" width="600"
+                        height="600">
+
+                    <div class="cta-header">
+                        <h2>Garante Já o Teu Exemplar!</h2>
+                        <p>Leva o rebanho mais colorido de sempre para a estante da tua família e embarca nesta viagem
+                            cósmica.</p>
+                    </div>
+
+                    <div class="cta-book-showcase">
+                        <div class="cta-cover-card">
+                            <img src="assets/capa-livro.png" alt="Capa do Livro Ovelhas Coloridas" loading="lazy"
+                                width="220" height="320">
+                            <div class="cta-price-badge">1.ª Edição</div>
+                        </div>
+                    </div>
+
+                    <!-- Countdown — only shown before launch -->
+                    <div class="launch-countdown" id="launch-countdown">
+                        <p class="countdown-label">🚀 Lançamento em</p>
+                        <div class="countdown-units">
+                            <div class="countdown-unit">
+                                <span class="countdown-num" id="cd-days">--</span>
+                                <span class="countdown-tag">dias</span>
+                            </div>
+                            <span class="countdown-sep">:</span>
+                            <div class="countdown-unit">
+                                <span class="countdown-num" id="cd-hours">--</span>
+                                <span class="countdown-tag">horas</span>
+                            </div>
+                            <span class="countdown-sep">:</span>
+                            <div class="countdown-unit">
+                                <span class="countdown-num" id="cd-mins">--</span>
+                                <span class="countdown-tag">min</span>
+                            </div>
+                            <span class="countdown-sep">:</span>
+                            <div class="countdown-unit">
+                                <span class="countdown-num" id="cd-secs">--</span>
+                                <span class="countdown-tag">seg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="cta-actions">
+                        <button type="button" class="btn-primary btn-large" id="cta-buy-trigger">
+                            Comprar Livro
+                            <img src="assets/personagens/ovelha-arcoiris.png" alt="" class="btn-icon" loading="lazy"
+                                width="22" height="22">
+                        </button>
+                    </div>
+
+                    <div class="cta-sheep-parade">
+                        <img src="assets/personagens/ovelha-arcoiris.png" alt="Arco-Íris" class="cta-sheep"
+                            loading="lazy" width="60" height="70">
+                        <img src="assets/personagens/ovelha-azul.png" alt="Azul" class="cta-sheep" loading="lazy"
+                            width="60" height="70">
+                        <img src="assets/personagens/ovelha-laranja.png" alt="Laranja" class="cta-sheep" loading="lazy"
+                            width="60" height="70">
+                        <img src="assets/personagens/ovelha-melancia.png" alt="Melancia" class="cta-sheep"
+                            loading="lazy" width="60" height="70">
+                        <img src="assets/personagens/ovelha-rosa.png" alt="Rosa" class="cta-sheep" loading="lazy"
+                            width="60" height="70">
+                        <img src="assets/personagens/ovelha-roxa.png" alt="Roxa" class="cta-sheep" loading="lazy"
+                            width="60" height="70">
+                        <img src="assets/personagens/ovelha-verde.png" alt="Verde" class="cta-sheep" loading="lazy"
+                            width="60" height="70">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <img src="assets/titulo-logo.png" alt="Ovelhas Coloridas" class="footer-banner-logo" width="220"
+                        height="48">
+                    <p>Feito com ❤️ para o livro <strong>"Ovelhas Coloridas: Uma Aventura no Espaço!"</strong></p>
+                </div>
+
+                <div class="footer-nav">
+                    <h4>Navegação</h4>
+                    <a href="#hero">Início</a>
+                    <a href="#sobre">O Livro</a>
+                    <a href="#personagens">O Rebanho</a>
+                    <a href="#autores">Autores</a>
+                    <a href="#testemunhos">Críticas</a>
+                </div>
+
+                <div class="footer-credits">
+                    <h4>Contacto</h4>
+                    <ul class="footer-contact-list">
+                        <li>
+                            <p>Email:</p>
+                            <a href="mailto:geral@ovelhascoloridas.pt">geral@ovelhascoloridas.pt</a>
+                        </li>
+                        <li>
+                            <a href="https://www.instagram.com/ovelhas_coloridas/" target="_blank" rel="noopener"
+                                class="footer-instagram" id="footer-instagram-link"
+                                aria-label="Ovelhas Coloridas no Instagram">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                    fill="currentColor" aria-hidden="true">
+                                    <path
+                                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                                </svg>
+                                Instagram
+                            </a>
+                        </li>
+                    </ul>
+
+                    <h4>Informação Legal</h4>
+                    <ul class="footer-legal-list">
+                        <li>©
+                            <script
+                                type="text/javascript">var year = new Date(); document.write(year.getFullYear());</script>
+                            Ana Carvalho &amp; Rafael Diogo<br>Todos os direitos reservados.
+                        </li>
+                        <li><a href="politica-cookies.html" class="footer-cookies-link">🍪 Política de Cookies</a></li>
+                        <li><a href="politica-privacidade.html" class="footer-cookies-link">🔒 Política de Privacidade</a></li>
+                        <li><a href="termos-e-condicoes.html" class="footer-cookies-link">📋 Termos e Condições</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
+    </footer>
 
-        <!-- ═══ Links ═══ -->
-        <div class="links-container">
+    <!-- ═══ Modal: Escolha de Formato (Físico / eBook / Inglês) ═══ -->
+    <div class="purchase-modal-overlay" id="purchase-modal-overlay" aria-hidden="true">
+        <div class="purchase-modal" role="dialog" aria-modal="true" aria-labelledby="purchase-modal-title">
+            <button type="button" class="purchase-modal-close" id="purchase-modal-close" aria-label="Fechar">
+                &times;
+            </button>
 
-            <!-- ─── PRÓXIMO EVENTO ─── -->
-            <div class="section-label">Próximo Evento</div>
+            <h3 id="purchase-modal-title">Escolhe o teu formato</h3>
 
-            <a href="https://360.cascais.pt/pt/agenda/apresentacao-do-livro-ovelhas-coloridas-de-ana-carvalho-e-rafael-diogo?id=5358"
-                class="link-card card-event" target="_blank" rel="noopener" id="link-evento-bij">
-                <div class="card-icon icon-event">📍</div>
-                <div class="card-text">
-                    <div class="card-title">Apresentação do Livro em Cascais</div>
-                    <div class="card-desc">7 Nov 2026 · 15h00 (Bibl. Infantil e Juvenil)</div>
-                </div>
-                <span class="card-badge badge-event">7 Nov</span>
-                <span class="card-arrow">→</span>
-            </a>
+            <div class="purchase-modal-options">
+                <a href="https://www.amazon.es/dp/B0HBZC16W6" class="purchase-option-card" id="purchase-option-fisico"
+                    target="_blank" rel="noopener">
+                    <img src="assets/personagens/ovelha-arcoiris.png" alt="" class="purchase-option-icon">
+                    <span class="purchase-option-title">Físico</span>
+                </a>
 
-            <!-- WEBSITE -->
-            <div class="section-label">Website</div>
+                <a href="https://www.amazon.es/dp/B0HCKP69Q8" class="purchase-option-card" id="purchase-option-ebook"
+                    target="_blank" rel="noopener">
+                    <img src="assets/personagens/ovelha-azul.png" alt="" class="purchase-option-icon">
+                    <span class="purchase-option-title">eBook</span>
+                </a>
 
-            <a href="https://ovelhascoloridas.pt" class="link-card card-website" target="_blank" rel="noopener"
-                id="link-website">
-                <div class="card-icon icon-website">🌐</div>
-                <div class="card-text">
-                    <div class="card-title">Website Oficial</div>
-                    <div class="card-desc">ovelhascoloridas.pt</div>
-                </div>
-                <span class="card-arrow">→</span>
-            </a>
-
-            <!-- ─── VERSÃO PORTUGUESA ─── -->
-            <div class="section-label">Versão Portuguesa</div>
-
-            <!-- Versão Portuguesa — Físico -->
-            <a href="https://www.amazon.es/dp/B0HBZC16W6" class="link-card card-amazon-pt" target="_blank"
-                rel="noopener" id="link-amazon-pt-fisico">
-                <div class="card-icon icon-amazon-pt">
-                    <img src="../assets/personagens/ovelha-arcoiris.png" alt="">
-                </div>
-                <div class="card-text">
-                    <div class="card-title">Físico</div>
-                    <div class="card-desc">Amazon</div>
-                </div>
-                <span class="card-badge badge-buy">Comprar</span>
-                <span class="card-arrow">→</span>
-            </a>
-
-            <!-- Versão Portuguesa — eBook -->
-            <a href="https://www.amazon.es/dp/B0HCKP69Q8" class="link-card card-ebook" target="_blank" rel="noopener"
-                id="link-amazon-pt-ebook">
-                <div class="card-icon icon-ebook">
-                    <img src="../assets/personagens/ovelha-roxa.png" alt="">
-                </div>
-                <div class="card-text">
-                    <div class="card-title">eBook</div>
-                    <div class="card-desc">Amazon</div>
-                </div>
-                <span class="card-badge badge-buy">Comprar</span>
-                <span class="card-arrow">→</span>
-            </a>
-
-            <!-- ─── ENGLISH VERSION ─── -->
-            <div class="section-label">English Version</div>
-
-            <!-- English — Physical -->
-            <a href="https://www.amazon.es/dp/B0HDJNCPGF" class="link-card card-amazon-en" target="_blank"
-                rel="noopener" id="link-amazon-en">
-                <div class="card-icon icon-amazon-en">
-                    <img src="../assets/personagens/ovelha-uk.png" alt="">
-                </div>
-                <div class="card-text">
-                    <div class="card-title">Physical & eBook</div>
-                    <div class="card-desc">Amazon</div>
-                </div>
-                <span class="card-badge badge-buy">Comprar</span>
-                <span class="card-arrow">→</span>
-            </a>
-
-            <!-- CONTACTO -->
-            <div class="section-label">Contacto</div>
-
-            <a href="mailto:geral@ovelhascoloridas.pt" class="link-card card-email" id="link-email">
-                <div class="card-icon icon-email">✉️</div>
-                <div class="card-text">
-                    <div class="card-title">Email</div>
-                    <div class="card-desc">geral@ovelhascoloridas.pt</div>
-                </div>
-                <span class="card-arrow">→</span>
-            </a>
-
+                <a href="https://www.amazon.es/dp/B0HDJNCPGF" class="purchase-option-card" id="purchase-option-english"
+                    target="_blank" rel="noopener">
+                    <img src="assets/personagens/ovelha-uk.png" alt="" class="purchase-option-icon">
+                    <span class="purchase-option-title">English Version</span>
+                </a>
+            </div>
         </div>
-
-        <!-- ═══ Sheep Parade ═══ -->
-        <div class="sheep-parade" aria-hidden="true">
-            <img src="../assets/personagens/ovelha-arcoiris.png" alt="" class="parade-sheep">
-            <img src="../assets/personagens/ovelha-azul.png" alt="" class="parade-sheep">
-            <img src="../assets/personagens/ovelha-roxa.png" alt="" class="parade-sheep">
-            <img src="../assets/personagens/ovelha-melancia.png" alt="" class="parade-sheep">
-            <img src="../assets/personagens/ovelha-verde.png" alt="" class="parade-sheep">
-            <img src="../assets/personagens/ovelha-rosa.png" alt="" class="parade-sheep">
-            <img src="../assets/personagens/ovelha-laranja.png" alt="" class="parade-sheep">
-        </div>
-
-        <!-- ═══ Footer ═══ -->
-        <footer class="page-footer">
-            <p>© <span id="year"></span> Ana Carvalho &amp; Rafael Diogo · Todos os direitos reservados.</p>
-        </footer>
-
     </div>
 
-    <script>
-        // ═══ Year ═══
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // ═══ Starfield ═══
-        const canvas = document.getElementById('starfield');
-        const ctx = canvas.getContext('2d');
-        let stars = [];
-
-        function resize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-
-        function initStars() {
-            stars = [];
-            const count = Math.floor((canvas.width * canvas.height) / 5000);
-            for (let i = 0; i < count; i++) {
-                stars.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    r: Math.random() * 1.4 + 0.2,
-                    alpha: Math.random(),
-                    speed: Math.random() * 0.006 + 0.002,
-                    phase: Math.random() * Math.PI * 2,
-                });
-            }
-        }
-
-        function drawStars(t) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (const s of stars) {
-                const a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(s.phase + t * s.speed));
-                ctx.globalAlpha = a;
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            ctx.globalAlpha = 1;
-        }
-
-        let raf;
-        function loop(t) {
-            drawStars(t);
-            raf = requestAnimationFrame(loop);
-        }
-
-        resize();
-        initStars();
-        loop(0);
-
-        window.addEventListener('resize', () => {
-            resize();
-            initStars();
-        });
-    </script>
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+    <!-- Firebase Config & Logic -->
+    <script src="firebase-config.js"></script>
+    <!-- Reviews Display Logic -->
+    <script src="reviews-display.js"></script>
+    <!-- JS -->
+    <script src="script.js"></script>
     <!-- Cookie Consent + Google Analytics (RGPD Compliant) -->
-    <script src="../cookie-consent.js"></script>
+    <script src="cookie-consent.js"></script>
 </body>
 
 </html>
