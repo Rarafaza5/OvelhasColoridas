@@ -383,6 +383,26 @@
             --card-glow-b: transparent;
         }
 
+        .card-event {
+            --card-accent: rgba(251, 191, 36, 0.6);
+            --card-shadow: rgba(251, 191, 36, 0.25);
+            --card-glow-a: rgba(251, 191, 36, 0.12);
+            --card-glow-b: rgba(236, 72, 153, 0.06);
+            border-color: rgba(251, 191, 36, 0.35);
+        }
+
+        .icon-event {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #080b1e;
+        }
+
+        .badge-event {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #080b1e;
+            font-weight: 900;
+        }
+
+
         /* ═══ Card Icon ═══ */
         .card-icon {
             width: 52px;
@@ -669,6 +689,20 @@
 
         <!-- ═══ Links ═══ -->
         <div class="links-container">
+
+            <!-- ─── PRÓXIMO EVENTO ─── -->
+            <div class="section-label">Próximo Evento</div>
+
+            <a href="https://360.cascais.pt/pt/agenda/apresentacao-do-livro-ovelhas-coloridas-de-ana-carvalho-e-rafael-diogo?id=5358"
+                class="link-card card-event" target="_blank" rel="noopener" id="link-evento-bij">
+                <div class="card-icon icon-event">📍</div>
+                <div class="card-text">
+                    <div class="card-title">Apresentação do Livro em Cascais</div>
+                    <div class="card-desc">7 Nov 2026 · 15h00 (Bibl. Infantil e Juvenil)</div>
+                </div>
+                <span class="card-badge badge-event">7 Nov</span>
+                <span class="card-arrow">→</span>
+            </a>
 
             <!-- WEBSITE -->
             <div class="section-label">Website</div>
