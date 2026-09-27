@@ -529,9 +529,124 @@ console.log('%cPor Ana Carvalho & Rafael Diogo', 'font-size: 13px; color: #b088d
 })();
 
 
-// ── Event Section Countdown (to 7 Nov 2026 15:00) ────────
+// ── Public Event Sync (Firestore / LocalStorage listener) ────────
+(function initPublicEventsSync() {
+    window.activeEventTargetTime = new Date('2026-11-07T15:00:00').getTime();
+
+    function formatShortDate(isoString) {
+        if (!isoString) return '';
+        const d = new Date(isoString);
+        if (isNaN(d.getTime())) return '';
+        const monthsShort = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+        return `${d.getDate()} ${monthsShort[d.getMonth()]} ${d.getFullYear()}`;
+    }
+
+    function updatePublicUI(activeEvent) {
+        if (!activeEvent) return;
+
+        if (activeEvent.dateIso) {
+            const time = new Date(activeEvent.dateIso).getTime();
+            if (!isNaN(time)) {
+                window.activeEventTargetTime = time;
+            }
+        }
+
+        // 1. Banner Superior
+        const bannerTitle = document.getElementById('event-banner-title');
+        if (bannerTitle && activeEvent.title) bannerTitle.textContent = activeEvent.title;
+
+        const bannerDateItem = document.getElementById('event-banner-date-item');
+        if (bannerDateItem) {
+            const shortDate = formatShortDate(activeEvent.dateIso);
+            const dateStr = shortDate || activeEvent.dateFormatted || '';
+
+            let timeStr = activeEvent.timeFormatted || '';
+            if (timeStr.includes('das ') && timeStr.includes(' às ')) {
+                timeStr = timeStr.replace('das ', '').split(' às ')[0].trim();
+            }
+            const timeDisplay = timeStr ? ` · ${timeStr}` : '';
+
+            bannerDateItem.innerHTML = `
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+                ${dateStr}${timeDisplay}
+            `;
+        }
+
+        const bannerLocItem = document.getElementById('event-banner-loc-item');
+        if (bannerLocItem && activeEvent.locationName) {
+            bannerLocItem.innerHTML = `
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                ${activeEvent.locationName}
+            `;
+        }
+
+        const bannerFreeItem = document.getElementById('event-banner-free-item');
+        if (bannerFreeItem) {
+            bannerFreeItem.style.display = activeEvent.isFree ? 'inline-flex' : 'none';
+        }
+
+        const bannerCta = document.getElementById('event-banner-cta-link');
+        if (bannerCta && activeEvent.infoUrl) bannerCta.href = activeEvent.infoUrl;
+
+        // 2. Secção do Evento Principal (#evento)
+        const sectionTitle = document.getElementById('event-section-title');
+        if (sectionTitle && activeEvent.title) sectionTitle.textContent = activeEvent.title;
+
+        const categoryBadge = document.getElementById('event-display-category');
+        if (categoryBadge && activeEvent.category) {
+            categoryBadge.innerHTML = `
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                ${activeEvent.category}
+            `;
+        }
+
+        const freeBadge = document.getElementById('event-display-free-badge');
+        if (freeBadge) {
+            freeBadge.style.display = activeEvent.isFree ? 'inline-flex' : 'none';
+        }
+
+        const leadText = document.getElementById('event-display-lead');
+        if (leadText && activeEvent.leadText) leadText.textContent = activeEvent.leadText;
+
+        const dateVal = document.getElementById('event-display-date');
+        if (dateVal && (activeEvent.dateFormatted || activeEvent.dateIso)) {
+            dateVal.textContent = activeEvent.dateFormatted || formatShortDate(activeEvent.dateIso);
+        }
+
+        const timeSub = document.getElementById('event-display-time');
+        if (timeSub) timeSub.textContent = activeEvent.timeFormatted || '';
+
+        const locName = document.getElementById('event-display-location-name');
+        if (locName) locName.textContent = activeEvent.locationName || '';
+
+        const locAddr = document.getElementById('event-display-location-address');
+        if (locAddr) locAddr.textContent = activeEvent.locationAddress || '';
+
+        const audTarget = document.getElementById('event-display-audience-target');
+        if (audTarget) audTarget.textContent = activeEvent.audienceTarget || '';
+
+        const audAge = document.getElementById('event-display-audience-age');
+        if (audAge) audAge.textContent = activeEvent.audienceAge || '';
+
+        const infoBtn = document.getElementById('event-info-link');
+        if (infoBtn && activeEvent.infoUrl) infoBtn.href = activeEvent.infoUrl;
+
+        const mapBtn = document.getElementById('event-map-link');
+        if (mapBtn && activeEvent.mapUrl) mapBtn.href = activeEvent.mapUrl;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        if (window.OvelhasFirebase && window.OvelhasFirebase.onPublicEvents) {
+            window.OvelhasFirebase.onPublicEvents((activeEvent) => {
+                updatePublicUI(activeEvent);
+            });
+        }
+    });
+})();
+
+
+// ── Event Section Countdown (Dynamic target) ────────
 (function initEventCountdown() {
-    const eventDate = new Date('2026-11-07T15:00:00').getTime();
     const daysEl   = document.getElementById('ecd-days');
     const hoursEl  = document.getElementById('ecd-hours');
     const minsEl   = document.getElementById('ecd-mins');
@@ -543,16 +658,21 @@ console.log('%cPor Ana Carvalho & Rafael Diogo', 'font-size: 13px; color: #b088d
     function pad(n) { return n < 10 ? '0' + n : String(n); }
 
     function updateEventCountdown() {
+        const eventDate = window.activeEventTargetTime || new Date('2026-11-07T15:00:00').getTime();
         const now = Date.now();
         const diff = eventDate - now;
 
         if (diff <= 0) {
-            // Evento já aconteceu
             if (unitsEl) unitsEl.style.display = 'none';
             if (msgEl) msgEl.style.display = 'block';
             const labelEl = document.querySelector('.event-countdown-label');
             if (labelEl) labelEl.style.display = 'none';
             return;
+        } else {
+            if (unitsEl) unitsEl.style.display = 'flex';
+            if (msgEl) msgEl.style.display = 'none';
+            const labelEl = document.querySelector('.event-countdown-label');
+            if (labelEl) labelEl.style.display = 'block';
         }
 
         const totalSecs = Math.floor(diff / 1000);
@@ -566,5 +686,5 @@ console.log('%cPor Ana Carvalho & Rafael Diogo', 'font-size: 13px; color: #b088d
     }
 
     updateEventCountdown();
-    setInterval(updateEventCountdown, 30000); // atualiza a cada 30 segundos
+    setInterval(updateEventCountdown, 15000); // atualiza a cada 15 segundos
 })();

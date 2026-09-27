@@ -811,6 +811,14 @@
                     <div class="stat-lbl">Links Gerados</div>
                 </div>
             </div>
+
+            <div class="stat-card">
+                <div class="stat-icon gold">📅</div>
+                <div>
+                    <div class="stat-val" id="stat-events-count">0</div>
+                    <div class="stat-lbl">Eventos na Agenda</div>
+                </div>
+            </div>
         </section>
 
 
@@ -935,6 +943,118 @@
             </div>
         </section>
 
+
+        <!-- ═══ SECÇÃO 4: GESTÃO DE EVENTOS E APRESENTAÇÕES DO LIVRO ═══ -->
+        <section class="admin-card" id="section-gestao-eventos">
+            <div class="card-header-bar">
+                <h2 class="card-title">
+                    <span>📅</span> Gestão de Eventos e Agenda do Livro
+                </h2>
+                <span id="events-counter-badge" class="badge badge-active">0 eventos</span>
+            </div>
+
+            <p class="card-desc">
+                Podes agendar vários eventos. O site exibe automaticamente <strong>o evento que vai acontecer mais cedo</strong>. Quando esse evento passar, o site passará a mostrar o evento seguinte!
+            </p>
+
+            <form id="event-manager-form" class="generator-form" style="margin-bottom: 28px;">
+                <input type="hidden" id="event-edit-id" value="">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+                    <div class="form-group">
+                        <label for="event-title">Título do Evento *</label>
+                        <input type="text" id="event-title" class="form-control" placeholder="Ex: Apresentação do Livro em Cascais!" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-date-iso">Data e Hora de Início *</label>
+                        <input type="datetime-local" id="event-date-iso" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-time-fmt">Horário Exibido (Texto)</label>
+                        <input type="text" id="event-time-fmt" class="form-control" placeholder="Ex: das 15h00 às 15h45">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-category">Categoria do Evento</label>
+                        <input type="text" id="event-category" class="form-control" placeholder="Ex: Apresentação Oficial">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-loc-name">Nome do Local *</label>
+                        <input type="text" id="event-loc-name" class="form-control" placeholder="Ex: Biblioteca Infantil e Juvenil" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-loc-addr">Morada / Detalhes do Local</label>
+                        <input type="text" id="event-loc-addr" class="form-control" placeholder="Ex: Parque Marechal Carmona, Cascais">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-aud-target">Público-Alvo</label>
+                        <input type="text" id="event-aud-target" class="form-control" placeholder="Ex: Famílias com crianças">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-aud-age">Faixa Etária</label>
+                        <input type="text" id="event-aud-age" class="form-control" placeholder="Ex: dos 4 aos 10 anos">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-info-url">Link para Mais Informações / Inscrição</label>
+                        <input type="url" id="event-info-url" class="form-control" placeholder="https://360.cascais.pt/...">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-map-url">Link do Google Maps</label>
+                        <input type="url" id="event-map-url" class="form-control" placeholder="https://maps.google.com/...">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 14px;">
+                    <label for="event-lead-text">Texto de Apresentação / Destaque</label>
+                    <textarea id="event-lead-text" class="form-control" rows="2" placeholder="Vem conhecer pessoalmente os autores..."></textarea>
+                </div>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 16px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: var(--gold); font-weight: 600;">
+                        <input type="checkbox" id="event-is-free" checked style="width: 18px; height: 18px; accent-color: var(--gold);">
+                        🎟️ Entrada Gratuita
+                    </label>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" class="btn-action" id="btn-cancel-event-form" style="display: none;">Cancelar Edição</button>
+                        <button type="submit" class="btn-magic" id="btn-save-event">
+                            <span>✨</span> Adicionar Evento
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Destaque no Site</th>
+                            <th>Data & Hora</th>
+                            <th>Título do Evento</th>
+                            <th>Local</th>
+                            <th>Entrada</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="events-table-body">
+                        <tr>
+                            <td colspan="6" class="empty-state">
+                                <p>A carregar lista de eventos...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
     </main>
 
     <!-- Toast Notifications Container -->
@@ -947,6 +1067,7 @@
         // State
         let allReviews = [];
         let allTokens = [];
+        let allEvents = [];
         let currentFilter = 'all';
 
         // Toast Helper
@@ -1070,11 +1191,196 @@
             document.getElementById('stat-verified-count').textContent = verified;
             document.getElementById('stat-tokens-count').textContent = allTokens.length;
 
+            const statEvents = document.getElementById('stat-events-count');
+            if (statEvents) statEvents.textContent = allEvents.length;
+
+            const eventsBadge = document.getElementById('events-counter-badge');
+            if (eventsBadge) eventsBadge.textContent = `${allEvents.length} evento(s)`;
+
             document.getElementById('count-all').textContent = total;
             document.getElementById('count-verified').textContent = verified;
             document.getElementById('count-hidden').textContent = allReviews.filter(r => r.approved === false).length;
             document.getElementById('tokens-counter-badge').textContent = `${allTokens.length} links`;
         }
+
+        // ═══ GESTÃO DE EVENTOS JS ═══
+        function renderEventsTable() {
+            const tbody = document.getElementById('events-table-body');
+            if (!tbody) return;
+
+            if (!allEvents.length) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <p>Nenhum evento agendado. Adiciona o teu primeiro evento acima!</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const activeUpcoming = window.OvelhasFirebase ? window.OvelhasFirebase.getNextUpcomingEvent(allEvents) : null;
+            const now = Date.now();
+
+            tbody.innerHTML = allEvents.map(ev => {
+                const isActive = activeUpcoming && activeUpcoming.id === ev.id;
+                const evTime = ev.dateTimestamp || (ev.dateIso ? new Date(ev.dateIso).getTime() : 0);
+                const isPast = evTime + (2 * 60 * 60 * 1000) < now;
+
+                let statusBadge = '';
+                if (isActive) {
+                    statusBadge = `<span class="badge badge-active" style="background: rgba(16, 185, 129, 0.25); color:#34d399; border-color:#34d399;">🌟 EM DESTAQUE NO SITE (Mais Próximo)</span>`;
+                } else if (isPast) {
+                    statusBadge = `<span class="badge badge-used" style="opacity:0.6;">⚪ Já Aconteceu</span>`;
+                } else {
+                    statusBadge = `<span class="badge badge-verified" style="background:rgba(255,209,102,0.15); color:var(--gold);">⏳ Agendado</span>`;
+                }
+
+                const dateStr = ev.dateFormatted || (ev.dateIso ? new Date(ev.dateIso).toLocaleDateString('pt-PT', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-');
+                const timeStr = ev.timeFormatted ? `<br><small style="color:var(--white-muted);">${ev.timeFormatted}</small>` : '';
+
+                return `
+                    <tr style="${isActive ? 'background: rgba(16, 185, 129, 0.06);' : ''}">
+                        <td style="white-space:nowrap">${statusBadge}</td>
+                        <td style="white-space:nowrap"><strong>${dateStr}</strong>${timeStr}</td>
+                        <td><strong>${ev.title}</strong></td>
+                        <td>${ev.locationName || '-'}${ev.locationAddress ? `<br><small style="color:var(--white-muted)">${ev.locationAddress}</small>` : ''}</td>
+                        <td>${ev.isFree ? '<span style="color:#34d399">Grátis</span>' : 'Pago'}</td>
+                        <td style="white-space:nowrap">
+                            <button type="button" class="btn-action" style="display:inline-flex; padding:4px 10px; margin-right:4px;" onclick="handleEditEvent('${ev.id}')" title="Editar Evento">✏️ Editar</button>
+                            <button type="button" class="btn-action btn-delete" style="display:inline-flex; padding:4px 10px;" onclick="handleDeleteEvent('${ev.id}')" title="Eliminar Evento">🗑</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        const eventMgrForm = document.getElementById('event-manager-form');
+        if (eventMgrForm) {
+            eventMgrForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('btn-save-event');
+                const eventId = document.getElementById('event-edit-id').value;
+
+                const eventData = {
+                    title: document.getElementById('event-title').value,
+                    dateIso: document.getElementById('event-date-iso').value,
+                    timeFormatted: document.getElementById('event-time-fmt').value,
+                    category: document.getElementById('event-category').value,
+                    locationName: document.getElementById('event-loc-name').value,
+                    locationAddress: document.getElementById('event-loc-addr').value,
+                    audienceTarget: document.getElementById('event-aud-target').value,
+                    audienceAge: document.getElementById('event-aud-age').value,
+                    infoUrl: document.getElementById('event-info-url').value,
+                    mapUrl: document.getElementById('event-map-url').value,
+                    leadText: document.getElementById('event-lead-text').value,
+                    isFree: document.getElementById('event-is-free').checked
+                };
+
+                if (eventData.dateIso) {
+                    const d = new Date(eventData.dateIso);
+                    if (!isNaN(d.getTime())) {
+                        const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+                        const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+                        eventData.dateFormatted = `${days[d.getDay()]}, ${d.getDate()} de ${months[d.getMonth()]} de ${d.getFullYear()}`;
+                    }
+                }
+
+                btn.disabled = true;
+                btn.innerHTML = '<span>⏳</span> A guardar...';
+
+                try {
+                    if (eventId) {
+                        await window.OvelhasFirebase.updateEventDoc(eventId, eventData);
+                        showToast("Evento atualizado com sucesso!", "success");
+                    } else {
+                        await window.OvelhasFirebase.createEventDoc(eventData);
+                        showToast("Novo evento adicionado à agenda com sucesso!", "success");
+                    }
+                    resetEventForm();
+                } catch (err) {
+                    console.error(err);
+                    showToast("Erro ao guardar evento: " + err.message, "error");
+                } finally {
+                    btn.disabled = false;
+                }
+            });
+        }
+
+        function resetEventForm() {
+            document.getElementById('event-edit-id').value = '';
+            document.getElementById('event-manager-form').reset();
+            document.getElementById('event-is-free').checked = true;
+            document.getElementById('btn-cancel-event-form').style.display = 'none';
+            document.getElementById('btn-save-event').innerHTML = '<span>✨</span> Adicionar Evento';
+        }
+
+        const cancelEventBtn = document.getElementById('btn-cancel-event-form');
+        if (cancelEventBtn) cancelEventBtn.addEventListener('click', resetEventForm);
+
+        window.handleEditEvent = function(eventId) {
+            const ev = allEvents.find(e => e.id === eventId);
+            if (!ev) return;
+
+            document.getElementById('event-edit-id').value = ev.id;
+            document.getElementById('event-title').value = ev.title || '';
+            document.getElementById('event-date-iso').value = ev.dateIso || '';
+            document.getElementById('event-time-fmt').value = ev.timeFormatted || '';
+            document.getElementById('event-category').value = ev.category || '';
+            document.getElementById('event-loc-name').value = ev.locationName || '';
+            document.getElementById('event-loc-addr').value = ev.locationAddress || '';
+            document.getElementById('event-aud-target').value = ev.audienceTarget || '';
+            document.getElementById('event-aud-age').value = ev.audienceAge || '';
+            document.getElementById('event-info-url').value = ev.infoUrl || '';
+            document.getElementById('event-map-url').value = ev.mapUrl || '';
+            document.getElementById('event-lead-text').value = ev.leadText || '';
+            document.getElementById('event-is-free').checked = !!ev.isFree;
+
+            document.getElementById('btn-cancel-event-form').style.display = 'inline-block';
+            document.getElementById('btn-save-event').innerHTML = '<span>💾</span> Guardar Alterações';
+
+            const section = document.getElementById('section-gestao-eventos');
+            if (section) section.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.handleDeleteEvent = async function(eventId) {
+            if (!confirm("Tens a certeza que desejas eliminar este evento da agenda?")) return;
+            try {
+                await window.OvelhasFirebase.deleteEventDoc(eventId);
+                showToast("Evento eliminado da agenda.", "success");
+            } catch (err) {
+                showToast("Erro ao eliminar evento: " + err.message, "error");
+            }
+        };
+
+        // Subscrições em Tempo Real do Firestore
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!window.OvelhasFirebase) {
+                console.error("Firebase module não encontrado.");
+                return;
+            }
+
+            // Escuta todas as reviews
+            window.OvelhasFirebase.onAllReviewsAdmin((reviews) => {
+                allReviews = reviews;
+                updateStats();
+                renderReviews();
+            });
+
+            // Escuta todos os tokens
+            window.OvelhasFirebase.onAllTokensAdmin((tokens) => {
+                allTokens = tokens;
+                updateStats();
+                renderTokensTable();
+            });
+
+            // Escuta todos os eventos
+            window.OvelhasFirebase.onAllEventsAdmin((events) => {
+                allEvents = events;
+                updateStats();
+                renderEventsTable();
+            });
+        });
 
         // Renderizar Lista de Tokens
         function renderTokensTable() {

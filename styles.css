@@ -3026,7 +3026,7 @@ button.btn-primary {
     padding: 0;
     transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.35s ease, margin-top 0.35s ease, border-color 0.35s ease;
     overflow: hidden;
-    max-height: 120px;
+    max-height: 400px;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -3049,14 +3049,14 @@ body:has(.event-banner:not(.banner-hidden)) .hero {
 @media (max-width: 992px) {
     .event-banner {
         margin-top: calc(var(--navbar-height) + env(safe-area-inset-top));
-        max-height: 180px;
+        max-height: 400px;
     }
 }
 
 .event-banner-inner {
-    max-width: 1200px;
+    max-width: 1320px;
     margin: 0 auto;
-    padding: 11px 20px;
+    padding: 10px 24px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -3066,8 +3066,8 @@ body:has(.event-banner:not(.banner-hidden)) .hero {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    gap: 12px;
+    flex-wrap: nowrap;
     min-width: 0;
 }
 
@@ -3096,8 +3096,10 @@ body:has(.event-banner:not(.banner-hidden)) .hero {
     display: flex;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     line-height: 1.4;
+    min-width: 0;
 }
 
 .event-banner-text strong {
@@ -3113,7 +3115,8 @@ body:has(.event-banner:not(.banner-hidden)) .hero {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    white-space: nowrap;
 }
 
 .event-detail-item {
@@ -3147,6 +3150,7 @@ body:has(.event-banner:not(.banner-hidden)) .hero {
     text-decoration: none;
     white-space: nowrap;
     flex-shrink: 0;
+    margin-left: auto;
     transition: all 0.2s;
 }
 
@@ -3174,13 +3178,48 @@ body:has(.event-banner:not(.banner-hidden)) .hero {
     background: rgba(255, 255, 255, 0.08);
 }
 
+@media (max-width: 991px) {
+    .event-banner-inner {
+        padding: 10px 16px;
+    }
+
+    .event-banner-content {
+        flex-wrap: wrap;
+    }
+
+    .event-banner-text {
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+
+    .event-details-inline {
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+
+    .event-banner-cta {
+        margin-left: 0;
+    }
+}
+
 @media (max-width: 640px) {
     .event-banner {
-        max-height: 120px;
+        max-height: 400px;
+    }
+
+    .event-banner-inner {
+        padding: 10px 14px;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .event-banner-content {
+        gap: 8px;
     }
 
     .event-banner-text {
         font-size: 0.82rem;
+        gap: 4px 8px;
     }
 
     .event-banner-sep,
@@ -3191,6 +3230,11 @@ body:has(.event-banner:not(.banner-hidden)) .hero {
     .event-banner-cta {
         font-size: 0.78rem;
         padding: 5px 12px;
+    }
+
+    .event-banner-close {
+        padding: 4px;
+        margin-top: -2px;
     }
 }
 

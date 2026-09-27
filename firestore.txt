@@ -1,0 +1,129 @@
+rules_version = '2';
+
+// ═══════════════════════════════════════════════════════════
+// Ovelhas Coloridas — Regras de Segurança do Cloud Firestore
+// Projeto: ovelhascoloridas-235c1
+// ═══════════════════════════════════════════════════════════
+//
+// ARQUITECTURA DE SEGURANÇA:
+// O site opera sem sistema de autenticação — o painel de admin
+// é acedido diretamente por URL (admin.html) sem login, o que
+// significa que tanto o site público como o admin correm com
+// permissões de cliente. As regras abaixo estão configuradas
+// para proteger os dados sem bloquear funcionalidade legítima.
+//
+// NOTA: Para uma segurança mais robusta, considerar no futuro
+// adicionar Firebase Authentication ao painel de administração.
+// ═══════════════════════════════════════════════════════════
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Coleção: reviews ─────────────────────────────────
+    // Armazena críticas e testemunhos submetidos pelos leitores.
+    match /reviews/{reviewId} {
+
+      // Qualquer visitante pode LER críticas aprovadas (visíveis no site)
+      allow read: if resource.data.approved == true;
+
+      // Leitores autenticados (ou anónimos) podem CRIAR uma nova crítica,
+      // desde que os dados sejam válidos (validação anti-spam).
+      allow create: if validateReview(request.resource.data);
+
+      // UPDATE e DELETE: necessários para o painel de administração
+      // (aprovar/ocultar críticas, alterar badge de Compra Confirmada).
+      // AVISO: sem auth, estas operações são abertas do lado do cliente.
+      allow update: if validateReviewUpdate(request.resource.data);
+      allow delete: if true;
+    }
+
+    // ─── Coleção: review_tokens ───────────────────────────
+    // Tokens de "Compra Confirmada" gerados pelo admin.
+    match /review_tokens/{tokenId} {
+
+      // Qualquer visitante pode LER tokens — necessário para que a página
+      // avaliar.html possa validar se o token é válido antes da submissão.
+      allow read: if true;
+
+      // Criação de tokens: apenas pelo painel de admin (sem auth, é aberto).
+      allow create: if validateToken(request.resource.data);
+
+      // Update: necessário para incrementar useCount quando um token é usado.
+      allow update: if true;
+
+      // Delete: para o painel de admin apagar tokens inválidos/expirados.
+      allow delete: if true;
+    }
+
+
+    // ─── Função: Validar dados de uma nova crítica ─────────
+    // Garante que as críticas submetidas contêm os campos obrigatórios
+    // com tipos e tamanhos corretos — proteção básica anti-spam.
+    function validateReview(data) {
+      return (
+        // Campos obrigatórios presentes
+        data.keys().hasAll(['name', 'rating', 'comment', 'character',
+                            'verifiedPurchase', 'approved'])
+
+        // name: string, 1 a 60 caracteres
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 60
+
+        // rating: número de 0 a 5 (estrelas)
+        && data.rating is number
+        && data.rating >= 0
+        && data.rating <= 5
+
+        // comment: string obrigatório, 1 a 1200 caracteres
+        && data.comment is string
+        && data.comment.size() >= 1
+        && data.comment.size() <= 1200
+
+        // title: opcional mas se presente deve ser string <= 100 chars
+        && (!data.keys().hasAny(['title']) || (data.title is string && data.title.size() <= 100))
+
+        // character: deve ser uma das personagens válidas
+        && data.character is string
+        && data.character in [
+            'ovelha-arcoiris', 'ovelha-azul', 'ovelha-roxa',
+            'ovelha-melancia', 'ovelha-verde', 'ovelha-rosa',
+            'ovelha-laranja', 'elefante-amendoim'
+          ]
+
+        // verifiedPurchase: deve ser boolean
+        && data.verifiedPurchase is bool
+
+        // approved: novas críticas entram sempre como aprovadas (true)
+        && data.approved == true
+      );
+    }
+
+
+    // ─── Função: Validar update de uma crítica (pelo admin) ─
+    function validateReviewUpdate(data) {
+      return (
+        // Para updates do admin, apenas verificamos campos mínimos
+        data.keys().hasAll(['approved'])
+        && data.approved is bool
+      );
+    }
+
+
+    // ─── Função: Validar criação de um token ──────────────
+    function validateToken(data) {
+      return (
+        data.keys().hasAll(['token', 'active', 'useCount', 'maxUses'])
+        && data.token is string
+        && data.token.size() >= 10
+        && data.token.size() <= 30
+        && data.active is bool
+        && data.useCount is number
+        && data.useCount >= 0
+        && data.maxUses is number
+        && data.maxUses >= 1
+      );
+    }
+
+  }
+}

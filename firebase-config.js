@@ -110,6 +110,20 @@ function generateRandomToken(prefix = 'oc_') {
 }
 
 /**
+ * Constrói o URL completo para a página de avaliação (avaliar.html) com o token fornecido
+ * @param {string} tokenStr
+ * @returns {string}
+ */
+function buildAvaliarUrl(tokenStr) {
+  const currentUrlWithoutQuery = window.location.href.split('?')[0].split('#')[0];
+  let baseUrl = currentUrlWithoutQuery.replace(/\/admin(\.html)?\/?$/i, '/avaliar.html');
+  if (!baseUrl.endsWith('avaliar.html')) {
+    baseUrl = `${window.location.origin}/avaliar.html`;
+  }
+  return tokenStr ? `${baseUrl}?token=${encodeURIComponent(tokenStr)}` : baseUrl;
+}
+
+/**
  * Cria um novo link/token de Compra Confirmada no Firestore
  * @param {string} customerName - Nome do cliente ou nota (opcional)
  * @param {number} maxUses - Número de utilizações permitidas (padrão 1, ou 9999 para ilimitado)
@@ -132,10 +146,7 @@ async function createVerifiedPurchaseToken(customerName = '', maxUses = 1) {
   const docRef = await db.collection(TOKENS_COLLECTION).add(tokenDoc);
 
   // Constrói o URL absoluto para a página de avaliação
-  const baseUrl = window.location.href.split('?')[0].replace(/admin\.html.*$/, 'avaliar.html');
-  const finalUrl = baseUrl.endsWith('avaliar.html') 
-    ? `${baseUrl}?token=${tokenStr}`
-    : `${window.location.origin}/avaliar.html?token=${tokenStr}`;
+  const finalUrl = buildAvaliarUrl(tokenStr);
 
   return {
     id: docRef.id,
@@ -427,10 +438,234 @@ async function deleteTokenDoc(tokenId) {
   return db.collection(TOKENS_COLLECTION).doc(tokenId).delete();
 }
 
+/**
+ * ═══════════════════════════════════════════════════════════
+ * GESTÃO DE EVENTOS E APRESENTAÇÕES DO LIVRO
+ * ═══════════════════════════════════════════════════════════
+ */
+
+const EVENTS_COLLECTION = 'events';
+
+const DEFAULT_INITIAL_EVENT = {
+  id: 'default_cascais_2026',
+  title: "Apresentação do Livro em Cascais!",
+  dateIso: "2026-11-07T15:00",
+  dateTimestamp: new Date("2026-11-07T15:00:00").getTime(),
+  timeFormatted: "das 15h00 às 15h45",
+  dateFormatted: "Sábado, 7 de Novembro de 2026",
+  locationName: "Biblioteca Infantil e Juvenil",
+  locationAddress: "Av. Rei Humberto II de Itália, Parque Marechal Carmona, Cascais",
+  category: "Apresentação Oficial",
+  leadText: "Vem conhecer pessoalmente os autores Ana Carvalho e Rafael Diogo numa sessão especial de apresentação e leitura para famílias na Biblioteca Infantil e Juvenil de Cascais!",
+  audienceTarget: "Famílias com crianças",
+  audienceAge: "dos 4 aos 10 anos",
+  isFree: true,
+  infoUrl: "https://360.cascais.pt/pt/agenda/apresentacao-do-livro-ovelhas-coloridas-de-ana-carvalho-e-rafael-diogo?id=5358",
+  mapUrl: "https://maps.google.com/?q=Biblioteca+Infantil+e+Juvenil+Cascais"
+};
+
+function getLocalEvents() {
+  try {
+    const raw = localStorage.getItem('oc_local_events');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch (e) {}
+  return [DEFAULT_INITIAL_EVENT];
+}
+
+function setLocalEvents(eventsList) {
+  try {
+    localStorage.setItem('oc_local_events', JSON.stringify(eventsList));
+  } catch (e) {}
+}
+
+/**
+ * Seleciona o evento futuro mais próximo (que vai acontecer mais cedo)
+ * Quando esse passar, escolhe o seguinte automaticamente.
+ */
+function getNextUpcomingEvent(events) {
+  if (!events || events.length === 0) return DEFAULT_INITIAL_EVENT;
+
+  const now = Date.now();
+  const sorted = [...events].sort((a, b) => (a.dateTimestamp || 0) - (b.dateTimestamp || 0));
+
+  // Considera futuro se o início ainda não ocorreu ou começou há menos de 2h
+  const upcoming = sorted.filter(e => {
+    const time = e.dateTimestamp || 0;
+    return time + (2 * 60 * 60 * 1000) >= now;
+  });
+
+  if (upcoming.length > 0) {
+    return upcoming[0];
+  }
+
+  // Se todos já passaram, exibe o evento mais recente que ocorreu
+  return sorted[sorted.length - 1];
+}
+
+async function createEventDoc(eventData) {
+  const dateTimestamp = new Date(eventData.dateIso).getTime();
+  const cleanEvent = {
+    title: (eventData.title || '').trim(),
+    dateIso: eventData.dateIso || '',
+    dateTimestamp: isNaN(dateTimestamp) ? Date.now() : dateTimestamp,
+    timeFormatted: (eventData.timeFormatted || '').trim(),
+    dateFormatted: eventData.dateFormatted || '',
+    locationName: (eventData.locationName || '').trim(),
+    locationAddress: (eventData.locationAddress || '').trim(),
+    category: (eventData.category || 'Apresentação Oficial').trim(),
+    leadText: (eventData.leadText || '').trim(),
+    audienceTarget: (eventData.audienceTarget || 'Famílias com crianças').trim(),
+    audienceAge: (eventData.audienceAge || 'dos 4 aos 10 anos').trim(),
+    isFree: !!eventData.isFree,
+    infoUrl: (eventData.infoUrl || '').trim(),
+    mapUrl: (eventData.mapUrl || '').trim(),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAtClient: new Date().toISOString()
+  };
+
+  if (!cleanEvent.title) throw new Error("Por favor, introduz o título do evento.");
+  if (!cleanEvent.dateIso) throw new Error("Por favor, seleciona a data e hora do evento.");
+
+  let docId = 'local_' + Date.now();
+  if (db) {
+    try {
+      const docRef = await db.collection(EVENTS_COLLECTION).add(cleanEvent);
+      docId = docRef.id;
+    } catch (e) {
+      console.warn("Firestore offline ou erro, a usar LocalStorage:", e);
+    }
+  }
+
+  const local = getLocalEvents().filter(e => e.id !== 'default_cascais_2026');
+  local.push({ id: docId, ...cleanEvent });
+  setLocalEvents(local);
+
+  return { id: docId, ...cleanEvent };
+}
+
+async function updateEventDoc(eventId, eventData) {
+  if (!eventId) throw new Error("ID do evento é obrigatório");
+  const dateTimestamp = new Date(eventData.dateIso).getTime();
+  const cleanEvent = {
+    title: (eventData.title || '').trim(),
+    dateIso: eventData.dateIso || '',
+    dateTimestamp: isNaN(dateTimestamp) ? Date.now() : dateTimestamp,
+    timeFormatted: (eventData.timeFormatted || '').trim(),
+    dateFormatted: eventData.dateFormatted || '',
+    locationName: (eventData.locationName || '').trim(),
+    locationAddress: (eventData.locationAddress || '').trim(),
+    category: (eventData.category || 'Apresentação Oficial').trim(),
+    leadText: (eventData.leadText || '').trim(),
+    audienceTarget: (eventData.audienceTarget || 'Famílias com crianças').trim(),
+    audienceAge: (eventData.audienceAge || 'dos 4 aos 10 anos').trim(),
+    isFree: !!eventData.isFree,
+    infoUrl: (eventData.infoUrl || '').trim(),
+    mapUrl: (eventData.mapUrl || '').trim(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  if (db && !eventId.startsWith('local_') && eventId !== 'default_cascais_2026') {
+    try {
+      await db.collection(EVENTS_COLLECTION).doc(eventId).update(cleanEvent);
+    } catch (e) {
+      console.warn("Erro ao atualizar evento no Firestore:", e);
+    }
+  }
+
+  const local = getLocalEvents();
+  const idx = local.findIndex(e => e.id === eventId);
+  if (idx !== -1) {
+    local[idx] = { ...local[idx], ...cleanEvent };
+  } else {
+    local.push({ id: eventId, ...cleanEvent });
+  }
+  setLocalEvents(local);
+}
+
+async function deleteEventDoc(eventId) {
+  if (!eventId) throw new Error("ID do evento é obrigatório");
+
+  if (db && !eventId.startsWith('local_') && eventId !== 'default_cascais_2026') {
+    try {
+      await db.collection(EVENTS_COLLECTION).doc(eventId).delete();
+    } catch (e) {
+      console.warn("Erro ao eliminar evento no Firestore:", e);
+    }
+  }
+
+  const local = getLocalEvents().filter(e => e.id !== eventId);
+  setLocalEvents(local);
+}
+
+function onAllEventsAdmin(callback) {
+  if (!db) {
+    callback(getLocalEvents());
+    return () => {};
+  }
+
+  try {
+    return db.collection(EVENTS_COLLECTION).onSnapshot((snapshot) => {
+      let events = [];
+      snapshot.forEach((doc) => {
+        events.push({ id: doc.id, ...doc.data() });
+      });
+
+      if (events.length === 0) {
+        events = [DEFAULT_INITIAL_EVENT];
+      }
+
+      events.sort((a, b) => (a.dateTimestamp || 0) - (b.dateTimestamp || 0));
+      setLocalEvents(events);
+      callback(events);
+    }, (err) => {
+      console.warn("Firestore listener de eventos falhou, a usar LocalStorage:", err);
+      callback(getLocalEvents());
+    });
+  } catch (err) {
+    callback(getLocalEvents());
+    return () => {};
+  }
+}
+
+function onPublicEvents(callback) {
+  function processEvents(eventsList) {
+    const active = getNextUpcomingEvent(eventsList);
+    callback(active, eventsList);
+  }
+
+  if (!db) {
+    processEvents(getLocalEvents());
+    return () => {};
+  }
+
+  try {
+    return db.collection(EVENTS_COLLECTION).onSnapshot((snapshot) => {
+      let events = [];
+      snapshot.forEach((doc) => {
+        events.push({ id: doc.id, ...doc.data() });
+      });
+      if (events.length === 0) {
+        events = [DEFAULT_INITIAL_EVENT];
+      }
+      setLocalEvents(events);
+      processEvents(events);
+    }, (err) => {
+      processEvents(getLocalEvents());
+    });
+  } catch (err) {
+    processEvents(getLocalEvents());
+    return () => {};
+  }
+}
+
 // Exportações globais para utilização nos scripts das páginas
 window.OvelhasFirebase = {
   db,
   SHEEP_CHARACTERS,
+  buildAvaliarUrl,
   createVerifiedPurchaseToken,
   validateVerifiedToken,
   submitReview,
@@ -441,5 +676,14 @@ window.OvelhasFirebase = {
   toggleReviewApproval,
   toggleReviewVerified,
   deleteReviewDoc,
-  deleteTokenDoc
+  deleteTokenDoc,
+  // Eventos
+  DEFAULT_INITIAL_EVENT,
+  createEventDoc,
+  updateEventDoc,
+  deleteEventDoc,
+  onAllEventsAdmin,
+  onPublicEvents,
+  getNextUpcomingEvent
 };
+
