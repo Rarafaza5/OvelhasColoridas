@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ovelhas Coloridas: Uma Aventura no Espaço · Estúdio</title>
+<link rel="icon" type="image/png" href="personagens/ovelha-arcoiris.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0c102a; --card:#141a40; --card2:#1a2254; --border:#25306e;
+    --purple:#9b5de5; --yellow:#ffd166; --pink:#ff85a2; --lilac:#d8b4fe;
+    --red:#e63946; --green:#38b000; --blue:#3a86ff;
+    --txt:#f0f2ff; --mut:#a0a7d6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Nunito',sans-serif;background:var(--navy) url("fundo.png") center/cover fixed;color:var(--txt);min-height:100vh}
+  
+  /* Cabeçalho */
+  header{display:flex;align-items:center;gap:18px;padding:12px 28px;background:rgba(12,16,42,.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;flex-wrap:wrap}
+  header h1{display:flex;align-items:center;gap:12px;font-family:'Fredoka';font-size:22px;flex:1;min-width:260px}
+  header h1 img{height:44px;width:auto}
+  header h1 span{color:var(--lilac);font:700 13px 'Nunito';letter-spacing:3px;text-transform:uppercase;background:rgba(216,180,254,.12);padding:4px 12px;border-radius:12px;border:1px solid rgba(216,180,254,.2)}
+  
+  nav{display:flex;gap:8px;flex-wrap:wrap}
+  nav button{background:rgba(255,255,255,.06);color:var(--mut);border:1px solid var(--border);padding:8px 18px;border-radius:14px;font:700 14px 'Nunito';cursor:pointer;transition:all .15s}
+  nav button:hover{background:rgba(255,255,255,.12);color:#fff}
+  nav button.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+  nav button#navLive.on{background:var(--red);border-color:var(--red);animation:pulse-live 1.5s infinite alternate}
+  @keyframes pulse-live{to{box-shadow:0 0 16px rgba(230,57,70,.6)}}
+  
+  a.link{color:#0c102a;background:var(--yellow);font-weight:800;text-decoration:none;padding:8px 18px;border-radius:14px;font-size:14px;display:inline-flex;align-items:center;gap:6px;transition:transform .15s}
+  a.link:hover{transform:scale(1.03)}
+
+  main{max-width:1440px;margin:0 auto;padding:24px}
+  .tab{display:none}.tab.on{display:block}
+  
+  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px;margin-bottom:20px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .card h2{font-family:'Fredoka';font-weight:600;font-size:22px;margin-bottom:14px;color:var(--lilac);display:flex;align-items:center;justify-content:space-between}
+  .hint{color:var(--mut);font-size:14px;margin-bottom:12px}
+
+  .btns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button.b{border:none;border-radius:12px;padding:10px 20px;font:700 15px 'Nunito';cursor:pointer;color:#fff;background:var(--card2);border:1px solid var(--border);transition:all .15s}
+  button.b:hover{transform:translateY(-1px);background:rgba(255,255,255,.1)}
+  button.b:disabled{opacity:.35;cursor:not-allowed;transform:none}
+  button.b.go{background:var(--yellow);color:#0c102a;border:none;font-weight:800}
+  button.b.go:hover{background:#ffe08a}
+  button.b.p{background:var(--purple);border:none}
+  button.b.r{background:var(--red);border:none}
+  button.b.s{padding:6px 12px;font-size:13px;border-radius:10px}
+
+  label{display:block;font-size:12px;font-weight:800;color:var(--mut);margin:14px 0 4px;text-transform:uppercase;letter-spacing:.5px}
+  input,textarea,select{width:100%;background:var(--navy);color:var(--txt);border:1px solid var(--border);border-radius:12px;padding:10px 14px;font:600 15px 'Nunito'}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--purple)}
+  textarea{resize:vertical}
+
+  /* Grelha de Quizzes */
+  .kits{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+  .kit{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:border-color .2s}
+  .kit:hover{border-color:var(--purple)}
+  .kit .cover{height:120px;background:linear-gradient(135deg,#1c2454,#3a206e);display:flex;align-items:center;justify-content:center;position:relative;background-size:cover;background-position:center}
+  .kit .cover img.default-sheep{height:80px;opacity:.9}
+  .kit .live-badge{position:absolute;top:10px;right:10px;background:var(--red);color:#fff;font-size:11px;font-weight:900;padding:4px 10px;border-radius:10px;letter-spacing:1px}
+  .kit .bd{padding:16px;flex:1;cursor:pointer}
+  .kit h3{font-family:'Fredoka';font-size:20px;margin-bottom:4px;color:#fff}
+  .kit .meta{color:var(--mut);font-size:13px;font-weight:600}
+  .kit .ft{padding:0 16px 16px;display:flex;gap:8px;flex-wrap:wrap}
+
+  /* Editor de Quiz */
+  .edtop{display:flex;gap:14px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+  .edtop input{font:700 22px 'Fredoka';flex:1;min-width:240px;background:var(--card)}
+  #saveState{color:var(--mut);font-size:14px;font-weight:700}
+  .ed{display:grid;grid-template-columns:240px 1fr 300px;gap:20px;align-items:start}
+  @media(max-width:1150px){.ed{grid-template-columns:1fr}}
+  .slides,.props{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:16px}
+  .slide{display:flex;gap:10px;align-items:center;padding:10px;border-radius:12px;border:2px solid transparent;cursor:pointer;margin-bottom:8px;background:var(--navy);transition:all .15s}
+  .slide.on{border-color:var(--yellow);background:rgba(255,209,102,.05)}
+  .slide .no{font:700 16px 'Fredoka';width:24px;text-align:center;color:var(--yellow)}
+  .slide .tx{flex:1;font-size:13px;font-weight:700;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .slide .th{width:40px;height:32px;border-radius:6px;background:#000 center/cover}
+  .slide .warn{color:var(--yellow)}
+  .canvas{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px}
+  .qtext{font:600 22px 'Fredoka';text-align:center;min-height:90px;background:var(--navy);color:#fff;border:1px solid var(--border);border-radius:16px;padding:16px}
+  .qtext:focus{border-color:var(--purple)}
+  .imgbox{margin:18px auto;max-width:500px;height:240px;border:2px dashed var(--border);border-radius:18px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;position:relative;background:var(--navy) center/contain no-repeat;color:var(--mut);font-weight:700;cursor:pointer}
+  .imgbox.has{border-style:solid;cursor:default}
+  .imgbox.drag{border-color:var(--yellow);color:var(--yellow)}
+  .imgbox .ov{position:absolute;bottom:10px;display:flex;gap:8px}
+  .answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .acard{display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px}
+  .acard.k0{background:#c9a010}.acard.k1{background:var(--red)}.acard.k2{background:#38b000}.acard.k3{background:var(--blue)}
+  .acard input[type=text]{background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:16px}
+  .acard input::placeholder{color:rgba(255,255,255,.5)}
+  .tick{width:36px;height:36px;border-radius:50%;border:2px solid #fff;background:transparent;color:transparent;font-size:20px;font-weight:900;cursor:pointer;flex:none}
+  .tick.on{background:#fff;color:#2a8f1a}
+
+  /* Painel Comando Ao Vivo (Live Controller) */
+  /* Painel Comando Ao Vivo (Live Controller Studio) */
+  .live-stepper-bar{display:flex;gap:8px;overflow-x:auto;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:16px;margin-bottom:20px;font-family:'Fredoka'}
+  .step-pill{padding:6px 14px;border-radius:12px;font-weight:700;font-size:14px;border:1px solid var(--border);background:var(--navy);color:var(--mut);cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+  .step-pill.done{border-color:rgba(56,176,0,.4);background:rgba(56,176,0,.15);color:var(--green)}
+  .step-pill.active{border-color:var(--yellow);background:rgba(255,209,102,.2);color:var(--yellow);box-shadow:0 0 12px rgba(255,209,102,.3);font-weight:900}
+  .step-pill:hover{transform:translateY(-1px);border-color:var(--purple);color:#fff}
+
+  .live-grid{display:grid;grid-template-columns:1.25fr 1fr;gap:24px}
+  @media(max-width:1000px){.live-grid{grid-template-columns:1fr}}
+  
+  .live-hero-bar{background:linear-gradient(135deg,rgba(155,93,229,.15),rgba(230,57,70,.15)),var(--card);border:2px solid var(--purple);border-radius:20px;padding:20px;margin-bottom:20px}
+  .live-hero-bar .top-info{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+  .live-hero-bar .badge-live{background:var(--red);color:#fff;font-size:12px;font-weight:900;letter-spacing:1px;padding:4px 12px;border-radius:10px}
+  .live-hero-bar .q-num{font-family:'Fredoka';font-size:18px;color:var(--lilac)}
+  
+  .phase-badge{font-size:11px;font-weight:900;letter-spacing:1px;padding:4px 10px;border-radius:10px;text-transform:uppercase}
+  .phase-badge.phase-lobby{background:var(--lilac);color:var(--navy)}
+  .phase-badge.phase-question{background:var(--blue);color:#fff}
+  .phase-badge.phase-reveal{background:var(--green);color:#fff}
+  .phase-badge.phase-board{background:var(--purple);color:#fff}
+  .phase-badge.phase-final{background:var(--yellow);color:var(--navy)}
+
+  /* Botão de Ação Principal (Espaço) */
+  .main-action-btn{width:100%;padding:18px 28px;font-size:22px;font-weight:900;border-radius:16px;background:var(--yellow);color:#0c102a;border:none;cursor:pointer;box-shadow:0 8px 24px rgba(255,209,102,.3);transition:transform .15s, background .15s;display:flex;align-items:center;justify-content:center;gap:12px}
+  .main-action-btn:hover{transform:scale(1.02);background:#ffe08a}
+  .main-action-btn.all-ready{background:var(--green);color:#fff;animation:pulse-ready .6s infinite alternate;box-shadow:0 8px 24px rgba(56,176,0,.4)}
+  @keyframes pulse-ready{to{transform:scale(1.03)}}
+  .main-action-btn small{font-size:13px;font-weight:700;opacity:.8;background:rgba(0,0,0,.15);padding:3px 10px;border-radius:8px}
+
+  /* Controlos Rápidos de Tempo */
+  .time-ctrl-bar{display:flex;align-items:center;gap:10px;margin-top:14px;background:var(--navy);padding:10px 16px;border-radius:14px;border:1px solid var(--border);flex-wrap:wrap}
+  .time-display{font-family:'Fredoka';font-size:24px;color:var(--yellow);margin-right:auto;display:flex;align-items:center;gap:8px}
+  .time-display.paused{color:#ff7a7a}
+
+  /* Preview da Pergunta */
+  .live-qpreview-card{background:var(--navy);border:1px solid var(--border);border-radius:16px;padding:16px;margin-top:14px}
+  .live-qimg{height:140px;background-size:contain;background-position:center;background-repeat:no-repeat;border-radius:12px;margin-bottom:12px;border:1px solid var(--border)}
+  .qprev{font-family:'Fredoka';font-size:24px;margin:12px 0;color:#fff}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .opt{position:relative;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;font-weight:800;color:#fff;cursor:pointer;user-select:none;transition:transform .15s}
+  .opt:hover{transform:scale(1.01)}
+  .opt.c0{background:#c9a010}.opt.c1{background:var(--red)}.opt.c2{background:#38b000}.opt.c3{background:#3a86ff}
+  .opt.ok{outline:3px solid #fff}
+  .opt .count-badge{background:rgba(0,0,0,.4);border-radius:10px;padding:2px 8px;font-size:12px;font-weight:800;color:#fff}
+
+  /* Matriz de Respostas dos Grupos Otimizada */
+  .picks-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px}
+  .picks-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;flex-wrap:wrap;background:rgba(255,255,255,.04);padding:10px 16px;border-radius:14px;border:1px solid var(--border)}
+  .picks-progress-wrap{flex:1;min-width:200px}
+  .picks-progress-bar{height:8px;background:rgba(255,255,255,.1);border-radius:6px;overflow:hidden;margin-top:4px}
+  .picks-progress-fill{height:100%;background:linear-gradient(90deg,var(--yellow),var(--green));width:0%;transition:width .3s}
+  .batch-btns{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .batch-btn{padding:5px 12px;font-size:12px;border-radius:8px;font-weight:800;border:none;cursor:pointer;transition:transform .1s}
+  .batch-btn.k0{background:#c9a010;color:#fff}.batch-btn.k1{background:var(--red);color:#fff}.batch-btn.k2{background:var(--green);color:#fff}.batch-btn.k3{background:var(--blue);color:#fff}
+  .batch-btn:hover{opacity:.9;transform:scale(1.05)}
+  
+  .trow{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--navy);border:2px solid var(--border);border-radius:14px;margin-bottom:8px;transition:all .15s;position:relative;cursor:pointer}
+  .trow:hover{border-color:rgba(155,93,229,.5)}
+  .trow.active-team{border-color:var(--yellow);box-shadow:0 0 16px rgba(255,209,102,.3);background:rgba(255,209,102,.06)}
+  .trow.active-team::after{content:"👉 TECLADO";position:absolute;right:14px;top:-10px;font-size:10px;font-weight:900;background:var(--yellow);color:#0c102a;padding:2px 8px;border-radius:6px}
+  .trow .nm{font-weight:800;font-size:17px;flex:1;display:flex;align-items:center;gap:10px}
+  .status-pill{font-size:11px;font-weight:900;padding:3px 10px;border-radius:8px;text-transform:uppercase;letter-spacing:.5px}
+  .status-pill.done{background:rgba(56,176,0,.25);color:var(--green);border:1px solid rgba(56,176,0,.4)}
+  .status-pill.pending{background:rgba(255,255,255,.06);color:var(--mut)}
+
+  .pk-group{display:flex;gap:6px}
+  .pk{min-width:48px;height:44px;padding:0 12px;border-radius:10px;border:2px solid transparent;font:900 16px 'Fredoka';color:#fff;cursor:pointer;opacity:.4;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+  .pk.k0{background:#c9a010}.pk.k1{background:var(--red)}.pk.k2{background:#38b000}.pk.k3{background:#3a86ff}
+  .pk.sel{opacity:1;border-color:#fff;transform:scale(1.08);box-shadow:0 4px 14px rgba(0,0,0,.5)}
+  .pk:hover:not(:disabled){opacity:.85;transform:translateY(-1px)}
+  .pk:disabled{cursor:not-allowed}
+  .res{font-size:22px;width:32px;text-align:center}
+  .score{font:700 22px 'Fredoka';min-width:70px;text-align:right;color:var(--yellow)}
+
+  /* Modo Grelha de Cartões Touch */
+  .grid-picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .team-card{background:var(--navy);border:2px solid var(--border);border-radius:16px;padding:14px;transition:all .15s;position:relative;cursor:pointer}
+  .team-card:hover{border-color:rgba(155,93,229,.5)}
+  .team-card.active-team{border-color:var(--yellow);box-shadow:0 0 18px rgba(255,209,102,.35);background:rgba(255,209,102,.07)}
+  .team-card.active-team::after{content:"👉 TECLADO";position:absolute;top:8px;right:8px;font-size:10px;font-weight:900;background:var(--yellow);color:#0c102a;padding:2px 8px;border-radius:6px}
+  .team-card .hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .team-card .hdr h4{font-family:'Fredoka';font-size:18px;color:#fff}
+  .card-pk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .card-pk-btn{padding:12px 8px;border-radius:12px;border:2px solid transparent;font:900 16px 'Fredoka';color:#fff;cursor:pointer;opacity:.45;transition:all .15s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+  .card-pk-btn.k0{background:#c9a010}.card-pk-btn.k1{background:var(--red)}.card-pk-btn.k2{background:#38b000}.card-pk-btn.k3{background:#3a86ff}
+  .card-pk-btn.sel{opacity:1;border-color:#fff;transform:scale(1.04);box-shadow:0 4px 14px rgba(0,0,0,.5)}
+  .card-pk-btn .sub-text{font-family:'Nunito';font-size:11px;font-weight:700;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+  .teamrow{display:flex;gap:10px;margin-bottom:10px}
+
+  /* Hotkeys Legend Bar */
+  .live-hotkeys-footer{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;background:rgba(12,16,42,.95);border:1px solid var(--border);border-radius:14px;padding:10px 18px;margin-top:20px;font-size:13px;color:var(--mut)}
+  .live-hotkeys-footer code{background:rgba(255,255,255,.1);color:var(--yellow);padding:2px 6px;border-radius:6px;font-weight:800;font-family:inherit}
+
+  /* Imagens */
+  .media{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+  .mi{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer}
+  .mi:hover{border-color:var(--purple)}
+  .mi .im{height:120px;background:#000 center/cover}
+  .mi .nm{font-size:13px;padding:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--mut)}
+  .mi .x{padding:0 8px 8px}
+
+  /* Switch Toggle */
+  .toggle-wrap{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--mut);margin-top:10px;cursor:pointer;user-select:none}
+  .toggle-wrap input{width:18px;height:18px;accent-color:var(--purple);cursor:pointer}
+
+  /* Modal & Toast */
+  #modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
+  #modal.on{display:flex}
+  #modal .box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:860px;max-width:100%;max-height:90vh;overflow:auto}
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-weight:800;padding:12px 28px;border-radius:16px;opacity:0;transition:.3s;pointer-events:none;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  #toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>
+    <img src="titulo-logo.png" alt="Ovelhas Coloridas">
+    <span>Estúdio</span>
+  </h1>
+  <nav>
+    <button data-t="library" class="on">🏠 Os meus quizzes</button>
+    <button data-t="media">🖼️ Imagens</button>
+    <button data-t="teams">👥 Grupos</button>
+    <button data-t="game" id="navLive" style="display:none">🔴 COMANDO AO VIVO</button>
+  </nav>
+  <a class="link" href="display.html" target="_blank">📺 Abrir Projetor / Display</a>
+</header>
+
+<main>
+  <!-- TAB: BIBLIOTECA -->
+  <section class="tab on" id="tab-library">
+    <div class="card">
+      <div class="btns">
+        <button class="b go" onclick="newKit()">+ Criar Novo Quiz</button>
+        <button class="b" onclick="document.getElementById('impKit').click()">⬆ Importar Quiz (JSON)</button>
+        <input type="file" id="impKit" accept=".json" style="display:none" onchange="importKit(event)">
+      </div>
+    </div>
+    <div class="kits" id="kits"></div>
+  </section>
+
+  <!-- TAB: EDITOR -->
+  <section class="tab" id="tab-editor"></section>
+
+  <!-- TAB: COMANDO AO VIVO -->
+  <section class="tab" id="tab-game">
+    <div id="liveStepperBar" class="live-stepper-bar"></div>
+    <div class="live-grid">
+      <div>
+        <div class="card" id="ctrl"></div>
+        <div class="card">
+          <div class="picks-header">
+            <h2>Respostas dos Grupos <span id="answerCounter" style="font-size:14px;color:var(--mut);font-family:Nunito"></span></h2>
+            <button class="b s" id="btnTogglePicksView" onclick="togglePicksView()">☰ Mudar Visualização</button>
+          </div>
+          <div id="picksToolbar"></div>
+          <div id="picks" style="margin-top:14px"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <h2>🏆 Classificação em Direto</h2>
+          <div id="scores"></div>
+        </div>
+        <div class="card">
+          <h2>Automatização & Controlos</h2>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="chkAutoReveal" onchange="toggleAutoSetting('autoReveal', this.checked)">
+            <span>Revelar resposta automaticamente ao chegar a 0s</span>
+          </label>
+          <label class="toggle-wrap">
+            <input type="checkbox" id="chkAutoAdvance" onchange="toggleAutoSetting('autoAdvance', this.checked)">
+            <span>Revelar automaticamente quando todos responderem</span>
+          </label>
+          <div class="btns" style="margin-top:16px">
+            <button class="b" onclick="editLive()">✏️ Editar este quiz</button>
+            <button class="b r" onclick="resetGame()">↺ Zerar Pontos</button>
+            <button class="b r" onclick="endLive()">⏹ Terminar Live</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="live-hotkeys-footer">
+      <span>⌨️ <b>Atalhos Rápidos:</b></span>
+      <span><code>Espaço</code> Ação Principal</span>
+      <span><code>A</code>/<code>B</code>/<code>C</code>/<code>D</code> ou <code>1</code>..<code>4</code> Resposta do Grupo Ativo</span>
+      <span><code>Setas ↑/↓</code> Mudar Grupo</span>
+      <span><code>P</code> Pausar Tempo</span>
+      <span><code>+</code> / <code>-</code> ± Tempo</span>
+      <span><code>R</code> Reiniciar Tempo</span>
+    </div>
+  </section>
+
+  <!-- TAB: IMAGENS -->
+  <section class="tab" id="tab-media">
+    <div class="card">
+      <div class="btns">
+        <button class="b go" onclick="document.getElementById('upFile').click()">⬆ Carregar Imagens</button>
+        <input type="file" id="upFile" accept="image/*" multiple style="display:none" onchange="uploadFiles(this.files);this.value=''">
+      </div>
+      <p class="hint" style="margin-top:12px">As imagens são salvas e otimizadas automaticamente para uso em qualquer quiz.</p>
+    </div>
+    <div class="media" id="mediaGrid"></div>
+  </section>
+
+  <!-- TAB: GRUPOS -->
+  <section class="tab" id="tab-teams">
+    <div class="card" style="max-width:600px">
+      <h2>Grupos de Alunos / Participantes</h2>
+      <div id="tlist"></div>
+      <div class="btns" style="margin-top:14px"><button class="b go" onclick="addTeam()">+ Adicionar Grupo</button></div>
+    </div>
+  </section>
+</main>
+
+<div id="modal"><div class="box" id="modalBox"></div></div>
+<div id="toast">Guardado ✔</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDlcDw00v_Jcat_KApXCbS_uRbpSSIObko",
+  authDomain: "ovelhascoloridas-235c1.firebaseapp.com",
+  projectId: "ovelhascoloridas-235c1",
+  storageBucket: "ovelhascoloridas-235c1.firebasestorage.app",
+  messagingSenderId: "791349999782",
+  appId: "1:791349999782:web:5bce745534725f29691c67"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const liveRef  = db.collection('quiz').doc('main');
+const kitsCol  = db.collection('quiz_kits');
+const mediaCol = db.collection('quiz_media');
+const dataCol  = db.collection('quiz_media_data');
+const FV = firebase.firestore.FieldValue;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const L = ['A','B','C','D'];
+const uid = () => 't'+Math.random().toString(36).slice(2,8);
+const clone = o => JSON.parse(JSON.stringify(o));
+function toast(t){ const e=$('toast'); e.textContent=t||'Guardado ✔'; e.classList.add('show'); setTimeout(()=>e.classList.remove('show'),1200); }
+function show(t){
+  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.t===t));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('on',x.id==='tab-'+t));
+}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>show(b.dataset.t));
+
+/* Hotkeys de Alta Velocidade no Comando */
+let activeTeamIndex = 0;
+let picksViewMode = localStorage.getItem('oc_picks_view') || 'rows';
+
+function togglePicksView(){
+  picksViewMode = picksViewMode === 'rows' ? 'cards' : 'rows';
+  localStorage.setItem('oc_picks_view', picksViewMode);
+  renderGame();
+}
+
+function moveActiveTeam(delta){
+  if(!S || !S.teams || !S.teams.length) return;
+  const n = S.teams.length;
+  activeTeamIndex = (activeTeamIndex + delta + n) % n;
+  renderGame();
+}
+
+function setActiveTeam(i){
+  activeTeamIndex = i;
+  renderGame();
+}
+
+function pickForActiveTeam(optionIndex){
+  if(!S || !S.live || S.phase !== 'question' || !S.teams || !S.teams.length) return;
+  const teams = S.teams;
+  if(activeTeamIndex < 0 || activeTeamIndex >= teams.length) activeTeamIndex = 0;
+  const team = teams[activeTeamIndex];
+  if(!team) return;
+  
+  if(optionIndex === null){
+    pick(team.id, null);
+    toast('Resposta limpa: ' + team.name);
+  } else {
+    const Q = curQ();
+    const maxAnswers = Q ? Q.answers.length : 4;
+    if(optionIndex >= maxAnswers) return;
+    pick(team.id, optionIndex);
+    toast(team.name + ' ➔ Opção ' + L[optionIndex] + ' ✔');
+  }
+  
+  // Avançar automaticamente para o próximo grupo sem resposta
+  const picks = S.picks || {};
+  let found = -1;
+  for(let i = 1; i <= teams.length; i++){
+    const idx = (activeTeamIndex + i) % teams.length;
+    if(idx !== activeTeamIndex && (picks[teams[idx].id] === undefined || optionIndex === null)){
+      found = idx;
+      break;
+    }
+  }
+  activeTeamIndex = found !== -1 ? found : (activeTeamIndex + 1) % teams.length;
+  renderGame();
+}
+
+function pickAll(optIndex){
+  if(!S || !S.teams || !S.teams.length) return;
+  const updates = {};
+  S.teams.forEach(t => { updates['picks.' + t.id] = optIndex; });
+  upd(updates);
+  toast('⚡ Todos responderam ' + L[optIndex] + ' ✔');
+}
+
+function clearAllPicks(){
+  if(!S || !S.teams || !S.teams.length) return;
+  const updates = {};
+  S.teams.forEach(t => { updates['picks.' + t.id] = FV.delete(); });
+  upd(updates);
+  toast('✖ Respostas limpas');
+}
+
+window.addEventListener('keydown', e => {
+  if(!S || !S.live || !document.querySelector('#tab-game.on')) return;
+  const target = e.target;
+  if(target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
+  if(target.tagName === 'BUTTON' && e.code === 'Space') return;
+  
+  if(e.code === 'Space'){ e.preventDefault(); triggerMainAction(); }
+  else if(e.code === 'KeyP'){ e.preventDefault(); togglePauseTime(); }
+  else if(e.code === 'Equal' || e.code === 'NumpadAdd'){ e.preventDefault(); adjustLiveTime(10); }
+  else if(e.code === 'Minus' || e.code === 'NumpadSubtract'){ e.preventDefault(); adjustLiveTime(-5); }
+  else if(e.code === 'KeyR'){ e.preventDefault(); restartQ(); }
+  
+  // Teclas Rápidas de Resposta por Grupo (A/1, B/2, C/3, D/4)
+  else if(S.phase === 'question'){
+    if(e.code === 'Digit1' || e.code === 'Numpad1' || e.code === 'KeyA'){ e.preventDefault(); pickForActiveTeam(0); }
+    else if(e.code === 'Digit2' || e.code === 'Numpad2' || e.code === 'KeyB'){ e.preventDefault(); pickForActiveTeam(1); }
+    else if(e.code === 'Digit3' || e.code === 'Numpad3' || e.code === 'KeyC'){ e.preventDefault(); pickForActiveTeam(2); }
+    else if(e.code === 'Digit4' || e.code === 'Numpad4' || e.code === 'KeyD'){ e.preventDefault(); pickForActiveTeam(3); }
+    else if(e.code === 'Digit0' || e.code === 'Numpad0' || e.code === 'KeyX' || e.code === 'Backspace'){ e.preventDefault(); pickForActiveTeam(null); }
+    else if(e.code === 'ArrowDown'){ e.preventDefault(); moveActiveTeam(1); }
+    else if(e.code === 'ArrowUp'){ e.preventDefault(); moveActiveTeam(-1); }
+  }
+});
+
+/* ───────── Modelo de dados ───────── */
+const TYPES = {
+  quiz4:{label:'Quiz · 4 respostas',n:4}, quiz3:{label:'Quiz · 3 respostas',n:3},
+  quiz2:{label:'Quiz · 2 respostas',n:2}, tf:{label:'Verdadeiro / Falso',n:2}
+};
+function newQuestion(type='quiz4'){
+  const n=TYPES[type].n;
+  return {type,text:'',answers: type==='tf'?['Verdadeiro','Falso']:Array(n).fill(''),
+    correct:0,time:20,pointsMode:'standard',points:1000,image:'',explanation:''};
+}
+function normalize(q){
+  const type = TYPES[q.type]?q.type:(q.answers&&q.answers.length===2?'quiz2':q.answers&&q.answers.length===3?'quiz3':'quiz4');
+  const n=TYPES[type].n, a=(q.answers||[]).slice(0,n); while(a.length<n)a.push('');
+  return {type,text:q.text||'',answers:a.map(String),correct:Math.min(+q.correct||0,n-1),time:q.time??20,
+    pointsMode:['standard','double','none'].includes(q.pointsMode)?q.pointsMode:'standard',
+    points:q.points??1000,image:q.image||'',explanation:q.explanation||''};
+}
+
+/* ───────── Estado em tempo real ───────── */
+let S=null, KITS={}, MEDIA={}, timerInt=null;
+let K=null, KID=null, QI=0;
+let autoRevealTriggered = false;
+
+liveRef.onSnapshot(async d=>{
+  if(!d.exists){ await liveRef.set({live:false,phase:'lobby',qIndex:0,runId:0,picks:{},awarded:{},scores:{},questions:[],kitId:'',kitTitle:'',
+    teams:['Grupo A','Grupo B','Grupo C','Grupo D'].map((n,i)=>({id:'t'+(i+1),name:n}))}); return; }
+  S=d.data();
+  if($('chkAutoReveal')) $('chkAutoReveal').checked = S.autoReveal === true;
+  if($('chkAutoAdvance')) $('chkAutoAdvance').checked = S.autoAdvance === true;
+  renderGame(); renderTeams(); renderLibrary();
+}, fbErr);
+
+kitsCol.onSnapshot(async snap=>{
+  KITS={}; snap.forEach(d=>KITS[d.id]={id:d.id,...d.data()});
+  renderLibrary();
+}, fbErr);
+
+mediaCol.orderBy('createdAt','desc').onSnapshot(snap=>{
+  MEDIA={}; snap.forEach(d=>MEDIA[d.id]={id:d.id,...d.data()}); renderMedia();
+}, fbErr);
+
+function fbErr(e){ document.body.insertAdjacentHTML('afterbegin',`<p style="background:#D80B0B;padding:14px;position:relative;z-index:99">Erro Firebase: ${esc(e.message)} — verifica as regras do Firestore (rulesfirebase.txt).</p>`); }
+
+/* ───────── Biblioteca ───────── */
+function thumbOf(ref){ if(!ref) return ''; if(ref.startsWith('media:')) return (MEDIA[ref.slice(6)]||{}).thumb||''; return ref; }
+function renderLibrary(){
+  const list=Object.values(KITS).sort((a,b)=>((b.updatedAt&&b.updatedAt.seconds)||9e12)-((a.updatedAt&&a.updatedAt.seconds)||9e12));
+  $('kits').innerHTML = list.map(k=>{
+    const first=(k.questions||[]).find(q=>q.image); const th=first?thumbOf(first.image):'';
+    const isLive = S && S.live && S.kitId === k.id;
+    return `<div class="kit">
+      <div class="cover" ${th?`style="background-image:url('${esc(th)}')"`:''}>
+        ${th?'':'<img class="default-sheep" src="personagens/ovelha-arcoiris-standart.png" alt="">'}
+        ${isLive?'<span class="live-badge">🔴 AO VIVO NO PROJETOR</span>':''}
+      </div>
+      <div class="bd" onclick="openKit('${k.id}')">
+        <h3>${esc(k.title||'Sem título')}</h3>
+        <div class="meta">${(k.questions||[]).length} perguntas</div>
+      </div>
+      <div class="ft">
+        <button class="b s p" onclick="openKit('${k.id}')">✏️ Editar</button>
+        <button class="b s r" onclick="playKit('${k.id}')">🔴 LIVE</button>
+      </div>
+      <div class="ft" style="padding-top:0">
+        <button class="b s" onclick="dupKit('${k.id}')">⧉ Duplicar</button>
+        <button class="b s" onclick="expKit('${k.id}')">⬇ Exportar</button>
+        <button class="b s r" onclick="delKit('${k.id}')">🗑</button>
+      </div>
+    </div>`;
+  }).join('') || '<p class="hint">Ainda não tens quizzes criados. Clica em "+ Criar Novo Quiz".</p>';
+}
+
+async function newKit(){
+  const t=prompt('Nome do novo quiz:','Livro Ovelhas Coloridas'); if(!t) return;
+  const ref=await kitsCol.add({title:t,questions:[newQuestion()],questionCount:1,updatedAt:FV.serverTimestamp()});
+  openKit(ref.id);
+}
+async function dupKit(id){ const k=KITS[id]; await kitsCol.add({title:k.title+' (cópia)',questions:clone(k.questions||[]),questionCount:(k.questions||[]).length,updatedAt:FV.serverTimestamp()}); toast('Duplicado ✔'); }
+async function delKit(id){ if(!confirm('Apagar o quiz "'+KITS[id].title+'"?')) return; if(id===KID){K=null;KID=null;renderEditor();} await kitsCol.doc(id).delete(); }
+function expKit(id){
+  const k=KITS[id]; const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify({title:k.title,questions:k.questions},null,2)],{type:'application/json'}));
+  a.download=(k.title||'quiz').replace(/[^\w-]+/g,'_')+'.json'; a.click();
+}
+async function importKit(e){
+  try{
+    const o=JSON.parse(await e.target.files[0].text());
+    const qs=(Array.isArray(o)?o:o.questions).map(normalize);
+    await kitsCol.add({title:o.title||'Quiz importado',questions:qs,questionCount:qs.length,updatedAt:FV.serverTimestamp()}); toast('Importado ✔');
+  }catch{ alert('Ficheiro inválido.'); }
+  e.target.value='';
+}
+function kitProblems(k){
+  const p=[]; (k.questions||[]).forEach((q,i)=>{
+    if(!q.text.trim()) p.push(`Pergunta ${i+1}: sem texto`);
+    if(q.answers.some(a=>!a.trim())) p.push(`Pergunta ${i+1}: respostas em branco`);
+  }); return p;
+}
+
+function editLive(){ if(S&&KITS[S.kitId]) openKit(S.kitId); else alert('Quiz não encontrado.'); }
+
+async function playKit(id){
+  const k = id===KID&&K ? K : KITS[id];
+  if(!k || !k.questions.length) return alert('Este quiz não tem perguntas.');
+  const p=kitProblems(k); if(p.length) return alert('Corrige os seguintes pontos antes de ir ao vivo:\n\n'+p.join('\n'));
+  if(S&&S.live&&S.kitId===id){ show('game'); return; }
+  if(S&&S.live&&!confirm('Já existe um quiz ao vivo. Substituí-lo por "'+k.title+'" e zerar a pontuação?')) return;
+  autoRevealTriggered = false;
+  await liveRef.update({
+    live:true,kitId:id,kitTitle:k.title,questions:clone(k.questions),phase:'lobby',qIndex:0,picks:{},awarded:{},scores:{},runId:Date.now()
+  });
+  show('game'); toast('🔴 AO VIVO! O Projetor / Display está ativo');
+}
+
+async function endLive(){
+  if(!confirm('Terminar a transmissão ao vivo? O projetor voltará ao ecrã de espera.')) return;
+  await liveRef.update({live:false,phase:'lobby',picks:{},awarded:{},runId:Date.now()});
+  show('library');
+}
+
+/* ───────── Editor ───────── */
+function openKit(id){ KID=id; K=clone(KITS[id]); K.questions=(K.questions||[]).map(normalize); QI=0; show('editor'); renderEditor(); }
+let saveT;
+function saveKit(){
+  $('saveState')&&($('saveState').textContent='A guardar…');
+  clearTimeout(saveT);
+  saveT=setTimeout(async()=>{
+    await kitsCol.doc(KID).set({title:K.title,questions:K.questions,questionCount:K.questions.length,updatedAt:FV.serverTimestamp()},{merge:true});
+    if(S&&S.live&&S.kitId===KID&&!kitProblems(K).length&&K.questions.length) liveRef.update({kitTitle:K.title,questions:clone(K.questions),qIndex:Math.min(S.qIndex,K.questions.length-1)});
+    $('saveState')&&($('saveState').textContent='Guardado ✔');
+  },500);
+}
+function upQ(){ saveKit(); renderSlides(); }
+
+const Qc = () => K.questions[QI];
+
+function renderEditor(){
+  const box=$('tab-editor');
+  if(!K){ box.innerHTML='<div class="card"><p class="hint">Escolhe um quiz na Biblioteca para o editar.</p></div>'; return; }
+  const Q=Qc();
+  box.innerHTML=`
+    <div class="edtop">
+      <button class="b" onclick="show('library')">← Os meus quizzes</button>
+      <input value="${esc(K.title)}" oninput="K.title=this.value;saveKit()" placeholder="Título do Quiz">
+      <span id="saveState">Guardado ✔</span>
+      <button class="b r" style="font-size:16px" onclick="playKit(KID)">🔴 ENTRAR EM LIVE</button>
+    </div>
+    <div class="ed">
+      <aside class="slides">
+        <div id="slideList"></div>
+        <button class="b go" style="width:100%;margin-top:8px" onclick="addQ()">+ Adicionar Pergunta</button>
+      </aside>
+      <section class="canvas">${Q?canvasHTML(Q):'<p class="hint">Sem perguntas. Adiciona uma.</p>'}</section>
+      <aside class="props">${Q?propsHTML(Q):''}</aside>
+    </div>`;
+  renderSlides();
+  const ib=$('imgbox');
+  if(ib){
+    ['dragenter','dragover'].forEach(ev=>ib.addEventListener(ev,e=>{e.preventDefault();ib.classList.add('drag')}));
+    ['dragleave','drop'].forEach(ev=>ib.addEventListener(ev,e=>{e.preventDefault();ib.classList.remove('drag')}));
+    ib.addEventListener('drop',async e=>{ const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/')){ setImage(await uploadOne(f)); } });
+  }
+}
+
+function renderSlides(){
+  const el=$('slideList'); if(!el) return;
+  el.innerHTML=K.questions.map((q,i)=>{
+    const bad=!q.text.trim()||q.answers.some(a=>!a.trim()); const th=thumbOf(q.image);
+    return `<div class="slide ${i===QI?'on':''}" onclick="QI=${i};renderEditor()">
+      <div class="no">${i+1}</div>
+      <div class="tx">${esc(q.text)||'<i>(sem texto)</i>'}</div>
+      ${th?`<div class="th" style="background-image:url('${esc(th)}')"></div>`:''}
+      ${bad?'<span class="warn" title="Pergunta Incompleta">⚠</span>':''}
+    </div>`;
+  }).join('');
+}
+
+function canvasHTML(Q){
+  const th=thumbOf(Q.image);
+  return `<textarea class="qtext" placeholder="Escreve aqui o texto da pergunta..." oninput="Qc().text=this.value;upQ()">${esc(Q.text)}</textarea>
+    <div class="imgbox ${Q.image?'has':''}" id="imgbox" ${th?`style="background-image:url('${esc(th)}')"`:''} ${Q.image?'':'onclick="pickImage(setImage)"'}>
+      ${Q.image?`<div class="ov"><button class="b s p" onclick="pickImage(setImage)">Trocar Imagem</button><button class="b s r" onclick="setImage('')">Remover</button></div>`
+        :'<div style="font-size:36px">🖼️</div><div>Adicionar Imagem</div><div style="font-size:12px;font-weight:600">clica ou arrasta um ficheiro</div>'}
+    </div>
+    <div class="answers">${Q.answers.map((a,i)=>`<div class="acard k${i}">
+      <input type="text" value="${esc(a)}" placeholder="Opção ${L[i]}" oninput="Qc().answers[${i}]=this.value;upQ()">
+      <button class="tick ${Q.correct===i?'on':''}" title="Marcar como Resposta Correta" onclick="Qc().correct=${i};saveKit();renderEditor()">✓</button>
+    </div>`).join('')}</div>`;
+}
+
+function propsHTML(Q){
+  const times=[5,10,20,30,60,90,120,0];
+  return `<label style="margin-top:0">Tipo de Pergunta</label>
+    <select onchange="setType(this.value)">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${Q.type===k?'selected':''}>${v.label}</option>`).join('')}</select>
+    <label>Tempo de Resposta</label>
+    <select onchange="Qc().time=+this.value;saveKit()">${times.map(t=>`<option value="${t}" ${Q.time===t?'selected':''}>${t?t+' segundos':'Sem cronómetro'}</option>`).join('')}</select>
+    <label>Sistema de Pontuação</label>
+    <select onchange="Qc().pointsMode=this.value;saveKit()">
+      <option value="standard" ${Q.pointsMode==='standard'?'selected':''}>Pontos Normais</option>
+      <option value="double" ${Q.pointsMode==='double'?'selected':''}>Pontos a Dobrar (2x)</option>
+      <option value="none" ${Q.pointsMode==='none'?'selected':''}>Sem Pontos (Informativa)</option>
+    </select>
+    <label>Pontos Base</label>
+    <input type="number" min="0" step="100" value="${Q.points}" oninput="Qc().points=+this.value;saveKit()">
+    <label>Explicação (Aparece ao revelar resposta)</label>
+    <textarea rows="3" placeholder="Opcional..." oninput="Qc().explanation=this.value;saveKit()">${esc(Q.explanation)}</textarea>
+    <div class="btns" style="margin-top:16px">
+      <button class="b s" ${QI===0?'disabled':''} onclick="mvQ(-1)">↑ Subir</button>
+      <button class="b s" ${QI===K.questions.length-1?'disabled':''} onclick="mvQ(1)">↓ Descer</button>
+      <button class="b s" onclick="dupQ()">⧉ Duplicar</button>
+      <button class="b s r" onclick="delQ()">🗑 Apagar</button>
+    </div>`;
+}
+
+function setType(t){ const Q=Qc(), n=TYPES[t].n; Q.type=t;
+  if(t==='tf') Q.answers=['Verdadeiro','Falso']; else { Q.answers=Q.answers.slice(0,n); while(Q.answers.length<n)Q.answers.push(''); }
+  Q.correct=Math.min(Q.correct,n-1); saveKit(); renderEditor(); }
+function addQ(){ K.questions.push(newQuestion()); QI=K.questions.length-1; saveKit(); renderEditor(); }
+function dupQ(){ K.questions.splice(QI+1,0,clone(Qc())); QI++; saveKit(); renderEditor(); }
+function delQ(){ if(!confirm('Apagar esta pergunta?')) return; K.questions.splice(QI,1); QI=Math.max(0,QI-1); saveKit(); renderEditor(); }
+function mvQ(d){ const a=K.questions; [a[QI],a[QI+d]]=[a[QI+d],a[QI]]; QI+=d; saveKit(); renderEditor(); }
+function setImage(ref){ if(!ref) { Qc().image=''; } else Qc().image=ref; saveKit(); renderEditor(); }
+
+/* ───────── Gestão de Imagens ───────── */
+function loadImg(file){ return new Promise((res,rej)=>{ const u=URL.createObjectURL(file), i=new Image(); i.onload=()=>{URL.revokeObjectURL(u);res(i)}; i.onerror=rej; i.src=u; }); }
+function toData(img,max,q){
+  const s=Math.min(1,max/Math.max(img.width,img.height)), c=document.createElement('canvas');
+  c.width=Math.round(img.width*s); c.height=Math.round(img.height*s);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  return {url:c.toDataURL('image/webp',q), w:c.width, h:c.height};
+}
+async function processImage(file){
+  const img=await loadImg(file); let max=1280, q=.85, full=toData(img,max,q);
+  while(full.url.length>850000 && max>300){ max=Math.round(max*.8); q=Math.max(.5,q-.05); full=toData(img,max,q); }
+  const th=toData(img,420,.7);
+  return {full:full.url,thumb:th.url,w:full.w,h:full.h};
+}
+async function uploadOne(file){
+  const p=await processImage(file); const id=mediaCol.doc().id;
+  await dataCol.doc(id).set({data:p.full});
+  await mediaCol.doc(id).set({name:(file.name||'imagem').slice(0,100),thumb:p.thumb,w:p.w,h:p.h,createdAt:FV.serverTimestamp()});
+  return 'media:'+id;
+}
+async function uploadFiles(files){
+  let n=0; for(const f of files){ try{ await uploadOne(f); n++; }catch(e){ alert('Falhou: '+f.name+' ('+e.message+')'); } }
+  if(n) toast(n+' imagem(ns) carregada(s) ✔');
+}
+function renderMedia(){
+  const list=Object.values(MEDIA);
+  $('mediaGrid').innerHTML=list.map(m=>`<div class="mi"><div class="im" style="background-image:url('${esc(m.thumb)}')"></div>
+    <div class="nm">${esc(m.name)}</div><div class="x"><button class="b s r" onclick="delMedia('${m.id}')">🗑 Apagar</button></div></div>`).join('')
+    || '<p class="hint">Ainda não há imagens carregadas.</p>';
+  if($('pickGrid')) renderPicker();
+}
+async function delMedia(id){
+  if(!confirm('Apagar esta imagem? As perguntas que a usam ficarão sem imagem.')) return;
+  await mediaCol.doc(id).delete(); await dataCol.doc(id).delete();
+}
+let pickCb=null;
+function pickImage(cb){
+  pickCb=cb; $('modal').classList.add('on');
+  $('modalBox').innerHTML=`<h2 style="font-family:Fredoka;margin-bottom:14px">Escolher Imagem</h2>
+    <div class="btns" style="margin-bottom:16px">
+      <button class="b go" onclick="document.getElementById('pkFile').click()">⬆ Carregar Nova Ficheiro</button>
+      <input type="file" id="pkFile" accept="image/*" style="display:none" onchange="pickUpload(this.files[0])">
+      <input id="pkUrl" placeholder="...ou cola um link de imagem https://..." style="flex:1;min-width:200px">
+      <button class="b p" onclick="pickUrl()">Usar Link</button>
+      <button class="b" onclick="closeModal()">Fechar</button>
+    </div>
+    <div class="media" id="pickGrid"></div>`;
+  renderPicker();
+}
+function renderPicker(){
+  $('pickGrid').innerHTML=Object.values(MEDIA).map(m=>`<div class="mi" onclick="chooseMedia('${m.id}')"><div class="im" style="background-image:url('${esc(m.thumb)}')"></div><div class="nm">${esc(m.name)}</div></div>`).join('')
+    ||'<p class="hint">Biblioteca de imagens vazia. Carrega uma imagem primeiro.</p>';
+}
+function closeModal(){ $('modal').classList.remove('on'); }
+function chooseMedia(id){ closeModal(); pickCb('media:'+id); }
+function pickUrl(){ const u=$('pkUrl').value.trim(); if(!/^https?:\/\//.test(u)) return alert('Link inválido.'); closeModal(); pickCb(u); }
+async function pickUpload(f){ if(!f) return; closeModal(); toast('A carregar imagem…'); pickCb(await uploadOne(f)); }
+$('modal').addEventListener('click',e=>{ if(e.target.id==='modal') closeModal(); });
+
+/* ───────── Jogo / Comando Ao Vivo Sincronizado ───────── */
+const PHASES = {lobby:'No Ecrã Inicial (Lobby)', question:'Pergunta em Jogo', reveal:'Resposta Revelada', board:'Classificação', final:'Final / Vencedores'};
+const curQ = () => (S.questions||[])[S.qIndex];
+function earn(Q){ return Q.pointsMode==='none'?0:(Q.points||0)*(Q.pointsMode==='double'?2:1); }
+
+function triggerMainAction(){
+  if(!S || !S.live) return;
+  const phase = S.phase, n = (S.questions||[]).length, last = S.qIndex >= n - 1;
+  if(phase === 'lobby' && n > 0) startQ(0);
+  else if(phase === 'question') reveal();
+  else if(phase === 'reveal') setPhase('board');
+  else if(phase === 'board'){
+    if(last) setPhase('final');
+    else startQ(S.qIndex + 1);
+  }
+  else if(phase === 'final') setPhase('board');
+}
+
+function toggleAutoSetting(key, val){ upd({[key]: val}); }
+
+function startLiveTimer(seconds){
+  const now = Date.now();
+  upd({
+    timerEnd: now + seconds * 1000,
+    timerTotal: seconds,
+    timerPaused: false,
+    timerRemaining: seconds
+  });
+}
+
+function adjustLiveTime(deltaSec){
+  if(!S || S.phase !== 'question') return;
+  const isPaused = S.timerPaused === true;
+  if(isPaused){
+    const newRem = Math.max(0, (S.timerRemaining || 0) + deltaSec);
+    upd({timerRemaining: newRem});
+  } else {
+    const curEnd = S.timerEnd || Date.now();
+    const newEnd = Math.max(Date.now(), curEnd + deltaSec * 1000);
+    upd({timerEnd: newEnd});
+  }
+  toast((deltaSec > 0 ? '+' : '') + deltaSec + 's adicionados ✔');
+}
+
+function togglePauseTime(){
+  if(!S || S.phase !== 'question') return;
+  const isPaused = S.timerPaused === true;
+  if(isPaused){
+    const rem = S.timerRemaining || 10;
+    upd({
+      timerPaused: false,
+      timerEnd: Date.now() + rem * 1000
+    });
+    toast('▶ Cronómetro Retomado');
+  } else {
+    const end = S.timerEnd || Date.now();
+    const left = Math.max(0, (end - Date.now()) / 1000);
+    upd({
+      timerPaused: true,
+      timerRemaining: left
+    });
+    toast('⏸ Cronómetro Pausado');
+  }
+}
+
+function startQ(i){
+  if(i<0 || i>=S.questions.length) return;
+  autoRevealTriggered = false;
+  const q = S.questions[i];
+  const time = q.time ?? 20;
+  const now = Date.now();
+  upd({
+    phase:'question',
+    qIndex:i,
+    picks:{},
+    awarded:{},
+    runId:now,
+    timerEnd: now + time * 1000,
+    timerTotal: time,
+    timerPaused: false,
+    timerRemaining: time
+  });
+}
+
+function restartQ(){
+  const Q = curQ(); if(!Q) return;
+  autoRevealTriggered = false;
+  startLiveTimer(Q.time ?? 20);
+  upd({runId: Date.now()});
+  toast('⟲ Cronómetro Reiniciado');
+}
+
+function setPhase(p){
+  const d={phase:p};
+  if(p==='lobby') d.runId=Date.now();
+  upd(d);
+}
+
+function pick(id,i){
+  upd({['picks.'+id]:i===null?FV.delete():i});
+}
+
+function reveal(){
+  const Q=curQ(); if(!Q) return; const pts=earn(Q);
+  const scores={...(S.scores||{})}, awarded={}, picks=S.picks||{};
+  (S.teams||[]).forEach(t=>{ if(picks[t.id]===Q.correct&&pts){ awarded[t.id]=pts; scores[t.id]=(scores[t.id]||0)+pts; } });
+  upd({phase:'reveal',scores,awarded});
+}
+
+function adj(id,d){ upd({['scores.'+id]:((S.scores||{})[id]||0)+d}); }
+function resetGame(){ if(!confirm('Reiniciar o jogo? Os pontos voltam a 0.')) return; upd({phase:'lobby',qIndex:0,picks:{},awarded:{},scores:{},runId:Date.now()}); }
+
+/* Renderização do Painel Live (Estúdio de Comando Ao Vivo) */
+function renderGame(){
+  if(!S) return;
+  $('navLive').style.display = S.live ? '' : 'none';
+  if(!S.live){
+    if($('liveStepperBar')) $('liveStepperBar').style.display = 'none';
+    $('ctrl').innerHTML = `<h2>Sem Transmissão Ativa</h2>
+      <p class="hint">Abre um quiz na Biblioteca e clica em "🔴 LIVE" para ligar o projetor. Este painel passará a ser o comando do jogo.</p>`;
+    $('picks').innerHTML = ''; $('scores').innerHTML = '';
+    return;
+  }
+
+  const Q = curQ(), n = (S.questions||[]).length, phase = S.phase, last = S.qIndex >= n - 1;
+  const picks = S.picks || {}, teams = S.teams || [];
+  let answeredCount = 0;
+  teams.forEach(t => { if(picks[t.id] !== undefined) answeredCount++; });
+  const allAnswered = teams.length > 0 && answeredCount === teams.length;
+
+  // Render Barra Stepper de Perguntas
+  if($('liveStepperBar')){
+    $('liveStepperBar').style.display = 'flex';
+    let stepHTML = (S.questions||[]).map((q, idx) => {
+      const isCur = phase !== 'final' && phase !== 'board' && idx === S.qIndex;
+      const isPast = idx < S.qIndex;
+      const cls = isCur ? 'step-pill active' : isPast ? 'step-pill done' : 'step-pill';
+      return `<button class="${cls}" onclick="startQ(${idx})">
+        <span>${isPast ? '✓' : ''} P${idx+1}</span>
+      </button>`;
+    }).join('');
+
+    stepHTML += `<button class="step-pill ${phase==='board'?'active':''}" onclick="setPhase('board')">🏆 Classificação</button>`;
+    stepHTML += `<button class="step-pill ${phase==='final'?'active':''}" onclick="setPhase('final')">🎉 Pódio</button>`;
+    $('liveStepperBar').innerHTML = stepHTML;
+  }
+
+  // Definir textos da barra de comando e badge da fase
+  let btnText = '', btnSub = 'Espaço', isReady = false;
+  let phaseBadgeText = '', phaseClass = 'phase-' + phase;
+  if(phase === 'lobby') {
+    btnText = '▶ INICIAR JOGO (Pergunta 1)';
+    phaseBadgeText = 'LOBBY (AGUARDAR INÍCIO)';
+  } else if(phase === 'question') {
+    phaseBadgeText = 'PERGUNTA EM JOGO';
+    if(allAnswered){
+      btnText = '✨ TODOS RESPONDERAM! REVELAR AGORA';
+      isReady = true;
+    } else {
+      btnText = '✔ REVELAR RESPOSTA';
+    }
+  } else if(phase === 'reveal') {
+    btnText = '🏆 VER CLASSIFICAÇÃO';
+    phaseBadgeText = 'RESPOSTA REVELADA';
+  } else if(phase === 'board') {
+    phaseBadgeText = 'CLASSIFICAÇÃO ATUAL';
+    if(last) btnText = '🎉 MOSTRAR VENCEDORES (PÓDIO)';
+    else btnText = `▶ PERGUNTA SEGUINTE (${S.qIndex + 2} de ${n})`;
+  } else if(phase === 'final') {
+    btnText = '← Voltar à Classificação';
+    phaseBadgeText = 'PÓDIO FINAL';
+  }
+
+  // Calcular segundos restantes para o display do admin
+  let leftSec = 0;
+  const isPaused = S.timerPaused === true;
+  const totalTime = S.timerTotal || (Q ? Q.time : 20);
+  if(isPaused){
+    leftSec = Math.max(0, S.timerRemaining ?? totalTime);
+  } else {
+    const end = S.timerEnd || Date.now();
+    leftSec = Math.max(0, (end - Date.now()) / 1000);
+  }
+  const displaySec = Math.ceil(leftSec);
+
+  // Auto-revelar resposta quando ativado
+  if(phase === 'question' && allAnswered && S.autoAdvance && !autoRevealTriggered){
+    autoRevealTriggered = true;
+    setTimeout(() => { if(S && S.phase === 'question') reveal(); }, 400);
+  }
+
+  // Construir Hero Controller
+  let ctrlHTML = `
+    <div class="live-hero-bar">
+      <div class="top-info">
+        <span class="badge-live">🔴 TRANSMISSÃO ATIVA</span>
+        <span class="phase-badge ${phaseClass}">${phaseBadgeText}</span>
+        <span class="q-num">${esc(S.kitTitle||'')} · ${phase==='lobby'?'Ecrã Inicial':phase==='board'?'Tabela de Pontos':phase==='final'?'Pódio':`Pergunta ${Math.min(S.qIndex+1, n)} de ${n}`}</span>
+      </div>
+      <button class="main-action-btn ${isReady?'all-ready':''}" onclick="triggerMainAction()">
+        <span>${btnText}</span>
+        <small>${btnSub}</small>
+      </button>`;
+
+  if(phase === 'question' && Q && Q.time > 0){
+    ctrlHTML += `
+      <div class="time-ctrl-bar">
+        <div class="time-display ${isPaused?'paused':''}">
+          ⏱ <span>${displaySec}s</span> ${isPaused?'<small style="font-size:14px;color:#ff7a7a">(Pausado)</small>':''}
+        </div>
+        <button class="b s" onclick="adjustLiveTime(10)">+10s</button>
+        <button class="b s" onclick="adjustLiveTime(-5)">−5s</button>
+        <button class="b s p" onclick="togglePauseTime()">${isPaused?'▶ Retomar':'⏸ Pausar'}</button>
+        <button class="b s" onclick="restartQ()">⟲ Reiniciar</button>
+      </div>`;
+  }
+
+  ctrlHTML += `</div>`;
+
+  if(Q && (phase === 'question' || phase === 'reveal')){
+    const optCounts = [0, 0, 0, 0];
+    teams.forEach(t => { const p = picks[t.id]; if(p !== undefined && p >= 0 && p < 4) optCounts[p]++; });
+    const qImg = thumbOf(Q.image);
+
+    ctrlHTML += `
+      <div class="live-qpreview-card">
+        ${qImg ? `<div class="live-qimg" style="background-image:url('${esc(qImg)}')"></div>` : ''}
+        <div class="qprev">${S.qIndex+1}. ${esc(Q.text)}</div>
+        ${Q.pointsMode !== 'standard' ? `<p class="hint" style="margin-bottom:10px">${Q.pointsMode === 'double' ? '⭐ Pontos a Dobrar (2x)' : 'Sem Pontos'} · Valor: ${earn(Q)} pts</p>` : ''}
+        <div class="opts">
+          ${Q.answers.map((a,i) => {
+            const isCorrect = i === Q.correct;
+            const cnt = optCounts[i];
+            return `<div class="opt c${i} ${isCorrect ? 'ok' : ''}" onclick="pickForActiveTeam(${i})" title="Atribuir opção ${L[i]} ao grupo ativo">
+              <span><b>${L[i]}</b> ${esc(a)}${isCorrect ? ' <strong style="color:#7ee564">✓</strong>' : ''}</span>
+              <span class="count-badge">${cnt} ${cnt===1?'grupo':'grupos'}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  ctrlHTML += `<div class="btns" style="margin-top:14px">`;
+  if(phase !== 'lobby') {
+    ctrlHTML += `<button class="b s" ${S.qIndex <= 0 ? 'disabled' : ''} onclick="startQ(${S.qIndex-1})">⏮ Pergunta Anterior</button>`;
+    if(!last) ctrlHTML += `<button class="b s" onclick="startQ(${S.qIndex+1})">Saltar Pergunta ⏭</button>`;
+    ctrlHTML += `<button class="b s p" onclick="setPhase('board')">Ver Classificação</button>`;
+    ctrlHTML += `<button class="b s" onclick="setPhase('lobby')">Voltar ao Lobby</button>`;
+  }
+  ctrlHTML += `</div>`;
+
+  $('ctrl').innerHTML = ctrlHTML;
+
+  // Matriz de Respostas dos Grupos (Picks)
+  $('answerCounter').textContent = phase === 'question' ? `(${answeredCount} de ${teams.length} responderam)` : '';
+  if($('btnTogglePicksView')) $('btnTogglePicksView').textContent = picksViewMode === 'rows' ? '⬏ Mudar para Cartões' : '☰ Mudar para Linhas';
+
+  const pct = teams.length > 0 ? Math.round((answeredCount / teams.length) * 100) : 0;
+  if($('picksToolbar')){
+    $('picksToolbar').innerHTML = `
+      <div class="picks-toolbar">
+        <div class="picks-progress-wrap">
+          <div style="font-size:12px;font-weight:700;color:var(--mut)">Progresso das Respostas: <b>${answeredCount}/${teams.length}</b> (${pct}%)</div>
+          <div class="picks-progress-bar"><div class="picks-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="batch-btns">
+          <span style="font-size:11px;color:var(--mut);font-weight:800;margin-right:2px">TODOS:</span>
+          ${(Q ? Q.answers : ['A','B','C','D']).map((_, k) => `<button class="batch-btn k${k}" onclick="pickAll(${k})">${L[k]}</button>`).join('')}
+          <button class="batch-btn" style="background:rgba(255,255,255,.12);color:#fff" onclick="clearAllPicks()">✖ Limpar</button>
+        </div>
+      </div>`;
+  }
+
+  if(teams.length === 0){
+    $('picks').innerHTML = '<p class="hint">Nenhum grupo registado. Adiciona grupos no separador "Grupos".</p>';
+  } else {
+    if(activeTeamIndex < 0 || activeTeamIndex >= teams.length) activeTeamIndex = 0;
+    
+    if(picksViewMode === 'rows'){
+      $('picks').innerHTML = teams.map((t, idx) => {
+        const p = picks[t.id];
+        const res = phase === 'reveal' && Q && p !== undefined ? (p === Q.correct ? ' ✅' : ' ❌') : '';
+        const isAnswered = p !== undefined;
+        const isActive = idx === activeTeamIndex;
+
+        return `<div class="trow ${isActive ? 'active-team' : ''}" onclick="setActiveTeam(${idx})">
+          <div class="nm">
+            <span>${idx+1}. ${esc(t.name)} ${res}</span>
+            <span class="status-pill ${isAnswered ? 'done' : 'pending'}">${isAnswered ? 'Opção ' + L[p] : 'Pendente'}</span>
+          </div>
+          <div class="pk-group">
+            ${(Q ? Q.answers : [0,1,2,3]).map((_, k) => `
+              <button class="pk k${k} ${p===k ? 'sel' : ''}"
+                ${phase==='question' || phase==='reveal' ? '' : 'disabled'} 
+                ${phase==='reveal' ? 'disabled' : ''} 
+                onclick="event.stopPropagation(); pick('${t.id}', ${p===k ? 'null' : k}); setActiveTeam(${idx})">
+                ${L[k]}
+              </button>
+            `).join('')}
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      $('picks').innerHTML = `<div class="grid-picks">` + teams.map((t, idx) => {
+        const p = picks[t.id];
+        const res = phase === 'reveal' && Q && p !== undefined ? (p === Q.correct ? ' ✅' : ' ❌') : '';
+        const isAnswered = p !== undefined;
+        const isActive = idx === activeTeamIndex;
+
+        return `<div class="team-card ${isActive ? 'active-team' : ''} ${isAnswered ? 'done' : ''}" onclick="setActiveTeam(${idx})">
+          <div class="hdr">
+            <h4>${esc(t.name)} ${res}</h4>
+            <span class="status-pill ${isAnswered ? 'done' : 'pending'}">${isAnswered ? 'Opção ' + L[p] : 'Pendente'}</span>
+          </div>
+          <div class="card-pk-grid">
+            ${(Q ? Q.answers : []).map((ansText, k) => `
+              <button class="card-pk-btn k${k} ${p===k ? 'sel' : ''}"
+                ${phase==='question' || phase==='reveal' ? '' : 'disabled'} 
+                ${phase==='reveal' ? 'disabled' : ''} 
+                onclick="event.stopPropagation(); pick('${t.id}', ${p===k ? 'null' : k}); setActiveTeam(${idx})">
+                <div><b>${L[k]}</b></div>
+                <div class="sub-text">${esc(ansText)}</div>
+              </button>
+            `).join('')}
+          </div>
+        </div>`;
+      }).join('') + `</div>`;
+    }
+  }
+
+  // Tabela de Pontuações em Direto (Scores)
+  const sc = S.scores || {}, aw = S.awarded || {};
+  $('scores').innerHTML = [...teams].sort((a,b)=>(sc[b.id]||0)-(sc[a.id]||0)).map((t,i) => {
+    const gain = aw[t.id];
+    return `<div class="trow" style="cursor:default">
+      <div class="nm">
+        <b>${i+1}.</b> ${esc(t.name)}
+        ${phase === 'reveal' && gain > 0 ? `<span style="font-size:12px;font-weight:900;color:#7ee564;background:rgba(56,176,0,.2);padding:2px 8px;border-radius:6px;margin-left:6px">+${gain} pts</span>` : ''}
+      </div>
+      <button class="b s" onclick="adj('${t.id}',-100)">−100</button>
+      <div class="score">${sc[t.id]||0}</div>
+      <button class="b s" onclick="adj('${t.id}',100)">+100</button>
+    </div>`;
+  }).join('') || '<p class="hint">Sem grupos.</p>';
+}
+
+const upd = d => liveRef.update(d);
+
+/* Loop de atualização suave do temporizador no Admin */
+setInterval(() => {
+  if(S && S.live && S.phase === 'question' && document.querySelector('#tab-game.on')){
+    const tm = document.querySelector('.time-display span');
+    if(tm){
+      const isPaused = S.timerPaused === true;
+      const totalTime = S.timerTotal || (curQ() ? curQ().time : 20);
+      let leftSec = 0;
+      if(isPaused){
+        leftSec = Math.max(0, S.timerRemaining ?? totalTime);
+      } else {
+        const end = S.timerEnd || Date.now();
+        leftSec = Math.max(0, (end - Date.now()) / 1000);
+      }
+      tm.textContent = Math.ceil(leftSec) + 's';
+    }
+  }
+}, 200);
+
+/* Gestão de Grupos */
+function renderTeams(){
+  if(!S||document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#tlist')) return;
+  $('tlist').innerHTML=(S.teams||[]).map((t,i)=>`<div class="teamrow"><input value="${esc(t.name)}" onchange="renameTeam(${i},this.value)"><button class="b s r" onclick="delTeam(${i})">🗑</button></div>`).join('');
+}
+function renameTeam(i,v){ const t=clone(S.teams); t[i].name=v; upd({teams:t}).then(()=>toast()); }
+function addTeam(){ const t=clone(S.teams); t.push({id:uid(),name:'Grupo '+(t.length+1)}); upd({teams:t}); }
+function delTeam(i){
+  const t=clone(S.teams), x=t.splice(i,1)[0]; if(!confirm('Apagar '+x.name+'?')) return;
+  upd({teams:t,['scores.'+x.id]:FV.delete(),['picks.'+x.id]:FV.delete(),['awarded.'+x.id]:FV.delete()});
+}
+
+renderEditor();
+</script>
+</body>
+</html>
