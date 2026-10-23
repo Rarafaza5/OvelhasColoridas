@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /jjl/
+Disallow: /JJL/
+Disallow: /JLL/
+Disallow: /jll/
+Disallow: /escola-jose-jorge-letria/
+

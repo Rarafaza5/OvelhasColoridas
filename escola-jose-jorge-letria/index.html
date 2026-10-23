@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<title>Ovelhas Coloridas na Escola José Jorge Letria — Uma Aventura no Espaço</title>
+<meta name="description" content="Sessão especial na Escola José Jorge Letria: leitura da história com ilustrações especiais da atividade, quiz interativo e perguntas aos autores.">
+<meta property="og:title" content="Ovelhas Coloridas na Escola José Jorge Letria">
+<meta property="og:description" content="Leitura da história, quiz interativo em equipa e conversa com os autores.">
+<meta property="og:image" content="../assets/capa-livro.png">
+<meta name="theme-color" content="#0a0e27">
+<link rel="icon" type="image/png" href="../assets/personagens/ovelha-arcoiris.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e27;
+  --bg2:#141a4a;
+  --gold:#ffd166;
+  --pink:#ff6fb5;
+  --cyan:#4cc9f0;
+  --purple:#9b5de5;
+  --green:#80ed99;
+  --card:rgba(255,255,255,.07);
+  --line:rgba(255,255,255,.14);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:'Nunito',sans-serif;
+  color:#eef0ff;
+  line-height:1.65;
+  background:
+    radial-gradient(900px 550px at 85% -5%,#3a1c71 0%,transparent 60%),
+    radial-gradient(700px 500px at -10% 35%,#0f4c81 0%,transparent 55%),
+    linear-gradient(180deg,var(--bg),var(--bg2) 60%,var(--bg));
+  min-height:100vh;
+  overflow-x:hidden;
+}
+img{max-width:100%;height:auto;display:block}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrap{position:relative;z-index:1}
+
+/* Typography & Layout — Mobile First */
+h1,h2,h3{font-family:'Fredoka',sans-serif;line-height:1.15;text-wrap:balance}
+p{text-wrap:pretty}
+.container{width:100%;max-width:1080px;margin:0 auto;padding:0 clamp(16px,5vw,28px)}
+section{padding:clamp(44px,8vw,84px) 0;position:relative;scroll-margin-top:68px}
+.eyebrow{
+  display:inline-block;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  font-size:clamp(.7rem,2vw,.78rem);
+  color:var(--gold);
+  background:rgba(255,209,102,.12);
+  border:1px solid rgba(255,209,102,.35);
+  padding:6px 14px;
+  border-radius:99px;
+  margin-bottom:12px;
+}
+h2{font-size:clamp(1.65rem,5.2vw,3rem);margin-bottom:12px}
+h2 span,h1 span{
+  background:linear-gradient(90deg,var(--gold),var(--pink),var(--cyan));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.lead{max-width:680px;opacity:.92;font-size:clamp(.98rem,2.6vw,1.12rem)}
+.center{text-align:center}
+.center .lead{margin:0 auto}
+
+/* Navigation — Mobile First */
+nav{
+  position:sticky;
+  top:0;
+  z-index:50;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  background:rgba(10,14,39,.72);
+  border-bottom:1px solid var(--line);
+}
+nav .container{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  padding-top:10px;
+  padding-bottom:10px;
+}
+nav .logo{flex-shrink:0}
+nav .logo img{height:clamp(32px,6vw,38px);width:auto}
+nav ul{display:none}
+nav a{
+  display:inline-block;
+  white-space:nowrap;
+  color:#fff;
+  text-decoration:none;
+  font-weight:700;
+  font-size:.9rem;
+  padding:7px 12px;
+  border-radius:99px;
+  transition:.2s;
+}
+nav a:hover,nav a:active{background:rgba(255,255,255,.14)}
+
+/* Hero — Mobile First (stacked & centered on mobile, 2 cols on desktop) */
+.hero{padding:clamp(32px,7vw,76px) 0 clamp(40px,8vw,80px)}
+.hero .container{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  gap:clamp(28px,6vw,44px);
+}
+.hero h1{font-size:clamp(2rem,7.2vw,4.4rem);margin-bottom:14px}
+.hero p{font-size:clamp(1rem,3vw,1.2rem);max-width:580px;opacity:.92;margin:0 auto}
+.book3d{
+  position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  max-width:340px;
+  padding:12px 18px;
+}
+.book3d::before{
+  content:"";
+  position:absolute;
+  width:min(280px,75vw);
+  height:min(280px,75vw);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(155,93,229,.6),transparent 70%);
+  filter:blur(26px);
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+.book3d img.cover{
+  position:relative;
+  width:clamp(185px,54vw,290px);
+  border-radius:6px 14px 14px 6px;
+  box-shadow:-10px 20px 50px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.1);
+  transform:perspective(900px) rotateY(-12deg) rotateX(4deg);
+  animation:float 6s ease-in-out infinite;
+}
+.book3d .sheep{
+  position:absolute;
+  width:clamp(56px,16vw,84px);
+  filter:drop-shadow(0 8px 12px rgba(0,0,0,.5));
+  animation:float 5s ease-in-out infinite;
+}
+.s1{left:2%;bottom:4%;animation-delay:-1s!important}
+.s2{right:2%;top:2%;animation-delay:-2.5s!important}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -12px}}
+
+/* Buttons */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:clamp(1rem,2.8vw,1.12rem);
+  text-decoration:none;
+  color:#1a1033;
+  background:linear-gradient(135deg,var(--gold),#ff9e5e);
+  padding:14px 28px;
+  border-radius:99px;
+  box-shadow:0 10px 30px rgba(255,158,94,.35);
+  transition:.25s;
+}
+.btn:hover{transform:translateY(-3px) scale(1.02)}
+
+/* Cards Grid — Mobile First (1 col -> 2 cols -> 4 cols) */
+.grid{display:grid;grid-template-columns:1fr;gap:clamp(14px,3vw,20px);margin-top:clamp(24px,5vw,40px)}
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:clamp(18px,4vw,26px);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  transition:.3s;
+}
+.card:hover{transform:translateY(-4px);border-color:rgba(255,209,102,.5);box-shadow:0 16px 36px rgba(0,0,0,.35)}
+.card .ico{font-size:clamp(1.75rem,4.5vw,2.2rem);margin-bottom:6px}
+.card h3{font-size:clamp(1.15rem,3.4vw,1.38rem);margin-bottom:6px;color:var(--gold)}
+.card p{font-size:clamp(.93rem,2.4vw,1rem);opacity:.92}
+
+/* Program Timeline — Mobile First */
+.timeline{position:relative;margin:clamp(28px,5vw,48px) auto 0;max-width:820px}
+.timeline::before{
+  content:"";
+  position:absolute;
+  left:21px;
+  top:6px;
+  bottom:6px;
+  width:3px;
+  background:linear-gradient(var(--gold),var(--pink),var(--cyan));
+  border-radius:3px;
+}
+.step{position:relative;padding:0 0 clamp(20px,4vw,32px) 58px}
+.step:last-child{padding-bottom:0}
+.step .dot{
+  position:absolute;
+  left:0;
+  top:0;
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:1.25rem;
+  background:var(--bg2);
+  border:3px solid var(--gold);
+  box-shadow:0 0 18px rgba(255,209,102,.4);
+}
+.step .box{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:clamp(16px,3.8vw,24px);
+}
+.step h3{font-size:clamp(1.18rem,3.5vw,1.48rem);margin-bottom:6px}
+.step p{font-size:clamp(.93rem,2.5vw,1rem)}
+.tag{
+  display:inline-block;
+  font-size:.7rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  background:rgba(255,111,181,.18);
+  color:#ffb3d9;
+  border-radius:99px;
+  padding:3px 11px;
+  margin-bottom:6px;
+}
+.step.opt .dot{border-color:var(--cyan);box-shadow:0 0 18px rgba(76,201,240,.4)}
+.step.opt .tag{background:rgba(76,201,240,.18);color:#a8e8ff}
+.perk{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-top:12px;
+  padding:10px 14px;
+  border-radius:14px;
+  background:rgba(255,209,102,.12);
+  border:1px solid rgba(255,209,102,.3);
+  font-size:clamp(.86rem,2.3vw,.93rem);
+  color:#ffe6a3;
+  line-height:1.5;
+}
+
+/* Quiz Options — Mobile First */
+.quiz-options{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(10px,2.5vw,14px);
+  max-width:560px;
+  margin:clamp(22px,4vw,34px) auto 0;
+}
+.quiz-options div{
+  border-radius:16px;
+  padding:clamp(16px,3.5vw,22px) 10px;
+  font-family:'Fredoka',sans-serif;
+  font-weight:600;
+  font-size:clamp(1.02rem,3vw,1.3rem);
+  text-align:center;
+  color:#fff;
+  box-shadow:0 6px 0 rgba(0,0,0,.25);
+  transition:.2s;
+}
+.quiz-options div:hover{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.q1{background:#e21b3c}.q2{background:#1368ce}.q3{background:#d89e00}.q4{background:#26890c}
+
+/* Book Details — Mobile First */
+.details{
+  display:flex;
+  flex-direction:column;
+  gap:clamp(24px,5vw,44px);
+  align-items:center;
+}
+.details-cover{width:100%;max-width:290px;margin:0 auto}
+.details-cover img{
+  width:100%;
+  border-radius:16px;
+  box-shadow:0 20px 50px rgba(0,0,0,.5);
+}
+.details-body{width:100%}
+.facts{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-top:20px;
+}
+.fact{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:13px 16px;
+}
+.fact small{
+  display:block;
+  opacity:.72;
+  font-weight:700;
+  text-transform:uppercase;
+  font-size:.7rem;
+  letter-spacing:.09em;
+}
+.fact b{font-family:'Fredoka',sans-serif;font-size:clamp(1.02rem,2.8vw,1.15rem)}
+blockquote{
+  border-left:4px solid var(--gold);
+  padding:10px 16px;
+  margin:16px 0;
+  font-style:italic;
+  font-size:clamp(1rem,2.6vw,1.14rem);
+  background:rgba(255,209,102,.08);
+  border-radius:0 14px 14px 0;
+}
+
+/* Characters — Mobile First (2 cols on phones, scales up cleanly) */
+.chars{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:clamp(12px,2.6vw,16px);
+  margin-top:clamp(24px,5vw,40px);
+}
+.char{
+  text-align:center;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:16px 10px;
+  transition:.3s;
+}
+.char:hover{transform:translateY(-6px) rotate(-1.5deg);background:rgba(255,255,255,.12)}
+.char img{
+  height:clamp(82px,18vw,110px);
+  margin:0 auto;
+  object-fit:contain;
+  filter:drop-shadow(0 8px 10px rgba(0,0,0,.4));
+}
+.char b{display:block;font-family:'Fredoka',sans-serif;font-size:clamp(.98rem,2.5vw,1.06rem);margin-top:8px}
+.char small{color:var(--gold);font-weight:700;font-size:clamp(.8rem,2vw,.86rem)}
+
+/* CTA & Footer */
+.cta{
+  text-align:center;
+  background:linear-gradient(135deg,rgba(255,209,102,.18),rgba(76,201,240,.15));
+  border:1px solid var(--line);
+  border-radius:clamp(22px,4vw,36px);
+  padding:clamp(32px,6vw,56px) clamp(18px,4vw,28px);
+}
+footer{text-align:center;padding:32px 20px 48px;opacity:.7;font-size:.88rem}
+
+/* Scroll reveal */
+.reveal{opacity:0;transform:translateY(24px);transition:.8s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* ═══ Responsive Breakpoints (Mobile-First Scale Up) ═══ */
+@media(max-width:360px){
+  .quiz-options{grid-template-columns:1fr}
+}
+@media(min-width:480px){
+  .facts{grid-template-columns:repeat(2,1fr)}
+  .chars{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:640px){
+  .grid.g4{grid-template-columns:repeat(2,1fr)}
+  .timeline::before{left:28px}
+  .step{padding-left:82px}
+  .step .dot{width:58px;height:58px;font-size:1.6rem}
+  .chars{grid-template-columns:repeat(4,1fr)}
+}
+@media(min-width:860px){
+  nav .container{justify-content:space-between}
+  nav ul{display:flex;gap:6px;list-style:none}
+  .hero{min-height:82vh;display:flex;align-items:center}
+  .hero .container{
+    display:grid;
+    grid-template-columns:1.15fr .85fr;
+    text-align:left;
+  }
+  .hero p{margin:0}
+  .book3d{max-width:none}
+  .details{
+    display:grid;
+    grid-template-columns:.8fr 1.2fr;
+  }
+  .details-cover{max-width:360px}
+}
+@media(min-width:1024px){
+  .grid.g4{grid-template-columns:repeat(4,1fr)}
+  .chars{grid-template-columns:repeat(7,1fr)}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .reveal{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+
+<nav><div class="container">
+  <a class="logo" href="../"><img src="../assets/titulo-logo.png" alt="Ovelhas Coloridas"></a>
+  <ul>
+    <li><a href="#atividade">Atividade</a></li>
+    <li><a href="#programa">Programa</a></li>
+    <li><a href="#quiz">Quiz</a></li>
+    <li><a href="#livro">O Livro</a></li>
+    <li><a href="#rebanho">O Rebanho</a></li>
+  </ul>
+</div></nav>
+
+<header class="hero"><div class="container">
+  <div>
+    <span class="eyebrow">🏫 Escola José Jorge Letria</span>
+    <h1>Uma <span>Aventura no Espaço</span> chega à tua escola!</h1>
+    <p>Os autores de <b>Ovelhas Coloridas</b> vão ler a história em voz alta às turmas (com o bónus de algumas ilustrações feitas especialmente para as sessões ao vivo), desafiar toda a gente num quiz interativo de escolha múltipla e responder às perguntas das crianças.</p>
+  </div>
+  <div class="book3d">
+    <img class="cover" src="../assets/capa-livro.png" alt="Capa do livro Ovelhas Coloridas: Uma Aventura no Espaço">
+    <img class="sheep s1" src="../assets/personagens/ovelha-arcoiris.png" alt="">
+    <img class="sheep s2" src="../assets/personagens/ovelha-azul.png" alt="">
+  </div>
+</div></header>
+
+<section id="atividade"><div class="container">
+  <div class="center reveal">
+    <span class="eyebrow">A atividade</span>
+    <h2>Uma sessão <span>pensada para os mais novos</span></h2>
+    <p class="lead">Não é uma simples apresentação: é uma viagem interativa em que as crianças fazem parte da tripulação. Ouvem a história, participam em equipa e conversam com os autores.</p>
+  </div>
+  <div class="grid g4">
+    <div class="card reveal"><div class="ico">📖</div><h3>História lida em voz alta</h3><p>Os autores leem o livro às crianças, do início ao fim, com ritmo, vozes e pausas para imaginar.</p></div>
+    <div class="card reveal"><div class="ico">🎨</div><h3>Um mimo extra</h3><p>Como bónus de quem assiste à atividade, a leitura inclui ilustrações extra que acompanham as cenas no ecrã.</p></div>
+    <div class="card reveal"><div class="ico">🎮</div><h3>Quiz interativo</h3><p>Um jogo de perguntas e respostas rápidas para toda a turma, sem telemóveis nem dispositivos eletrónicos.</p></div>
+    <div class="card reveal"><div class="ico">🎤</div><h3>Q&amp;A com os autores</h3><p>Se houver tempo no final, é a vez de as crianças perguntarem tudo o que quiserem.</p></div>
+  </div>
+  <div class="grid g4" style="margin-top:20px">
+    <div class="card reveal"><h3>📍 Local</h3><p>Escola José Jorge Letria</p></div>
+    <div class="card reveal"><h3>👧 Público</h3><p>3.º e 4.º anos</p></div>
+    <div class="card reveal"><h3>📅 Datas</h3><p>24/11 · 3.º ano<br>25/11 · 4.º ano</p></div>
+    <div class="card reveal"><h3>✍️ Autores</h3><p>Ana Carvalho e Rafael Diogo</p></div>
+  </div>
+</div></section>
+
+<section id="programa"><div class="container">
+  <div class="center reveal">
+    <span class="eyebrow">Programa</span>
+    <h2>Como vai <span>decorrer a sessão</span></h2>
+  </div>
+  <div class="timeline">
+    <div class="step reveal"><div class="dot">👋</div><div class="box"><span class="tag">Início</span><h3>Boas-vindas dos autores</h3><p>Apresentamo-nos, mostramos o livro e explicamos como vai ser a viagem de hoje.</p></div></div>
+    <div class="step reveal"><div class="dot">📖</div><div class="box"><span class="tag">Momento principal</span><h3>Leitura da história às crianças</h3><p>A história de <i>Ovelhas Coloridas: Uma Aventura no Espaço</i> é lida em voz alta para a turma acompanhar cada momento da missão.</p><div class="perk"><span>✨</span><span><b>Bónus da atividade:</b> durante a leitura mostramos também algumas ilustrações extra que não fazem parte do livro e que levamos apenas às nossas sessões nas escolas.</span></div></div></div>
+    <div class="step reveal"><div class="dot">🎮</div><div class="box"><span class="tag">Participação da turma</span><h3>Jogo de perguntas interativo</h3><p>Perguntas de escolha múltipla sobre a história, respostas rápidas, pontos e muita animação, sem precisar de telemóvel ou de qualquer dispositivo eletrónico. Quem será o melhor astronauta da escola?</p></div></div>
+    <div class="step reveal opt"><div class="dot">🎤</div><div class="box"><span class="tag">Se houver tempo</span><h3>Q&amp;A — Perguntas e respostas</h3><p>Como nasceu a ideia? Como se desenha uma ovelha? No final, se houver tempo, as crianças perguntam e os autores respondem.</p></div></div>
+  </div>
+</div></section>
+
+<section id="quiz"><div class="container center">
+  <div class="reveal">
+    <span class="eyebrow">Quiz</span>
+    <h2>Um <span>desafio espacial</span> em equipa</h2>
+    <p class="lead">No final da leitura, a turma entra num jogo dinâmico de escolha múltipla. Perguntas sobre as ovelhas, o foguetão e o Planeta Amendoim, com quatro opções de resposta. <b>Não é preciso telemóvel, tablet nem qualquer dispositivo eletrónico</b>: toda a turma participa em conjunto na sala.</p>
+  </div>
+  <div class="quiz-options reveal"><div class="q1">▲ Opção A</div><div class="q2">◆ Opção B</div><div class="q3">● Opção C</div><div class="q4">■ Opção D</div></div>
+</div></section>
+
+<section id="livro"><div class="container">
+  <div class="details">
+    <div class="details-cover reveal"><img src="../assets/contra-capa.png" alt="Contra-capa do livro Ovelhas Coloridas"></div>
+    <div class="details-body reveal">
+      <span class="eyebrow">O livro</span>
+      <h2>Ovelhas Coloridas: <span>Uma Aventura no Espaço</span></h2>
+      <p>Quando um rebanho de ovelhas, estilosas e coloridas, fica cansado do dia a dia, que era sempre igual, decide trabalhar em conjunto e embarcar numa aventura que as levará para lá do seu planeta natal, onde descobrem espécies novas.</p>
+      <blockquote>Mais importante do que o sítio onde estás, são os amigos que estão presentes.</blockquote>
+      <div class="facts">
+        <div class="fact"><small>Autores</small><b>Ana Carvalho &amp; Rafael Diogo</b></div>
+        <div class="fact"><small>Ilustrações</small><b>Rafael Diogo</b></div>
+        <div class="fact"><small>Edição (Português)</small><b>Melissa Figueiredo</b></div>
+        <div class="fact"><small>Edição (Inglês)</small><b>Jorge Figueira</b></div>
+        <div class="fact"><small>Personagens</small><b>7 ovelhas</b></div>
+        <div class="fact"><small>Idade recomendada</small><b>Dos 4 aos 10 anos</b></div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section id="rebanho"><div class="container center">
+  <div class="reveal">
+    <span class="eyebrow">Personagens</span>
+    <h2>Conhece o <span>rebanho</span></h2>
+    <p class="lead">Sete ovelhas, cada uma com a sua cor e o seu papel na missão espacial.</p>
+  </div>
+  <div class="chars">
+    <div class="char reveal"><img src="../assets/personagens/ovelha-arcoiris.png" alt="Ovelha Arco-Íris"><b>Arco-Íris</b><small>A Principal</small></div>
+    <div class="char reveal"><img src="../assets/personagens/ovelha-azul.png" alt="Ovelha Azul"><b>Azul</b><small>A Engenheira</small></div>
+    <div class="char reveal"><img src="../assets/personagens/ovelha-roxa.png" alt="Ovelha Roxa"><b>Roxa</b><small>A Curiosa</small></div>
+    <div class="char reveal"><img src="../assets/personagens/ovelha-melancia.png" alt="Ovelha Melancia"><b>Melancia</b><small>A Comilona</small></div>
+    <div class="char reveal"><img src="../assets/personagens/ovelha-verde.png" alt="Ovelha Verde"><b>Verde</b><small>A Ambientalista</small></div>
+    <div class="char reveal"><img src="../assets/personagens/ovelha-rosa.png" alt="Ovelha Rosa"><b>Rosa</b><small>A Brincalhona</small></div>
+    <div class="char reveal"><img src="../assets/personagens/ovelha-laranja.png" alt="Ovelha Laranja"><b>Laranja</b><small>A Planeadora</small></div>
+  </div>
+</div></section>
+
+<section><div class="container">
+  <div class="cta reveal">
+    <h2>Pronto para <span>embarcar</span>?</h2>
+    <p class="lead" style="margin-bottom:24px">Descobre mais sobre o livro, os jogos e as restantes aventuras no site oficial.</p>
+    <a class="btn" href="../">🚀 Visitar o site Ovelhas Coloridas</a>
+  </div>
+</div></section>
+
+<footer>© Ovelhas Coloridas · Ana Carvalho &amp; Rafael Diogo</footer>
+</div>
+
+<script>
+// Campo de estrelas
+(function(){
+  const c=document.getElementById('stars'),x=c.getContext('2d');let w,h,s=[];
+  function init(){w=c.width=innerWidth;h=c.height=innerHeight;s=Array.from({length:Math.min(160,Math.floor(w/6))},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.6+.3,v:Math.random()*.25+.05,p:Math.random()*6}))}
+  function draw(t){x.clearRect(0,0,w,h);for(const a of s){a.y+=a.v;if(a.y>h)a.y=0;x.globalAlpha=.4+.6*Math.abs(Math.sin(t/900+a.p));x.fillStyle='#fff';x.beginPath();x.arc(a.x,a.y,a.r,0,7);x.fill()}requestAnimationFrame(draw)}
+  addEventListener('resize',init);init();requestAnimationFrame(draw);
+})();
+// Revelar ao fazer scroll
+const io=new IntersectionObserver(e=>e.forEach(i=>{if(i.isIntersecting){i.target.classList.add('in');io.unobserve(i.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4)*80+'ms';io.observe(el)});
+</script>
+</body>
+</html>
