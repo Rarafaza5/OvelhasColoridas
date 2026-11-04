@@ -3,6 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
+<!-- Google Consent Mode v2 — RGPD -->
+<script>
+    window.__oc_consent_default_set = true;
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('consent', 'default', {
+        analytics_storage: 'denied',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        wait_for_update: 500
+    });
+    try {
+        var _c = JSON.parse(localStorage.getItem('oc_cookie_consent') || 'null');
+        if (_c) {
+            var _m = typeof _c.marketing !== 'undefined' ? _c.marketing : !!_c.analytics;
+            gtag('consent', 'update', {
+                analytics_storage: _c.analytics ? 'granted' : 'denied',
+                ad_storage: _m ? 'granted' : 'denied',
+                ad_user_data: _m ? 'granted' : 'denied',
+                ad_personalization: _m ? 'granted' : 'denied'
+            });
+        }
+    } catch (e) { }
+</script>
+
 <meta name="robots" content="noindex, nofollow, noarchive">
 <meta name="googlebot" content="noindex, nofollow">
 <title>Ovelhas Coloridas na Escola José Jorge Letria — Uma Aventura no Espaço</title>
@@ -15,6 +42,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../cookie-consent.css">
 <style>
 :root{
   --bg:#0a0e27;
@@ -86,12 +114,25 @@ nav{
 nav .container{
   display:flex;
   align-items:center;
+  justify-content:space-between;
   justify-content:center;
   gap:12px;
   padding-top:10px;
   padding-bottom:10px;
 }
 nav .logo{flex-shrink:0}
+nav .logo img{height:clamp(30px,6vw,38px);width:auto}
+nav ul{
+  display:flex;
+  gap:4px;
+  list-style:none;
+  overflow-x:auto;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
+  max-width:100%;
+  padding:2px 0;
+}
+nav ul::-webkit-scrollbar{display:none}
 nav .logo img{height:clamp(32px,6vw,38px);width:auto}
 nav ul{display:none}
 nav a{
@@ -100,6 +141,8 @@ nav a{
   color:#fff;
   text-decoration:none;
   font-weight:700;
+  font-size:clamp(.8rem,2.4vw,.9rem);
+  padding:7px 11px;
   font-size:.9rem;
   padding:7px 12px;
   border-radius:99px;
@@ -534,5 +577,8 @@ footer{text-align:center;padding:32px 20px 48px;opacity:.7;font-size:.88rem}
 const io=new IntersectionObserver(e=>e.forEach(i=>{if(i.isIntersecting){i.target.classList.add('in');io.unobserve(i.target)}}),{threshold:.12});
 document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(i%4)*80+'ms';io.observe(el)});
 </script>
+
+<!-- Cookie Consent + Google Analytics (RGPD Compliant) -->
+<script src="../cookie-consent.js"></script>
 </body>
 </html>

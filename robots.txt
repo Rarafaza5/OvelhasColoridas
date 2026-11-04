@@ -4,5 +4,4 @@ Disallow: /JJL/
 Disallow: /JLL/
 Disallow: /jll/
 Disallow: /escola-jose-jorge-letria/
-Disallow: bij.html
 

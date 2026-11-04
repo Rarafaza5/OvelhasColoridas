@@ -6,7 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Política de Privacidade — Ovelhas Coloridas: Uma Aventura no Espaço</title>
     <meta name="description" content="Política de Privacidade do site Ovelhas Coloridas. Sabe como tratamos os teus dados pessoais de acordo com o RGPD.">
-    <meta name="robots" content="noindex, follow">
+    <!-- Google Consent Mode v2 — RGPD -->
+    <script>
+        window.__oc_consent_default_set = true;
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            wait_for_update: 500
+        });
+        try {
+            var _c = JSON.parse(localStorage.getItem('oc_cookie_consent') || 'null');
+            if (_c) {
+                var _m = typeof _c.marketing !== 'undefined' ? _c.marketing : !!_c.analytics;
+                gtag('consent', 'update', {
+                    analytics_storage: _c.analytics ? 'granted' : 'denied',
+                    ad_storage: _m ? 'granted' : 'denied',
+                    ad_user_data: _m ? 'granted' : 'denied',
+                    ad_personalization: _m ? 'granted' : 'denied'
+                });
+            }
+        } catch (e) { }
+    </script>
+
     <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">

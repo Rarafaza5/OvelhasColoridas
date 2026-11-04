@@ -7,8 +7,9 @@
 
     <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
 
-    <!-- Google Consent Mode v2 — default DENIED before user consents (RGPD) -->
+    <!-- Google Consent Mode v2 — RGPD -->
     <script>
+        window.__oc_consent_default_set = true;
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('consent', 'default', {
@@ -18,6 +19,18 @@
             ad_personalization: 'denied',
             wait_for_update: 500
         });
+        try {
+            var _c = JSON.parse(localStorage.getItem('oc_cookie_consent') || 'null');
+            if (_c) {
+                var _m = typeof _c.marketing !== 'undefined' ? _c.marketing : !!_c.analytics;
+                gtag('consent', 'update', {
+                    analytics_storage: _c.analytics ? 'granted' : 'denied',
+                    ad_storage: _m ? 'granted' : 'denied',
+                    ad_user_data: _m ? 'granted' : 'denied',
+                    ad_personalization: _m ? 'granted' : 'denied'
+                });
+            }
+        } catch (e) { }
     </script>
 
     <!-- SEO Meta Tags -->
@@ -76,6 +89,7 @@
                 <a href="#personagens" class="nav-link">O Rebanho</a>
                 <a href="#autores" class="nav-link">Autores</a>
                 <a href="#testemunhos" class="nav-link">Críticas</a>
+                <a href="game/index.html" class="nav-link">🎮 Jogos</a>
                 <a href="#comprar" class="nav-btn-cta">Comprar Livro</a>
             </nav>
 

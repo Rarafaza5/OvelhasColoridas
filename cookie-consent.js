@@ -12,7 +12,7 @@
     /* ── Config ── */
     const GA_ID = 'G-BGCQT355WJ';
     const STORAGE_KEY = 'oc_cookie_consent';
-    const CONSENT_VERSION = '1';
+    const CONSENT_VERSION = '2';
 
     /* ── Detect base path from the script tag itself (robust on any protocol / subdirectory) ── */
     // document.currentScript is set while this script executes synchronously
@@ -34,19 +34,87 @@
     }
 
     /* ══════════════════════════════════════════
-       1. GA CONSENT MODE v2 — Default DENIED
+       1. GA CONSENT MODE v2 — Setup & State
        ══════════════════════════════════════════ */
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
 
-    // Set default consent state BEFORE gtag loads
-    gtag('consent', 'default', {
-        analytics_storage: 'denied',
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
-        wait_for_update: 500
-    });
+    // Ensure default consent state is set before GA runs
+    if (!window.__oc_consent_default_set) {
+        window.__oc_consent_default_set = true;
+        gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            wait_for_update: 500
+        });
+    }
+
+    let pageViewSent = false;
+    function sendPageViewOnce() {
+        if (!pageViewSent) {
+            pageViewSent = true;
+            gtag('event', 'page_view', {
+                page_title: document.title,
+                page_location: location.href
+            });
+        }
+    }
+
+    function applyConsent(analyticsGranted, marketingGranted) {
+        gtag('consent', 'update', {
+            analytics_storage: analyticsGranted ? 'granted' : 'denied',
+            ad_storage: marketingGranted ? 'granted' : 'denied',
+            ad_user_data: marketingGranted ? 'granted' : 'denied',
+            ad_personalization: marketingGranted ? 'granted' : 'denied'
+        });
+
+        if (analyticsGranted) {
+            sendPageViewOnce();
+        }
+    }
+
+    /* ══════════════════════════════════════════
+       2. CONSENT STATE MANAGEMENT
+       ══════════════════════════════════════════ */
+    function getConsent() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            if (!parsed) return null;
+
+            // Migration: if marketing is not set or version is 1, inherit from analytics choice
+            if (typeof parsed.marketing === 'undefined' || parsed.version === '1') {
+                parsed.marketing = !!parsed.analytics;
+                parsed.version = CONSENT_VERSION;
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+                } catch (e) { }
+            }
+            return parsed;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function saveConsent(analytics, marketing, version) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                analytics: !!analytics,
+                marketing: !!marketing,
+                version: version || CONSENT_VERSION,
+                timestamp: new Date().toISOString()
+            }));
+        } catch (e) { /* storage not available */ }
+    }
+
+    // Apply saved consent immediately on script load if available
+    const initialConsent = getConsent();
+    if (initialConsent) {
+        applyConsent(initialConsent.analytics, initialConsent.marketing);
+    }
 
     // Load GA script dynamically
     (function loadGAScript() {
@@ -58,49 +126,8 @@
 
     gtag('js', new Date());
     gtag('config', GA_ID, {
-        send_page_view: false // We'll send manually after consent check
+        send_page_view: false // Managed via applyConsent once consent is known
     });
-
-    /* ══════════════════════════════════════════
-       2. CONSENT STATE MANAGEMENT
-       ══════════════════════════════════════════ */
-    function getConsent() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) return null;
-            return JSON.parse(raw);
-        } catch (e) {
-            return null;
-        }
-    }
-
-    function saveConsent(analytics, version) {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                analytics: analytics,
-                version: version || CONSENT_VERSION,
-                timestamp: new Date().toISOString()
-            }));
-        } catch (e) { /* storage not available */ }
-    }
-
-    function applyConsent(analyticsGranted) {
-        const state = analyticsGranted ? 'granted' : 'denied';
-        gtag('consent', 'update', {
-            analytics_storage: state,
-            ad_storage: 'denied',   // We don't run ads, keep denied
-            ad_user_data: 'denied',
-            ad_personalization: 'denied'
-        });
-
-        if (analyticsGranted) {
-            // Now send the page view
-            gtag('event', 'page_view', {
-                page_title: document.title,
-                page_location: location.href
-            });
-        }
-    }
 
     /* ══════════════════════════════════════════
        3. ADVANCED TRACKING EVENTS
@@ -328,8 +355,8 @@
                 <div class="cc-text">
                     <h3>🍪 Usamos cookies neste site</h3>
                     <p>
-                        Utilizamos cookies analíticos (Google Analytics) para perceber como os visitantes usam o site
-                        e melhorar a experiência. Os teus dados são tratados de forma anónima.
+                        Utilizamos cookies para perceber como os visitantes usam o site, melhorar a experiência
+                        e apoiar a medição de campanhas. Os teus dados são tratados de forma segura e responsável.
                         <a href="${policyHref}">Saber mais</a>
                     </p>
                 </div>
@@ -389,6 +416,21 @@
                 </div>
             </div>
 
+            <div class="cc-category">
+                <div class="cc-category-header">
+                    <div class="cc-category-info">
+                        <div class="cc-category-name">📢 Cookies de Publicidade e Personalização (Google Ads)</div>
+                        <div class="cc-category-desc">
+                            Permitem medir a eficácia de campanhas de publicidade e personalizar anúncios e medições de audiência (Consent Mode v2).
+                        </div>
+                    </div>
+                    <div class="cc-toggle-wrapper">
+                        <input type="checkbox" class="cc-toggle" id="cc-toggle-marketing" role="switch"
+                            aria-label="Ativar cookies de publicidade e personalização">
+                    </div>
+                </div>
+            </div>
+
             <div class="cc-settings-footer">
                 <button class="cc-btn cc-btn-reject" id="cc-save-essential" type="button">Guardar Seleção</button>
                 <button class="cc-btn cc-btn-accept" id="cc-save-all" type="button">✓ Aceitar Todos</button>
@@ -424,10 +466,16 @@
     function showPanel() {
         document.getElementById('cc-overlay').classList.add('cc-visible');
         document.getElementById('cc-settings-panel').classList.add('cc-visible');
-        // Sync toggle with current state
+        // Sync toggles with current state
         const consent = getConsent();
-        const toggle = document.getElementById('cc-toggle-analytics');
-        if (toggle) toggle.checked = consent && consent.analytics ? true : false;
+        const toggleAnalytics = document.getElementById('cc-toggle-analytics');
+        const toggleMarketing = document.getElementById('cc-toggle-marketing');
+        if (toggleAnalytics) {
+            toggleAnalytics.checked = consent && consent.analytics ? true : false;
+        }
+        if (toggleMarketing) {
+            toggleMarketing.checked = consent && consent.marketing ? true : false;
+        }
     }
 
     function hidePanel() {
@@ -443,8 +491,8 @@
     }
 
     function onAcceptAll() {
-        saveConsent(true, CONSENT_VERSION);
-        applyConsent(true);
+        saveConsent(true, true, CONSENT_VERSION);
+        applyConsent(true, true);
         hideBanner();
         hidePanel();
         showRevokeBtn();
@@ -453,8 +501,8 @@
     }
 
     function onRejectAll() {
-        saveConsent(false, CONSENT_VERSION);
-        applyConsent(false);
+        saveConsent(false, false, CONSENT_VERSION);
+        applyConsent(false, false);
         hideBanner();
         hidePanel();
         showRevokeBtn();
@@ -462,16 +510,26 @@
     }
 
     function onSaveSelection() {
-        const toggle = document.getElementById('cc-toggle-analytics');
-        const analyticsGranted = toggle ? toggle.checked : false;
-        saveConsent(analyticsGranted, CONSENT_VERSION);
-        applyConsent(analyticsGranted);
+        const toggleAnalytics = document.getElementById('cc-toggle-analytics');
+        const toggleMarketing = document.getElementById('cc-toggle-marketing');
+        const analyticsGranted = toggleAnalytics ? toggleAnalytics.checked : false;
+        const marketingGranted = toggleMarketing ? toggleMarketing.checked : false;
+
+        saveConsent(analyticsGranted, marketingGranted, CONSENT_VERSION);
+        applyConsent(analyticsGranted, marketingGranted);
         hideBanner();
         hidePanel();
         showRevokeBtn();
-        if (analyticsGranted) {
-            trackEvent('cookie_consent_accepted', { method: 'custom_selection' });
-            initAllTracking();
+
+        if (analyticsGranted || marketingGranted) {
+            trackEvent('cookie_consent_accepted', {
+                method: 'custom_selection',
+                analytics: analyticsGranted,
+                marketing: marketingGranted
+            });
+            if (analyticsGranted) {
+                initAllTracking();
+            }
         } else {
             gtag('event', 'cookie_consent_rejected', { method: 'custom_selection' });
         }
@@ -512,8 +570,8 @@
             // First visit — show banner
             setTimeout(showBanner, 800);
         } else {
-            // Returning visitor — apply saved consent immediately
-            applyConsent(consent.analytics);
+            // Returning visitor — apply saved consent (already queued, ensure state)
+            applyConsent(consent.analytics, consent.marketing);
             showRevokeBtn();
 
             if (consent.analytics) {

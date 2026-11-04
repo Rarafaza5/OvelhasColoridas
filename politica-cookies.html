@@ -5,6 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Google Consent Mode v2 — RGPD -->
+    <script>
+        window.__oc_consent_default_set = true;
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied',
+            wait_for_update: 500
+        });
+        try {
+            var _c = JSON.parse(localStorage.getItem('oc_cookie_consent') || 'null');
+            if (_c) {
+                var _m = typeof _c.marketing !== 'undefined' ? _c.marketing : !!_c.analytics;
+                gtag('consent', 'update', {
+                    analytics_storage: _c.analytics ? 'granted' : 'denied',
+                    ad_storage: _m ? 'granted' : 'denied',
+                    ad_user_data: _m ? 'granted' : 'denied',
+                    ad_personalization: _m ? 'granted' : 'denied'
+                });
+            }
+        } catch (e) { }
+    </script>
+
     <link rel="icon" type="image/x-icon" href="assets/personagens/ovelha-arcoiris.png">
 
     <title>Política de Cookies — Ovelhas Coloridas</title>
@@ -333,7 +359,7 @@
         <!-- Cookies que usamos -->
         <div class="policy-section">
             <h2>📋 Que cookies utilizamos?</h2>
-            <p>Utilizamos dois tipos de cookies:</p>
+            <p>Utilizamos as seguintes categorias de cookies:</p>
 
             <table class="cookie-table">
                 <thead>
@@ -362,18 +388,27 @@
                         </td>
                         <td>2 anos (cookie _ga)</td>
                     </tr>
+                    <tr>
+                        <td><strong>Publicidade e Medição</strong></td>
+                        <td>Google Ads<br><code>_gcl_*</code></td>
+                        <td>
+                            Permite medir o desempenho e a eficácia de eventuais campanhas de divulgação e publicidade,
+                            bem como personalizar anúncios. Só é ativado com consentimento explícito (Consent Mode v2).
+                        </td>
+                        <td>90 dias</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
         <!-- Google Analytics -->
         <div class="policy-section">
-            <h2>📊 Google Analytics em detalhe</h2>
+            <h2>📊 Google Analytics e Medição em detalhe</h2>
             <p>
                 Utilizamos o Google Analytics 4 com o ID <strong>G-BGCQT355WJ</strong>. Este serviço é fornecido
                 pela Google LLC (1600 Amphitheatre Parkway, Mountain View, CA 94043, EUA).
             </p>
-            <p>Os dados recolhidos pelo Google Analytics (quando aceitas) incluem:</p>
+            <p>Os dados recolhidos (quando aceitas) incluem:</p>
             <ul>
                 <li>Número de visitantes e sessões</li>
                 <li>Tempo médio de permanência nas páginas</li>
@@ -384,9 +419,9 @@
                 <li>Interações com botões de compra e links</li>
             </ul>
             <p style="margin-top: 12px;">
-                Implementámos o <strong>Google Consent Mode v2</strong>, o que significa que o Google Analytics
-                <em>só recolhe dados analíticos completos</em> depois de dares o teu consentimento expresso.
-                Antes do consentimento, nenhum cookie de analytics é colocado.
+                Implementámos o <strong>Google Consent Mode v2</strong>, o que significa que o Google Analytics e os serviços de publicidade da Google
+                <em>só recolhem dados de medição e cookies</em> depois de dares o teu consentimento expresso.
+                Antes do consentimento (ou se recusares), todos os cookies analíticos e de publicidade permanecem bloqueados.
             </p>
             <p>
                 Para saberes mais sobre como a Google trata os dados:
