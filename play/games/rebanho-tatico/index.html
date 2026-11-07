@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Esquadrão Arco-Íris</title>
+<script src="../../oc.js"></script>
+<style>
+#bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6}
+.abtn{pointer-events:auto;padding:8px 15px;border-radius:14px;border:2px solid rgba(255,255,255,.22);background:rgba(16,22,58,.88);color:#fff;font:700 .88rem Fredoka,sans-serif;cursor:pointer}
+.abtn.act{border-color:#ffd166;background:#3a2778;color:#ffd166}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">♟️ Batalha: <span id="wv">1</span>/4</div>
+  <div class="pill">⚡ Ações: <span id="ap">3</span>/3</div>
+  <div class="pill" id="turnTxt">Turno do Rebanho</div>
+</div>
+<div id="bar">
+  <button class="abtn act" id="bMove">👣 Mover</button>
+  <button class="abtn" id="bAtk">✨ Poder Especial</button>
+  <button class="abtn" id="bEnd" style="background:#ffd166;color:#1b1438">⏭️ Fim do Turno</button>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">♟️🌈</div>
+    <h1>Esquadrão Arco-Íris</h1>
+    <p>Estratégia tática por turnos! Comanda as <b>4 Ovelhas Guardiãs</b> num tabuleiro cósmico 6×6. Tens <b>3 Pontos de Ação</b> por turno para mover ou usar o <b>Poder Especial</b> de cada ovelha (Raio Solar, Onda de Gelo, Cura Rosa e Empurrão Laranja)!</p>
+    <div class="kbs"><span class="kb">Tocar na Ovelha</span> Selecionar <span class="kb">Mover / Poder</span> Tocar na Casa Alvo</div>
+    <br><button class="btn" id="go">Comandar Esquadrão!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const N=6;
+const HERO_DEFS=[
+  {name:'Arco-Íris',col:'#ff85a2',img:OC.img('ovelha-arcoiris.png'),hp:40,skill:'Raio Prisma (Alcance 3, 18 Dano)',range:3,dmg:18},
+  {name:'Azul',col:'#4cc9f0',img:OC.img('ovelha-azul.png'),hp:45,skill:'Gelo Glacial (Congela & 14 Dano)',range:2,dmg:14,freeze:true},
+  {name:'Rosa',col:'#ff9ecd',img:OC.img('ovelha-rosa.png'),hp:38,skill:'Cura de Lã (+16 HP Aliado ou 12 Dano)',range:3,dmg:12,heal:16},
+  {name:'Laranja',col:'#ff9f1c',img:OC.img('ovelha-laranja.png'),hp:50,skill:'Investida Cometa (22 Dano + Empurra)',range:1,dmg:22,push:true}
+];
+
+let st='wait',wave=1,ap=3,actMode='move',selUnit=null,sc=0;
+let units=[];
+
+function startWave(){
+  ap=3;actMode='move';selUnit=null;
+  if(wave===1){
+    units=HERO_DEFS.map((h,i)=>({
+      team:'ally',name:h.name,col:h.col,img:h.img,hp:h.hp,maxHp:h.hp,
+      skill:h.skill,range:h.range,dmg:h.dmg,freeze:h.freeze,heal:h.heal,push:h.push,
+      r:5,c:i+1,frozen:0
+    }));
+  }else{
+    for(const u of units)if(u.team==='ally')u.hp=Math.min(u.maxHp,u.hp+12);
+  }
+  const enemyCount=2+wave;
+  for(let i=0;i<enemyCount;i++){
+    const cPos=(i*2)%N;
+    const rPos=i<3?0:1;
+    units.push({
+      team:'enemy',name:'Sombra Cósmica',col:'#ef476f',
+      hp:24+wave*8,maxHp:24+wave*8,dmg:9+wave*2,range:1,
+      r:rPos,c:cPos,frozen:0
+    });
+  }
+  selUnit=units.find(u=>u.team==='ally');
+  updUI();
+}
+
+function updUI(){
+  document.getElementById('wv').textContent=wave;
+  document.getElementById('ap').textContent=ap;
+  document.getElementById('bMove').classList.toggle('act',actMode==='move');
+  document.getElementById('bAtk').classList.toggle('act',actMode==='atk');
+  document.getElementById('turnTxt').textContent=selUnit?`${selUnit.name}: ${actMode==='atk'?selUnit.skill:'Escolhe casa'}`:'Turno do Rebanho';
+}
+
+document.getElementById('bMove').onclick=()=>{actMode='move';updUI();};
+document.getElementById('bAtk').onclick=()=>{actMode='atk';updUI();};
+document.getElementById('bEnd').onclick=()=>{if(st==='play')enemyTurn();};
+
+function unitAt(r,col){return units.find(u=>u.r===r&&u.c===col&&u.hp>0);}
+function dist(a,b){return Math.abs(a.r-b.r)+Math.abs(a.c-b.c);}
+
+function layout(W,H){
+  const cell=Math.min(W*0.86,H*0.66)/N;
+  const ox=(W-cell*N)/2,oy=(H-cell*N)/2-10;
+  return {cell,ox,oy};
+}
+
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play')return;
+  const {cell,ox,oy}=layout(c.width,c.height);
+  const col=Math.floor((e.clientX-ox)/cell);
+  const r=Math.floor((e.clientY-oy)/cell);
+  if(r<0||r>=N||col<0||col>=N)return;
+
+  const clicked=unitAt(r,col);
+  if(clicked && clicked.team==='ally' && (actMode==='move' || !selUnit || !selUnit.heal || clicked===selUnit)){
+    selUnit=clicked;OC.sfx.click();updUI();return;
+  }
+  if(!selUnit||ap<=0)return;
+
+  const d=Math.abs(selUnit.r-r)+Math.abs(selUnit.c-col);
+  if(actMode==='move'){
+    if(!clicked && d>0 && d<=2){
+      selUnit.r=r;selUnit.c=col;ap--;
+      OC.sfx.jump();updUI();
+      if(ap<=0)setTimeout(enemyTurn,350);
+    }
+  }else if(actMode==='atk'){
+    if(clicked && d<=selUnit.range){
+      if(clicked.team==='ally' && selUnit.heal){
+        clicked.hp=Math.min(clicked.maxHp,clicked.hp+selUnit.heal);
+        ap--;OC.sfx.win();
+        OC.fx.burst(ox+(col+0.5)*cell,oy+(r+0.5)*cell,'#ff9ecd',18);
+        OC.fx.floatText(ox+(col+0.5)*cell,oy+(r+0.5)*cell,`+${selUnit.heal} HP`,'#06d6a0');
+      }else if(clicked.team==='enemy'){
+        clicked.hp-=selUnit.dmg;
+        if(selUnit.freeze)clicked.frozen=1;
+        if(selUnit.push){
+          const nr=clicked.r+Math.sign(clicked.r-selUnit.r);
+          const nc=clicked.c+Math.sign(clicked.c-selUnit.c);
+          if(nr>=0&&nr<N&&nc>=0&&nc<N&&!unitAt(nr,nc)){clicked.r=nr;clicked.c=nc;}
+        }
+        ap--;sc+=25;OC.sfx.good();
+        OC.fx.burst(ox+(col+0.5)*cell,oy+(r+0.5)*cell,selUnit.col,20);
+        OC.fx.floatText(ox+(col+0.5)*cell,oy+(r+0.5)*cell,`-${selUnit.dmg}`,'#ffd166');
+        units=units.filter(u=>u.hp>0);
+        checkWaveClear();
+      }
+      updUI();
+      if(ap<=0 && st==='play')setTimeout(enemyTurn,400);
+    }
+  }
+});
+
+function checkWaveClear(){
+  if(!units.some(u=>u.team==='enemy')){
+    sc+=100*wave;
+    if(wave>=4){
+      st='end';
+      OC.end({win:true,stars:3,score:sc,title:'Estratega Supremo!',msg:`Venceste todas as 4 batalhas táticas com ${sc} pontos!`,onRetry:()=>{wave=1;sc=0;startWave();st='play';}});
+    }else{
+      wave++;OC.sfx.win();
+      OC.fx.floatText(c.width/2,c.height*0.4,`BATALHA ${wave}!`,'#ffd166');
+      startWave();
+    }
+  }
+}
+
+function enemyTurn(){
+  if(st!=='play')return;
+  const {cell,ox,oy}=layout(c.width,c.height);
+  const enemies=units.filter(u=>u.team==='enemy');
+  for(const en of enemies){
+    if(en.frozen>0){en.frozen--;continue;}
+    const allies=units.filter(u=>u.team==='ally');
+    if(!allies.length)break;
+    allies.sort((a,b)=>dist(en,a)-dist(en,b));
+    const tgt=allies[0];
+    if(dist(en,tgt)>1){
+      const dr=Math.sign(tgt.r-en.r),dc=Math.sign(tgt.c-en.c);
+      if(dr!==0 && !unitAt(en.r+dr,en.c))en.r+=dr;
+      else if(dc!==0 && !unitAt(en.r,en.c+dc))en.c+=dc;
+    }
+    if(dist(en,tgt)<=1){
+      tgt.hp-=en.dmg;
+      OC.sfx.hit();
+      OC.fx.burst(ox+(tgt.c+0.5)*cell,oy+(tgt.r+0.5)*cell,'#ff595e',14);
+      OC.fx.floatText(ox+(tgt.c+0.5)*cell,oy+(tgt.r+0.5)*cell,`-${en.dmg}`,'#ff595e');
+      units=units.filter(u=>u.hp>0);
+    }
+  }
+  if(!units.some(u=>u.team==='ally')){
+    st='end';
+    OC.end({win:false,stars:wave>=3?2:1,score:sc,title:'Esquadrão Recuou!',msg:`Chegaste à batalha ${wave} com ${sc} pontos!`,onRetry:()=>{wave=1;sc=0;startWave();st='play';}});
+    return;
+  }
+  if(!selUnit||selUnit.hp<=0)selUnit=units.find(u=>u.team==='ally');
+  ap=3;updUI();
+}
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();wave=1;sc=0;startWave();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+  const {cell,ox,oy}=layout(W,H);
+
+  // Draw Grid
+  for(let r=0;r<N;r++){
+    for(let col=0;col<N;col++){
+      const x=ox+col*cell,y=oy+r*cell;
+      let hl='rgba(255,255,255,0.06)';
+      if(selUnit && st==='play'){
+        const d=Math.abs(selUnit.r-r)+Math.abs(selUnit.c-col);
+        if(actMode==='move' && d>0 && d<=2 && !unitAt(r,col))hl='rgba(76,201,240,0.22)';
+        if(actMode==='atk' && d>0 && d<=selUnit.range)hl='rgba(255,209,102,0.24)';
+      }
+      ctx.save();
+      ctx.fillStyle=hl;ctx.strokeStyle='rgba(255,255,255,0.18)';ctx.lineWidth=2;
+      ctx.beginPath();ctx.roundRect(x+2,y+2,cell-4,cell-4,10);ctx.fill();ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // Draw Units
+  for(const u of units){
+    const cx=ox+(u.c+0.5)*cell,cy=oy+(u.r+0.5)*cell;
+    ctx.save();
+    if(u===selUnit){
+      ctx.strokeStyle='#ffd166';ctx.lineWidth=4;
+      ctx.beginPath();ctx.arc(cx,cy,cell*0.42,0,Math.PI*2);ctx.stroke();
+    }
+    if(u.team==='ally'){
+      ctx.drawImage(u.img,cx-cell*0.34,cy-cell*0.36,cell*0.68,cell*0.68);
+    }else{
+      ctx.fillStyle=u.frozen?'#4cc9f0':'#3d1e5d';
+      ctx.strokeStyle='#ef476f';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(cx,cy,cell*0.32,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#fff';ctx.font='22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(u.frozen?'❄️':'👾',cx,cy);
+    }
+    // HP Bar
+    const bw=cell*0.72,bh=6,pct=Math.max(0,u.hp/u.maxHp);
+    ctx.fillStyle='rgba(0,0,0,0.6)';ctx.fillRect(cx-bw/2,cy+cell*0.32,bw,bh);
+    ctx.fillStyle=u.team==='ally'?'#06d6a0':'#ef476f';
+    ctx.fillRect(cx-bw/2,cy+cell*0.32,bw*pct,bh);
+    ctx.restore();
+  }
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+startWave();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

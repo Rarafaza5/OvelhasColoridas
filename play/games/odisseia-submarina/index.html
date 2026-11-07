@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Oceano da Lua Azul</title>
+<script src="../../oc.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🫧 Oxigénio: <span id="ox">100</span>%</div>
+  <div class="pill">🐚 Pérolas: <span id="pr">0</span>/10</div>
+  <div class="pill">📡 Sonar: <span id="sn">Pronto (Espaço/Toque)</span></div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🫧🌊</div>
+    <h1>Oceano da Lua Azul</h1>
+    <p>Mergulha no abismo bioluminescente da Lua Azul com o Submarino da Ovelha Azul! Emite pulsos de <b>Sonar</b> para iluminar pérolas escondidas na escuridão, apanha bolhas de oxigénio, evita águas-vivas elétricas e regressa à superfície para recarregar!</p>
+    <div class="kbs"><span class="kb">WASD / Setas / Rato</span> Navegar Submarino <span class="kb">Espaço / Clique</span> Pulso de Sonar</div>
+    <br><button class="btn" id="go">Submergir!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const imgSub=OC.img('ovelha-azul.png');
+
+let st='wait',ox=100,pearls=0,sc=0;
+let sub={x:400,y:120,vx:0,vy:0},keys={w:0,a:0,s:0,d:0},ptr={active:false,x:0,y:0};
+let items=[],jellies=[],pings=[];
+
+function init(){
+  const W=c.width,H=c.height;
+  ox=100;pearls=0;sc=0;
+  sub={x:W/2,y:110,vx:0,vy:0};
+  items=[];jellies=[];pings=[];
+  for(let i=0;i<10;i++){
+    items.push({
+      x:70+Math.random()*(W-140),
+      y:H*(0.32+Math.random()*0.6),
+      lit:1.5,got:false
+    });
+  }
+  for(let i=0;i<6;i++){
+    jellies.push({
+      x:80+Math.random()*(W-160),
+      y:H*(0.35+Math.random()*0.55),
+      vx:(Math.random()<0.5?-1:1)*(45+Math.random()*40),
+      ph:Math.random()*6
+    });
+  }
+  updHUD();
+}
+
+function updHUD(){
+  document.getElementById('ox').textContent=Math.max(0,Math.round(ox));
+  document.getElementById('pr').textContent=pearls;
+}
+
+function emitSonar(){
+  if(st!=='play')return;
+  pings.push({x:sub.x,y:sub.y,r:10,maxR:480});
+  OC.sfx.tone(660,0.35,'sine',0.15,0,330);
+}
+
+window.addEventListener('keydown',e=>{
+  if(e.code==='KeyW'||e.code==='ArrowUp')keys.w=1;
+  if(e.code==='KeyS'||e.code==='ArrowDown')keys.s=1;
+  if(e.code==='KeyA'||e.code==='ArrowLeft')keys.a=1;
+  if(e.code==='KeyD'||e.code==='ArrowRight')keys.d=1;
+  if(e.code==='Space'){e.preventDefault();emitSonar();}
+});
+window.addEventListener('keyup',e=>{
+  if(e.code==='KeyW'||e.code==='ArrowUp')keys.w=0;
+  if(e.code==='KeyS'||e.code==='ArrowDown')keys.s=0;
+  if(e.code==='KeyA'||e.code==='ArrowLeft')keys.a=0;
+  if(e.code==='KeyD'||e.code==='ArrowRight')keys.d=0;
+});
+c.addEventListener('pointerdown',e=>{ptr.active=true;ptr.x=e.clientX;ptr.y=e.clientY;emitSonar();});
+c.addEventListener('pointermove',e=>{if(ptr.active){ptr.x=e.clientX;ptr.y=e.clientY;}});
+window.addEventListener('pointerup',()=>{ptr.active=false;});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+
+  // Deep ocean background gradient
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,'#0e4b75');
+  g.addColorStop(0.2,'#082447');
+  g.addColorStop(1,'#020714');
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+
+  // Surface line
+  ctx.strokeStyle='#4cc9f0';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(0,95);ctx.lineTo(W,95);ctx.stroke();
+
+  if(st==='play'){
+    let ax=0,ay=0;
+    if(keys.a)ax-=1;if(keys.d)ax+=1;
+    if(keys.w)ay-=1;if(keys.s)ay+=1;
+    if(ptr.active){
+      const dx=ptr.x-sub.x,dy=ptr.y-sub.y,d=Math.hypot(dx,dy);
+      if(d>15){ax=dx/d;ay=dy/d;}
+    }
+    sub.vx+=(ax*220-sub.vx*4)*dt;
+    sub.vy+=(ay*220-sub.vy*4)*dt;
+    sub.x=Math.max(35,Math.min(W-35,sub.x+sub.vx*dt));
+    sub.y=Math.max(85,Math.min(H-35,sub.y+sub.vy*dt));
+
+    if(sub.y<=110){
+      ox=Math.min(100,ox+35*dt);
+    }else{
+      ox-=4.2*dt;
+    }
+    updHUD();
+
+    // Update Sonar Pings
+    for(let i=pings.length-1;i>=0;i--){
+      const p=pings[i];
+      p.r+=340*dt;
+      for(const it of items){
+        if(!it.got && Math.abs(Math.hypot(it.x-p.x,it.y-p.y)-p.r)<28){
+          it.lit=3.5;
+        }
+      }
+      if(p.r>=p.maxR)pings.splice(i,1);
+    }
+
+    // Update Pearls
+    for(const it of items){
+      if(it.got)continue;
+      if(it.lit>0)it.lit-=dt;
+      if(Math.hypot(sub.x-it.x,sub.y-it.y)<44){
+        it.got=true;pearls++;sc+=100;ox=Math.min(100,ox+18);
+        OC.sfx.coin();
+        OC.fx.burst(it.x,it.y,'#00f5d4',20);
+        OC.fx.floatText(it.x,it.y,'+PÉROLA & O2!','#ffd166');
+        updHUD();
+        if(pearls>=10){
+          st='end';
+          OC.end({win:true,stars:3,score:sc+Math.round(ox)*5,title:'Explorador Abissal!',msg:'Recolheste todas as 10 Pérolas Estelares do Oceano da Lua Azul!',onRetry:()=>{init();st='play';}});
+        }
+      }
+    }
+
+    // Update Jellyfish
+    for(const j of jellies){
+      j.x+=j.vx*dt;
+      j.y+=Math.sin(now*0.004+j.ph)*25*dt;
+      if(j.x<40||j.x>W-40)j.vx*=-1;
+      if(Math.hypot(sub.x-j.x,sub.y-j.y)<40){
+        ox-=18;
+        sub.vy=-160;
+        OC.sfx.hit();OC.fx.shake(10);
+        OC.fx.burst(sub.x,sub.y,'#ff85a2',16);
+        j.x+=j.vx>0?-60:60;
+        updHUD();
+      }
+    }
+
+    if(ox<=0){
+      st='end';
+      OC.end({win:pearls>=6,stars:pearls>=7?2:1,score:sc,title:'Oxigénio Esgotado!',msg:`Resgataste ${pearls}/10 pérolas nas profundezas!`,onRetry:()=>{init();st='play';}});
+    }
+  }
+
+  // Draw Sonar Rings
+  for(const p of pings){
+    ctx.save();
+    ctx.strokeStyle=`rgba(0,245,212,${1-p.r/p.maxR})`;
+    ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Pearls (visible when lit by sonar or close to sub headlight)
+  for(const it of items){
+    if(it.got)continue;
+    const d=Math.hypot(sub.x-it.x,sub.y-it.y);
+    const alpha=Math.max(it.lit>0?Math.min(1,it.lit):0, d<140?1-d/140:0.08);
+    ctx.save();
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle='#ffd166';ctx.shadowColor='#00f5d4';ctx.shadowBlur=18;
+    ctx.beginPath();ctx.arc(it.x,it.y,14,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw Jellyfish
+  for(const j of jellies){
+    ctx.save();
+    ctx.fillStyle='#ff85a2';ctx.shadowColor='#ff85a2';ctx.shadowBlur=14;
+    ctx.beginPath();ctx.arc(j.x,j.y,18,Math.PI,0);ctx.fill();
+    ctx.strokeStyle='#ff9ecd';ctx.lineWidth=2;
+    for(let k=-1;k<=1;k++){
+      ctx.beginPath();ctx.moveTo(j.x+k*8,j.y);ctx.lineTo(j.x+k*10+Math.sin(now*0.008+k)*5,j.y+20);ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Draw Submarine & Headlight Cone
+  ctx.save();
+  ctx.translate(sub.x,sub.y);
+  const gCone=ctx.createRadialGradient(0,0,10,0,0,145);
+  gCone.addColorStop(0,'rgba(76,201,240,0.32)');
+  gCone.addColorStop(1,'rgba(76,201,240,0)');
+  ctx.fillStyle=gCone;ctx.beginPath();ctx.arc(0,0,145,0,Math.PI*2);ctx.fill();
+
+  ctx.fillStyle='#ffd166';ctx.strokeStyle='#fff';ctx.lineWidth=3;
+  ctx.beginPath();ctx.ellipse(0,0,34,26,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.drawImage(imgSub,-22,-22,44,44);
+  ctx.restore();
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

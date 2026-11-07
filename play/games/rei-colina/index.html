@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Rei da Colina</title><script src="../../oc.js"></script></head><body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hs">⭐ 0</span><span id="ht">⏱ 0s</span><span id="hb"></span></div>
+<div class="ov" id="ov"><h2>⚖️ Rei da Colina</h2>
+<p>Equilibra a ovelha em cima da prancha cósmica! Apanha as <b>estrelas ⭐</b> e os <b>amendoins 🥜</b> que caem do céu e desvia-te das bigornas 🪨.<br>
+⌨️ <b>Setas ← → / A D</b> ou 📱 <b>move o dedo/rato</b> para inclinar a prancha.</p>
+<button class="btn" id="go">▶ Equilibrar!</button></div>
+<script>
+const W=520,H=520,CX=260,CY=350,BL=185,cv=document.getElementById('c'),x=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='rei-colina',TAU=Math.PI*2,$=id=>document.getElementById(id);
+const sheep=OC.img('ovelha-verde'),sheepSad=OC.img('ovelha-azul-preocupada');
+let ang,vang,pos,vel,falls,parts,pops,score,time,spawnT,keyL=0,keyR=0,targetA=null,running=false,over=false,falling=false,fy=0,best=OC.best(ID),stars=[];
+for(let i=0;i<60;i++)stars.push([Math.random()*W,Math.random()*H,Math.random()*1.5+.3]);
+$('hb').textContent='🏆 '+best;
+function init(){ang=0;vang=0;pos=0;vel=0;falls=[];parts=[];pops=[];score=0;time=0;spawnT=.8;over=false;falling=false;targetA=null;upd()}
+function upd(){$('hs').textContent='⭐ '+score;$('ht').textContent=`⏱ ${Math.floor(time)}s`;$('hb').textContent='🏆 '+Math.max(best,score)}
+function update(dt){
+ if(!running||over)return;
+ time+=dt;
+ const k=keyR-keyL;
+ if(k)ang=Math.max(-.48,Math.min(.48,ang+k*1.35*dt));
+ else if(targetA!==null)ang+=(targetA-ang)*Math.min(1,dt*10);
+ // vento cósmico suave
+ const wind=Math.sin(time*1.3)*.06*Math.min(1,time/30);
+ vel+=(Math.sin(ang+wind)*560)*dt;
+ vel*=.985;pos+=vel*dt;
+ spawnT-=dt;
+ if(spawnT<=0){
+  spawnT=Math.max(.45,1.15-time*.012);
+  const r=Math.random();
+  falls.push({o:(Math.random()-.5)*BL*1.65,y:-20,vy:150+Math.min(140,time*3),k:r<.55?'star':r<.8?'nut':'rock'});
+ }
+ const sx=CX+Math.cos(ang)*pos+Math.sin(ang)*28,sy=CY+Math.sin(ang)*pos-Math.cos(ang)*28;
+ for(const f of falls){
+  f.y+=f.vy*dt;
+  const fx=CX+f.o;
+  if(Math.hypot(fx-sx,f.y-sy)<34){
+   f.done=true;
+   if(f.k==='rock'){
+    vel+=(pos>=0?1:-1)*220;OC.sfx.bad();pops.push({s:'💥 EMPURRÃO!',x:sx,y:sy-25,l:.8,c:'#ef476f'});
+   }else{
+    const pts=f.k==='nut'?25:10;score+=pts;OC.sfx.good();
+    pops.push({s:'+'+pts,x:sx,y:sy-25,l:.8,c:'#ffd166'});
+    for(let i=0;i<10;i++)parts.push({x:sx,y:sy,vx:(Math.random()-.5)*140,vy:(Math.random()-.5)*140,l:.45,c:'#ffd166'});
+   }
+   upd();
+  }
+ }
+ falls=falls.filter(f=>!f.done&&f.y<H+30);
+ if(Math.abs(pos)>BL+10){
+  over=true;running=false;score+=Math.floor(time)*2;OC.best(ID,score);best=OC.best(ID);OC.sfx.bad();
+  setTimeout(()=>OC.end({id:ID,title:time>=30?'Rei do Equilíbrio!':'Escorregaste da prancha!',text:`Aguentaste ${Math.floor(time)}s e fizeste ${score} pontos! Recorde: ${best}.`,stars:Math.max(1,Math.ceil(score/45)),retry:()=>{init();running=true}}),600);
+ }
+ if(Math.floor(time*3)%2===0)upd();
+ parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt});parts=parts.filter(p=>p.l>0);
+ pops.forEach(p=>{p.y-=35*dt;p.l-=dt});pops=pops.filter(p=>p.l>0);
+}
+function draw(){
+ const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#151946');g.addColorStop(1,'#2e185a');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle='#fff';stars.forEach(s=>{x.globalAlpha=.4;x.beginPath();x.arc(s[0],s[1],s[2],0,TAU);x.fill()});x.globalAlpha=1;
+ // base triangular (planeta-pivô)
+ x.fillStyle='#9b5de5';x.strokeStyle='#fff';x.lineWidth=3;
+ x.beginPath();x.arc(CX,CY+38,36,0,TAU);x.fill();x.stroke();
+ // prancha inclinada
+ x.save();x.translate(CX,CY);x.rotate(ang);
+ x.fillStyle='#ffd166';x.strokeStyle='#fff';x.lineWidth=3;
+ x.beginPath();x.roundRect(-BL,-10,BL*2,20,10);x.fill();x.stroke();
+ // ovelha equilibrista
+ const im=Math.abs(pos)>BL*.72?sheepSad:sheep;
+ x.save();x.translate(pos,-34);x.rotate(pos*.012);
+ if(im.complete)x.drawImage(im,-30,-30,60,60);
+ x.restore();x.restore();
+ // objetos a cair
+ x.font='30px sans-serif';x.textAlign='center';x.textBaseline='middle';
+ falls.forEach(f=>x.fillText(f.k==='star'?'⭐':f.k==='nut'?'🥜':'🪨',CX+f.o,f.y));
+ parts.forEach(p=>{x.globalAlpha=Math.max(0,p.l*2);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,4,0,TAU);x.fill()});x.globalAlpha=1;
+ x.font='700 20px Fredoka,sans-serif';
+ pops.forEach(p=>{x.globalAlpha=Math.min(1,p.l*2);x.fillStyle=p.c;x.fillText(p.s,p.x,p.y)});x.globalAlpha=1;
+}
+addEventListener('keydown',e=>{if(['ArrowLeft','KeyA'].includes(e.code)){keyL=1;targetA=null}if(['ArrowRight','KeyD'].includes(e.code)){keyR=1;targetA=null}});
+addEventListener('keyup',e=>{if(['ArrowLeft','KeyA'].includes(e.code))keyL=0;if(['ArrowRight','KeyD'].includes(e.code))keyR=0});
+cv.addEventListener('pointermove',e=>{const p=P(e);targetA=Math.max(-.45,Math.min(.45,(p.x-CX)/260))});
+cv.addEventListener('pointerdown',e=>{const p=P(e);targetA=Math.max(-.45,Math.min(.45,(p.x-CX)/260))});
+init();
+let last=performance.now();
+(function loop(n){const dt=Math.min(.04,(n-last)/1000);last=n;update(dt);draw();requestAnimationFrame(loop)})(last);
+$('go').onclick=()=>{$('ov').style.display='none';running=true};
+</script></body></html>

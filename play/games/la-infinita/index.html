@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Lã Infinita</title><script src="../../oc.js"></script>
+<style>
+html,body{overflow:auto;touch-action:manipulation}
+body{background:radial-gradient(circle at 30% 10%,#2e1b63,#080b20 75%);display:flex;flex-wrap:wrap;padding-top:42px}
+.left{flex:1 1 340px;display:flex;flex-direction:column;align-items:center;padding:14px;gap:6px;position:relative;min-height:420px}
+.wool{font:700 2.5rem Fredoka,sans-serif;color:#ffd166;text-shadow:0 4px 14px #000a}
+.ps{font-weight:900;color:#00f5d4;font-size:1.05rem}
+#big{width:min(56vw,230px);cursor:pointer;filter:drop-shadow(0 14px 24px #000b);transition:transform .07s;-webkit-user-drag:none}
+#big:hover{transform:scale(1.04)}
+#big:active{transform:scale(.9) rotate(-4deg)}
+.frenzy #big{filter:drop-shadow(0 0 28px #ffd166)}
+.flock{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;max-width:420px;min-height:44px;margin-top:6px}
+.flock img{width:34px;animation:hop 1.1s ease-in-out infinite alternate}
+@keyframes hop{to{transform:translateY(-8px)}}
+.fl{position:absolute;pointer-events:none;font:700 1.35rem Fredoka,sans-serif;color:#ffd166;text-shadow:0 2px 6px #000;animation:up .85s forwards;z-index:15}
+@keyframes up{to{transform:translateY(-75px) scale(1.15);opacity:0}}
+.gold{position:fixed;width:64px;height:64px;cursor:pointer;z-index:30;filter:drop-shadow(0 0 18px #ffd166);animation:gfloat 1.8s ease-in-out infinite alternate}
+@keyframes gfloat{to{transform:translateY(-14px) rotate(10deg)}}
+.store{flex:1 1 340px;padding:12px 16px;display:flex;flex-direction:column;gap:8px;max-width:540px}
+.store h3{font:700 1.3rem Fredoka,sans-serif;color:#ffd166}
+.up{display:flex;align-items:center;gap:10px;padding:9px 13px;border-radius:18px;background:rgba(21,28,74,.85);border:2px solid #ffffff1f;cursor:pointer;opacity:.52;transition:.15s}
+.up.ok{opacity:1;border-color:#06d6a0;box-shadow:0 4px 14px #06d6a022}
+.up.ok:hover{transform:translateX(4px);background:#1d2769}
+.up:active{transform:scale(.97)}
+.up img{width:42px;height:42px;object-fit:contain}.up .t{flex:1}.up b{font:700 1rem Fredoka,sans-serif}.up small{display:block;color:#c9c6e8;font-weight:700}
+.up .n{font:700 1.45rem Fredoka,sans-serif;color:#ffd166}.up .c{font-weight:900;color:#ffd166}
+</style></head><body>
+<div class="hud"><span id="hm">🏭 Império da Lã</span><span id="fz"></span><span id="hs">⭐ 0</span></div>
+<div class="left" id="left">
+ <div class="wool" id="w">🧶 0</div>
+ <div class="ps" id="ps">0 lã/seg</div>
+ <img id="big" src="../../../assets/personagens/ovelha-arcoiris.png" alt="Ovelha" draggable="false">
+ <div style="font-weight:800;color:#c9c6e8;font-size:.92rem">👆 Toca na ovelha (e apanha as Ovelhas Douradas 🌟!)</div>
+ <div class="flock" id="flock"></div>
+</div>
+<div class="store"><h3>🛒 Melhorias da Fábrica</h3><div id="ups"></div></div>
+<script>
+const $=id=>document.getElementById(id);
+const U=[
+ {id:'click',n:'Tesoura Dourada',d:'+2 lã por toque',base:20,g:1.55,emo:'✂️'},
+ {id:'azul',n:'Ovelha Azul',d:'+1 lã/seg',base:15,g:1.15,cps:1},
+ {id:'rosa',n:'Ovelha Rosa',d:'+6 lã/seg',base:100,g:1.15,cps:6},
+ {id:'verde',n:'Ovelha Verde',d:'+28 lã/seg',base:550,g:1.15,cps:28},
+ {id:'roxa',n:'Ovelha Roxa',d:'+120 lã/seg',base:2800,g:1.15,cps:120},
+ {id:'laranja',n:'Ovelha Laranja',d:'+500 lã/seg',base:14000,g:1.15,cps:500},
+ {id:'melancia',n:'Ovelha Melancia',d:'+2.200 lã/seg',base:75000,g:1.15,cps:2200},
+ {id:'elefante-amendoim',n:'Elefante Amendoim',d:'+12.000 lã/seg',base:420000,g:1.15,cps:12000,full:1}
+];
+let S=OC.get('op_la',{w:0,tot:0,own:{},ms:0}),frenzy=0;
+const own=id=>S.own[id]||0,cost=u=>Math.ceil(u.base*Math.pow(u.g,own(u.id)));
+const mult=()=>frenzy>0?2:1;
+const cps=()=>U.reduce((a,u)=>a+(u.cps?u.cps*own(u.id):0),0)*mult(),per=()=>(1+own('click')*2)*mult();
+const fmt=n=>n<1e4?Math.floor(n).toLocaleString('pt'):n<1e6?(n/1e3).toFixed(1)+'K':n<1e9?(n/1e6).toFixed(2)+'M':(n/1e9).toFixed(2)+'B';
+function ups(){
+ $('ups').innerHTML=U.map(u=>{
+  const c=cost(u);
+  return `<div class="up ${S.w>=c?'ok':''}" data-id="${u.id}">${u.emo?`<span style="font-size:2rem;width:42px;text-align:center">${u.emo}</span>`:`<img src="../../../assets/personagens/${u.full?u.id:'ovelha-'+u.id}.png">`}
+   <div class="t"><b>${u.n}</b><small>${u.d}</small></div><div style="text-align:right"><div class="n">${own(u.id)}</div><div class="c">🧶 ${fmt(c)}</div></div></div>`;
+ }).join('');
+}
+function flock(){
+ let h='';U.slice(1).forEach(u=>{for(let i=0;i<Math.min(own(u.id),10);i++)h+=`<img style="animation-delay:${(i*.17)%1}s" src="../../../assets/personagens/${u.full?u.id:'ovelha-'+u.id}.png">`});
+ $('flock').innerHTML=h;
+}
+function hud(){
+ $('w').textContent='🧶 '+fmt(S.w);
+ $('ps').textContent=fmt(cps())+' lã/seg'+(frenzy>0?' (🔥2x!)':'');
+ $('fz').textContent=frenzy>0?`🔥 Frenesim 2x (${Math.ceil(frenzy)}s)`:'';
+ $('hs').textContent='⭐ '+OC.stars();
+ document.body.classList.toggle('frenzy',frenzy>0);
+ document.querySelectorAll('.up').forEach(e=>{const u=U.find(q=>q.id===e.dataset.id);if(u)e.classList.toggle('ok',S.w>=cost(u))});
+}
+function pop(px,py,txt){
+ const b=$('left').getBoundingClientRect(),f=document.createElement('div');
+ f.className='fl';f.textContent=txt;f.style.left=(px-b.left-18)+'px';f.style.top=(py-b.top-24)+'px';
+ $('left').appendChild(f);setTimeout(()=>f.remove(),850);
+}
+$('big').onpointerdown=e=>{const g=per();S.w+=g;S.tot+=g;OC.sfx.pop();pop(e.clientX,e.clientY,'+'+fmt(g));hud()};
+$('ups').onclick=e=>{
+ const el=e.target.closest('.up');if(!el)return;
+ const u=U.find(q=>q.id===el.dataset.id),c=cost(u);
+ if(S.w<c){OC.sfx.bad();return}
+ S.w-=c;S.own[u.id]=own(u.id)+1;OC.sfx.good();ups();flock();hud();OC.set('op_la',S);
+};
+// Ovelha Dourada bónus a cada ~22s
+setInterval(()=>{
+ if(document.hidden)return;
+ const g=document.createElement('img');
+ g.src='../../../assets/personagens/ovelha-arcoiris.png';g.className='gold';
+ g.style.left=(15+Math.random()*70)+'vw';g.style.top=(18+Math.random()*60)+'vh';
+ g.onpointerdown=e=>{
+  e.stopPropagation();
+  const bonus=Math.max(25,cps()*12+per()*15);
+  S.w+=bonus;S.tot+=bonus;frenzy=12;OC.addStars(1);OC.sfx.win();
+  OC.toast(`🌟 Ovelha Dourada! +${fmt(bonus)} lã & Frenesim 2x!`);
+  g.remove();hud();
+ };
+ document.body.appendChild(g);setTimeout(()=>g.remove(),7500);
+},22000);
+const M=[100,1e3,1e4,1e5,1e6,1e7];
+function miles(){
+ M.forEach((m,i)=>{
+  if(S.tot>=m&&!(S.ms>>i&1)){
+   S.ms|=1<<i;OC.addStars(2+i);OC.confetti();
+   OC.toast(`🏅 Marco: ${fmt(m)} de lã! +${2+i} ⭐`);
+  }
+ });
+}
+let last=Date.now();
+setInterval(()=>{
+ const n=Date.now(),dt=(n-last)/1000;last=n;
+ if(frenzy>0)frenzy=Math.max(0,frenzy-dt);
+ const g=cps()*dt;S.w+=g;S.tot+=g;hud();miles();
+},200);
+setInterval(()=>OC.set('op_la',S),3000);addEventListener('beforeunload',()=>OC.set('op_la',S));
+ups();flock();hud();
+</script></body></html>

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Lendas da Nebulosa</title>
+<script src="../../oc.js"></script>
+<style>
+#talents{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6;flex-wrap:wrap;justify-content:center}
+.tbtn{pointer-events:auto;padding:7px 13px;border-radius:14px;border:2px solid rgba(255,255,255,.22);background:rgba(16,22,58,.9);color:#fff;font:700 .82rem Fredoka,sans-serif;cursor:pointer}
+#lvModal{position:absolute;inset:0;background:rgba(6,8,28,.85);backdrop-filter:blur(8px);z-index:12;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
+.cards{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.ucard{width:190px;padding:18px 14px;border-radius:22px;background:linear-gradient(155deg,#251d63,#3c1e6e);border:2px solid #ffd166;color:#fff;text-align:center;cursor:pointer;transition:.15s}
+.ucard:hover{transform:translateY(-5px) scale(1.04);box-shadow:0 12px 30px #ffd16655}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">⚔️ Nv.<span id="lv">1</span> (<span id="xp">0</span>/<span id="mxp">10</span>💎)</div>
+  <div class="pill">🪙 Ouro Guardado: <span id="gd">0</span></div>
+  <div class="pill">❤️ <span id="hp">100</span></div>
+</div>
+<div id="talents">
+  <button class="tbtn" id="upDmg">🗡️ +Força Permanente (30🪙)</button>
+  <button class="tbtn" id="upSpd">👟 +Velocidade Permanente (30🪙)</button>
+  <button class="tbtn" id="upHp">💖 +Vida Permanente (30🪙)</button>
+</div>
+<div id="lvModal" class="hide">
+  <h2 style="font:700 2rem Fredoka,sans-serif;color:#ffd166">🌟 SUBISTE DE NÍVEL! Escolhe uma Evolução:</h2>
+  <div class="cards" id="cardWrap"></div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">⚔️🌌</div>
+    <h1>Lendas da Nebulosa</h1>
+    <p>Action-RPG com <b>Progresso Permanente</b>! Sobrevive a hordas de sombras cósmicas, apanha cristais de experiência para escolher <b>Super-Evoluções</b> a cada nível e gasta o teu Ouro em <b>Talentos Permanentes</b> que ficam guardados para sempre!</p>
+    <div class="kbs"><span class="kb">WASD / Setas / Toque</span> Mover Herói <span class="kb">Automático</span> Super-Poderes & Evoluções</div>
+    <br><button class="btn" id="go">Entrar na Arena Cósmica!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const imgHero=OC.img('ovelha-arcoiris.png'),imgDuck=OC.img('pato.png');
+const POWERS=[
+  {id:'orbs',name:'Orbes Estelares',emo:'🪐',desc:'+1 Planeta protetor que gira à tua volta'},
+  {id:'zap',name:'Trovão Azul',emo:'⚡',desc:'Dispara raios elétricos em cadeia mais rápido'},
+  {id:'nova',name:'Explosão Solar',emo:'☀️',desc:'Ondas de fogo arco-íris à volta da ovelha'},
+  {id:'duck',name:'Pato Guardião',emo:'🦆',desc:'O Pato dispara amendoins teleguiados'}
+];
+
+let P=OC.get('op_lendas_save',{gold:40,dmgLv:1,spdLv:1,hpLv:1});
+function saveP(){OC.set('op_lendas_save',P);}
+
+let st='wait',hero,foes=[],gems=[],shots=[],spawnT=0;
+let keys={w:0,a:0,s:0,d:0},ptr={active:false,x:0,y:0};
+
+function init(){
+  const maxHp=100+(P.hpLv-1)*25;
+  hero={
+    x:c.width/2,y:c.height/2,hp:maxHp,maxHp,
+    lv:1,xp:0,nextXp:8,
+    orbs:1,zap:1,nova:0,duck:0,
+    zapCd:0,novaCd:0,duckCd:0
+  };
+  foes=[];gems=[];shots=[];spawnT=0.2;
+  updUI();
+}
+
+function updUI(){
+  document.getElementById('lv').textContent=hero.lv;
+  document.getElementById('xp').textContent=hero.xp;
+  document.getElementById('mxp').textContent=hero.nextXp;
+  document.getElementById('gd').textContent=P.gold;
+  document.getElementById('hp').textContent=Math.max(0,Math.ceil(hero.hp));
+}
+
+document.getElementById('upDmg').onclick=()=>{if(P.gold>=30){P.gold-=30;P.dmgLv++;OC.sfx.win();saveP();updUI();}};
+document.getElementById('upSpd').onclick=()=>{if(P.gold>=30){P.gold-=30;P.spdLv++;OC.sfx.win();saveP();updUI();}};
+document.getElementById('upHp').onclick=()=>{if(P.gold>=30){P.gold-=30;P.hpLv++;hero.maxHp+=25;hero.hp+=25;OC.sfx.win();saveP();updUI();}};
+
+function openLevelUp(){
+  st='pause';
+  OC.sfx.win();
+  const wrap=document.getElementById('cardWrap');
+  const picks=[...POWERS].sort(()=>Math.random()-0.5).slice(0,3);
+  wrap.innerHTML=picks.map(p=>`
+    <div class="ucard" data-id="${p.id}">
+      <div style="font-size:2.6rem">${p.emo}</div>
+      <h3 style="font:700 1.2rem Fredoka,sans-serif;color:#ffd166;margin:6px 0">${p.name}</h3>
+      <p style="font-size:.86rem;color:#d8d5f0">${p.desc}</p>
+    </div>`).join('');
+  document.getElementById('lvModal').classList.remove('hide');
+}
+
+document.getElementById('cardWrap').onclick=e=>{
+  const cd=e.target.closest('.ucard');if(!cd)return;
+  const id=cd.dataset.id;
+  hero[id]=(hero[id]||0)+1;
+  hero.hp=Math.min(hero.maxHp,hero.hp+25);
+  document.getElementById('lvModal').classList.add('hide');
+  OC.sfx.good();
+  st='play';
+};
+
+window.addEventListener('keydown',e=>{
+  if(e.code==='KeyW'||e.code==='ArrowUp')keys.w=1;
+  if(e.code==='KeyS'||e.code==='ArrowDown')keys.s=1;
+  if(e.code==='KeyA'||e.code==='ArrowLeft')keys.a=1;
+  if(e.code==='KeyD'||e.code==='ArrowRight')keys.d=1;
+});
+window.addEventListener('keyup',e=>{
+  if(e.code==='KeyW'||e.code==='ArrowUp')keys.w=0;
+  if(e.code==='KeyS'||e.code==='ArrowDown')keys.s=0;
+  if(e.code==='KeyA'||e.code==='ArrowLeft')keys.a=0;
+  if(e.code==='KeyD'||e.code==='ArrowRight')keys.d=0;
+});
+c.addEventListener('pointerdown',e=>{ptr.active=true;ptr.x=e.clientX;ptr.y=e.clientY;});
+c.addEventListener('pointermove',e=>{if(ptr.active){ptr.x=e.clientX;ptr.y=e.clientY;}});
+window.addEventListener('pointerup',()=>{ptr.active=false;});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  if(st==='play'){
+    const spd=210+(P.spdLv-1)*22;
+    const baseDmg=14+(P.dmgLv-1)*5;
+    let ax=0,ay=0;
+    if(keys.a)ax-=1;if(keys.d)ax+=1;
+    if(keys.w)ay-=1;if(keys.s)ay+=1;
+    if(ptr.active){
+      const dx=ptr.x-hero.x,dy=ptr.y-hero.y,d=Math.hypot(dx,dy);
+      if(d>12){ax=dx/d;ay=dy/d;}
+    }
+    hero.x=Math.max(30,Math.min(W-30,hero.x+ax*spd*dt));
+    hero.y=Math.max(55,Math.min(H-55,hero.y+ay*spd*dt));
+
+    spawnT-=dt;
+    if(spawnT<=0){
+      const a=Math.random()*Math.PI*2,R=Math.hypot(W,H)*0.55;
+      const boss=hero.lv>=4 && Math.random()<0.12;
+      foes.push({
+        x:W/2+Math.cos(a)*R,y:H/2+Math.sin(a)*R,
+        hp:(boss?120:22)+hero.lv*8,r:boss?32:18,boss,hitCd:0
+      });
+      spawnT=Math.max(0.35,0.95-hero.lv*0.05);
+    }
+
+    // Auto Zap
+    hero.zapCd-=dt;
+    if(hero.zapCd<=0 && foes.length>0){
+      foes.sort((a,b)=>Math.hypot(a.x-hero.x,a.y-hero.y)-Math.hypot(b.x-hero.x,b.y-hero.y));
+      for(let i=0;i<Math.min(hero.zap,foes.length);i++){
+        const f=foes[i];
+        f.hp-=baseDmg;
+        OC.fx.burst(f.x,f.y,'#4cc9f0',8);
+        shots.push({x1:hero.x,y1:hero.y,x2:f.x,y2:f.y,l:0.15,col:'#4cc9f0'});
+      }
+      OC.sfx.pop();
+      hero.zapCd=Math.max(0.35,0.9-hero.zap*0.1);
+    }
+
+    // Auto Solar Nova
+    if(hero.nova>0){
+      hero.novaCd-=dt;
+      if(hero.novaCd<=0){
+        const nr=95+hero.nova*25;
+        OC.fx.burst(hero.x,hero.y,'#ff9f1c',20);
+        for(const f of foes){
+          if(Math.hypot(f.x-hero.x,f.y-hero.y)<nr)f.hp-=baseDmg*1.2;
+        }
+        hero.novaCd=2.2;
+      }
+    }
+
+    // Update Orbiting Orbs collision
+    for(let i=0;i<hero.orbs;i++){
+      const a=now*0.004+i*(Math.PI*2/hero.orbs);
+      const ox=hero.x+Math.cos(a)*72,oy=hero.y+Math.sin(a)*72;
+      for(const f of foes){
+        if(f.hitCd<=0 && Math.hypot(f.x-ox,f.y-oy)<f.r+14){
+          f.hp-=baseDmg;f.hitCd=0.25;
+          OC.fx.burst(ox,oy,'#ffd166',6);
+        }
+      }
+    }
+
+    // Update foes
+    for(let i=foes.length-1;i>=0;i--){
+      const f=foes[i];
+      if(f.hitCd>0)f.hitCd-=dt;
+      const a=Math.atan2(hero.y-f.y,hero.x-f.x);
+      const fspd=f.boss?55:75+hero.lv*4;
+      f.x+=Math.cos(a)*fspd*dt;f.y+=Math.sin(a)*fspd*dt;
+
+      if(Math.hypot(f.x-hero.x,f.y-hero.y)<f.r+22){
+        hero.hp-=22*dt;
+        updUI();
+        if(hero.hp<=0){
+          st='end';
+          saveP();
+          OC.end({win:hero.lv>=5,stars:hero.lv>=7?3:hero.lv>=4?2:1,score:hero.lv*150+P.gold,title:'Jornada Épica!',msg:`Alcançaste o Nível ${hero.lv}! O teu Ouro e Talentos ficaram guardados.`,onRetry:()=>{init();st='play';}});
+          break;
+        }
+      }
+      if(f.hp<=0){
+        gems.push({x:f.x,y:f.y,val:f.boss?5:1});
+        P.gold+=f.boss?12:2;
+        saveP();
+        foes.splice(i,1);
+      }
+    }
+
+    // Collect XP gems
+    for(let i=gems.length-1;i>=0;i--){
+      const g=gems[i];
+      const d=Math.hypot(hero.x-g.x,hero.y-g.y);
+      if(d<150){
+        g.x+=(hero.x-g.x)*7*dt;g.y+=(hero.y-g.y)*7*dt;
+      }
+      if(d<30){
+        hero.xp+=g.val;
+        OC.sfx.coin();
+        gems.splice(i,1);
+        if(hero.xp>=hero.nextXp){
+          hero.xp-=hero.nextXp;
+          hero.lv++;
+          hero.nextXp=Math.round(hero.nextXp*1.35);
+          openLevelUp();
+        }
+        updUI();
+      }
+    }
+  }
+
+  // Draw XP Gems
+  for(const g of gems){
+    ctx.save();
+    ctx.fillStyle=g.val>1?'#ffd166':'#00f5d4';
+    ctx.beginPath();ctx.arc(g.x,g.y,g.val>1?10:6,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw Zap lines
+  for(let i=shots.length-1;i>=0;i--){
+    const s=shots[i];s.l-=dt;
+    if(s.l<=0){shots.splice(i,1);continue;}
+    ctx.save();ctx.strokeStyle=s.col;ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.stroke();ctx.restore();
+  }
+
+  // Draw Foes
+  for(const f of foes){
+    ctx.save();
+    ctx.fillStyle=f.boss?'#ff595e':'#5e2b88';
+    ctx.strokeStyle='#fff';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(f.x,f.y,f.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.font=(f.boss?'26px':'16px')+' sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(f.boss?'👹':'👾',f.x,f.y);
+    ctx.restore();
+  }
+
+  // Draw Hero & Orbiting Orbs
+  if(hero){
+    for(let i=0;i<hero.orbs;i++){
+      const a=now*0.004+i*(Math.PI*2/hero.orbs);
+      const ox=hero.x+Math.cos(a)*72,oy=hero.y+Math.sin(a)*72;
+      ctx.save();
+      ctx.fillStyle='#ffd166';ctx.shadowColor='#ffd166';ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(ox,oy,12,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }
+    if(hero.duck>0){
+      ctx.drawImage(imgDuck,hero.x+32,hero.y-36,36,36);
+    }
+    ctx.drawImage(imgHero,hero.x-28,hero.y-28,56,56);
+  }
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

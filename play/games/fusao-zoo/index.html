@@ -1,0 +1,149 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Alquimia da Nebulosa</title><script src="../../oc.js"></script></head><body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hs">⭐ 0</span><span id="ho">🔮 Receita</span><span id="hb"></span></div>
+<div class="ov" id="ov"><h2>🔮 Alquimia da Nebulosa</h2>
+<p>Em gravidade zero, as ovelhas orbitam o <b>Núcleo Estelar</b>! Toca ou carrega em <b>Espaço</b> para lançar uma ovelha para a órbita.<br>
+✨ Duas ovelhas da mesma cor que se toquem fundem-se no próximo nível cósmico. Carrega em <b>Inverter (Seta ↑/↓ ou clique no núcleo)</b> para mudar o sentido da órbita! Não deixes a nebulosa transbordar.</p>
+<button class="btn" id="go">▶ Entrar na Nebulosa</button></div>
+<script>
+const W=520,H=560,CX=260,CY=265,OUT_R=195,CORE_R=34,cv=document.getElementById('c'),x=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='fusao-zoo',TAU=Math.PI*2,$=id=>document.getElementById(id);
+const NAMES=['azul','verde','rosa','laranja','roxa','melancia','arcoiris','elefante-amendoim'];
+const TITLES=['Ovelha Azul','Ovelha Verde','Ovelha Rosa','Ovelha Laranja','Ovelha Roxa','Ovelha Melancia','Ovelha Arco-Íris','Elefante Amendoim'];
+const IM=NAMES.map(n=>OC.img(n.startsWith('ele')?n:'ovelha-'+n));
+const COL=['#4cc9f0','#06d6a0','#ff9ecd','#ff9f1c','#9b5de5','#ef476f','#ff85a2','#ffd166'];
+const RAD=[16,20,25,30,36,43,51,60];
+let orbs,parts,pops,cur,next,aimA,swirl,score,goalLv,cd,danger,running=false,over=false,t=0,shake=0,best=OC.best(ID),stars=[];
+for(let i=0;i<70;i++)stars.push([Math.random()*W,Math.random()*H,Math.random()*1.5+.3]);
+$('hb').textContent='🏆 '+best;
+const rnd=()=>Math.floor(Math.random()*3);
+function init(){
+ orbs=[];parts=[];pops=[];score=0;swirl=1;aimA=-Math.PI/2;cd=0;danger=0;over=false;
+ cur=rnd();next=rnd();goalLv=3;upd();
+}
+function upd(){
+ $('hs').textContent='⭐ '+score;
+ $('ho').textContent='🔮 Cria: '+TITLES[goalLv];
+ $('hb').textContent='🏆 '+Math.max(best,score);
+}
+function launch(){
+ if(!running||over||cur===null)return;
+ const r=RAD[cur],sx=CX+Math.cos(aimA)*(OUT_R-r-4),sy=CY+Math.sin(aimA)*(OUT_R-r-4);
+ orbs.push({x:sx,y:sy,vx:-Math.cos(aimA)*170,vy:-Math.sin(aimA)*170,l:cur,r,age:0,sc:1});
+ cur=null;cd=.42;OC.sfx.jump();
+}
+function burst(px,py,c,n=16){for(let i=0;i<n;i++){const a=Math.random()*TAU,v=40+Math.random()*160;parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.5,m:.5,c,r:2.5+Math.random()*3.5})}}
+function update(dt){
+ t+=dt;shake=Math.max(0,shake-dt*30);
+ if(!running||over)return;
+ if(cur===null){cd-=dt;if(cd<=0){cur=next;next=rnd()}}
+ // física orbital de vórtice zero-G
+ const merges=[];
+ for(const o of orbs){
+  o.age+=dt;o.sc+=(1-o.sc)*Math.min(1,dt*10);
+  const dx=CX-o.x,dy=CY-o.y,d=Math.hypot(dx,dy)||1,nx=dx/d,ny=dy/d;
+  // atração radial ao anel orbital + rotação tangencial
+  const pull=(d-78)*3.6;
+  o.vx+=(nx*pull-ny*swirl*85)*dt;
+  o.vy+=(ny*pull+nx*swirl*85)*dt;
+  o.vx*=.985;o.vy*=.985;
+  o.x+=o.vx*dt;o.y+=o.vy*dt;
+  // colisão com o núcleo central
+  if(d<CORE_R+o.r){
+   const ov=CORE_R+o.r-d;o.x-=nx*ov;o.y-=ny*ov;
+   const vn=o.vx*nx+o.vy*ny;if(vn>0){o.vx-=1.5*vn*nx;o.vy-=1.5*vn*ny}
+  }
+ }
+ for(let i=0;i<orbs.length;i++){
+  const a=orbs[i];if(a.dead)continue;
+  for(let j=i+1;j<orbs.length;j++){
+   const b=orbs[j];if(b.dead)continue;
+   const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1,m=a.r+b.r;
+   if(d<m){
+    if(a.l===b.l){merges.push([a,b]);continue}
+    const nx=dx/d,ny=dy/d,ov=m-d;
+    a.x-=nx*ov*.5;a.y-=ny*ov*.5;b.x+=nx*ov*.5;b.y+=ny*ov*.5;
+    const vn=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;
+    if(vn<0){a.vx+=vn*nx*.6;a.vy+=vn*ny*.6;b.vx-=vn*nx*.6;b.vy-=vn*ny*.6}
+   }
+  }
+ }
+ for(const [a,b] of merges){
+  if(a.dead||b.dead)continue;
+  a.dead=b.dead=true;
+  const mx=(a.x+b.x)/2,my=(a.y+b.y)/2,nl=Math.min(7,a.l+1);
+  let pts=(nl+1)*20;
+  if(nl===goalLv){pts+=120;goalLv=Math.min(7,goalLv+1);pops.push({s:`🔮 RECEITA! +120`,x:mx,y:my-28,l:1.1,c:'#00f5d4'});OC.sfx.win()}
+  else OC.tone(360+nl*90,.16,'triangle',.13,0,520+nl*90);
+  score+=pts;shake=Math.max(shake,4+nl);
+  orbs.push({x:mx,y:my,vx:(a.vx+b.vx)*.4,vy:(a.vy+b.vy)*.4,l:nl,r:RAD[nl],age:0,sc:.55});
+  burst(mx,my,COL[nl],18);pops.push({s:'+'+pts,x:mx,y:my,l:.9,c:COL[nl]});upd();
+ }
+ orbs=orbs.filter(o=>!o.dead);
+ // verificar se alguma esfera antiga ultrapassa a fronteira da nebulosa
+ let out=false;
+ for(const o of orbs)if(o.age>1.2&&Math.hypot(o.x-CX,o.y-CY)+o.r>OUT_R+6)out=true;
+ danger=out?danger+dt:Math.max(0,danger-dt*2);
+ if(danger>1.8){
+  over=true;running=false;OC.sfx.bad();OC.best(ID,score);best=OC.best(ID);
+  setTimeout(()=>OC.end({id:ID,title:'Nebulosa Cheia!',text:`Criaste ${score} pontos de alquimia estelar! Recorde: ${best}.`,stars:Math.max(1,Math.ceil(score/140)),retry:()=>{init();running=true}}),600);
+ }
+ parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt});parts=parts.filter(p=>p.l>0);
+ pops.forEach(p=>{p.y-=35*dt;p.l-=dt});pops=pops.filter(p=>p.l>0);
+}
+function drawOrb(px,py,l,r,sc=1,al=1){
+ x.save();x.translate(px,py);x.scale(sc,sc);x.globalAlpha=al;
+ const g=x.createRadialGradient(-r*.3,-r*.3,2,0,0,r);g.addColorStop(0,'#fff');g.addColorStop(.4,COL[l]);g.addColorStop(1,'#18123e');
+ x.fillStyle=g;x.strokeStyle='#ffffffaa';x.lineWidth=2;x.beginPath();x.arc(0,0,r,0,TAU);x.fill();x.stroke();
+ if(IM[l].complete)x.drawImage(IM[l],-r*1.05,-r*1.05,r*2.1,r*2.1);
+ x.restore();
+}
+function draw(){
+ const g=x.createRadialGradient(CX,CY,20,CX,CY,340);g.addColorStop(0,'#2c1966');g.addColorStop(1,'#080b20');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle='#fff';stars.forEach(s=>{x.globalAlpha=.4;x.beginPath();x.arc(s[0],s[1],s[2],0,TAU);x.fill()});x.globalAlpha=1;
+ x.save();if(shake>0)x.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+ // anéis do vórtice e fronteira exterior
+ x.strokeStyle=danger>0?'#ef476f':'#00f5d466';x.lineWidth=4;x.setLineDash([12,8]);
+ x.beginPath();x.arc(CX,CY,OUT_R,0,TAU);x.stroke();x.setLineDash([]);
+ x.strokeStyle='#ffffff18';x.lineWidth=2;x.beginPath();x.arc(CX,CY,78,0,TAU);x.stroke();
+ // núcleo gravitacional (clicar inverte rotação)
+ x.fillStyle='#ffd16633';x.strokeStyle='#ffd166';x.lineWidth=3;
+ x.beginPath();x.arc(CX,CY,CORE_R,0,TAU);x.fill();x.stroke();
+ x.font='26px sans-serif';x.textAlign='center';x.textBaseline='middle';
+ x.fillText(swirl>0?'🔄':'🔃',CX,CY);
+ // ovelhas em órbita
+ orbs.forEach(o=>drawOrb(o.x,o.y,o.l,o.r,o.sc));
+ // lançador na borda
+ if(running&&!over){
+  const l=cur===null?next:cur,r=RAD[l];
+  const lx=CX+Math.cos(aimA)*(OUT_R-r-4),ly=CY+Math.sin(aimA)*(OUT_R-r-4);
+  drawOrb(lx,ly,l,r,1,cur===null?.45:1);
+ }
+ for(const p of parts){x.globalAlpha=Math.max(0,p.l/p.m);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,p.r,0,TAU);x.fill()}x.globalAlpha=1;
+ x.font='700 18px Fredoka,sans-serif';
+ for(const p of pops){x.globalAlpha=Math.min(1,p.l*2);x.fillStyle=p.c;x.strokeStyle='#000a';x.lineWidth=3;x.strokeText(p.s,p.x,p.y);x.fillText(p.s,p.x,p.y)}x.globalAlpha=1;
+ x.restore();
+ // barra de evolução em baixo
+ for(let i=0;i<8;i++){
+  const px=42+i*62,py=518;
+  drawOrb(px,py,i,16,i===goalLv?1.2:1,i===goalLv?1:.55);
+ }
+}
+cv.addEventListener('pointermove',e=>{const p=P(e);aimA=Math.atan2(p.y-CY,p.x-CX)});
+cv.addEventListener('pointerdown',e=>{
+ const p=P(e);
+ if(Math.hypot(p.x-CX,p.y-CY)<=CORE_R+10){swirl*=-1;OC.sfx.pop();return}
+ aimA=Math.atan2(p.y-CY,p.x-CX);launch();
+});
+addEventListener('keydown',e=>{
+ if(e.code==='ArrowLeft'||e.code==='KeyA')aimA-=.14;
+ if(e.code==='ArrowRight'||e.code==='KeyD')aimA+=.14;
+ if(e.code==='ArrowUp'||e.code==='ArrowDown'){swirl*=-1;OC.sfx.pop()}
+ if(e.code==='Space'||e.code==='Enter'){e.preventDefault();if(!e.repeat)launch()}
+});
+init();
+let last=performance.now();
+(function loop(n){const dt=Math.min(.04,(n-last)/1000);last=n;update(dt);draw();requestAnimationFrame(loop)})(last);
+$('go').onclick=()=>{$('ov').style.display='none';running=true};
+</script></body></html>

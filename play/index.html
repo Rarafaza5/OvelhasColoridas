@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ovelhas Play 🎮 32 Jogos Grátis das Ovelhas Coloridas</title>
+<meta name="description" content="Ovelhas Play: o portal estilo Poki/Friv com 32 jogos gratuitos e originais das Ovelhas Coloridas. Mundos persistentes, mascotes, álbum de cromos, missões diárias e 0 anúncios!">
+<link rel="icon" type="image/png" href="../assets/personagens/ovelha-arcoiris.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0e27;--card:#151c4a;--gold:#ffd166;--pink:#ff85a2;--cyan:#00f5d4;--purple:#9b5de5;--muted:#c9c6e8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 20% 0%,#1f1650,#0a0e27 65%);color:#f0edff;font-family:Nunito,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(10,14,39,.92);backdrop-filter:blur(14px);border-bottom:1px solid #ffffff1a;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font:700 1.65rem Fredoka,sans-serif;background:linear-gradient(135deg,var(--gold),var(--pink),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap}
+.logo img{height:38px;-webkit-text-fill-color:initial}
+.search{flex:1;min-width:180px;max-width:360px;margin:0 auto}
+.search input{width:100%;padding:9px 16px;border-radius:99px;border:2px solid #ffffff22;background:#151c4a;color:#fff;font:800 .95rem Nunito,sans-serif;outline:0;transition:.2s}
+.search input:focus{border-color:var(--gold);box-shadow:0 0 0 4px #ffd16622}
+.rnd,.hbtn{padding:8px 14px;border-radius:99px;border:0;background:linear-gradient(135deg,#00f5d4,#9b5de5);color:#fff;font:700 .88rem Fredoka,sans-serif;cursor:pointer;white-space:nowrap;box-shadow:0 4px 14px #9b5de555;transition:.2s}
+.hbtn.gold{background:linear-gradient(135deg,#ffd166,#ff85a2);color:#1a0a00}
+.rnd:hover,.hbtn:hover{transform:scale(1.05)}
+.me{padding:8px 14px;border-radius:99px;background:#ffd16622;border:1px solid #ffd16666;color:var(--gold);font-weight:900;white-space:nowrap;font-size:.88rem}
+.back{padding:8px 12px;border-radius:99px;border:1px solid #ffffff33;font-weight:800;font-size:.86rem;white-space:nowrap}
+.back:hover{border-color:var(--gold);color:var(--gold)}
+.layout{display:flex}
+nav.side{position:sticky;top:62px;align-self:flex-start;height:calc(100vh - 62px);width:98px;padding:12px 8px;display:flex;flex-direction:column;gap:6px;background:#0c1130;border-right:1px solid #ffffff12;overflow-y:auto}
+.cat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 4px;border-radius:16px;font-weight:900;font-size:.72rem;color:var(--muted);cursor:pointer;border:0;background:none;transition:.15s}
+.cat span{font-size:1.5rem}
+.cat small{font-size:.65rem;opacity:.75}
+.cat:hover{background:#ffffff12;color:#fff;transform:scale(1.05)}
+.cat.on{background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;box-shadow:0 4px 14px #ff85a244}
+main{flex:1;padding:20px;min-width:0;max-width:1360px;margin:0 auto}
+.missions{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:16px 0 8px}
+.mcard{padding:12px 16px;border-radius:20px;background:rgba(21,28,74,.82);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;gap:12px}
+.mcard .mi{font-size:1.8rem}
+.mcard b{font:700 .95rem Fredoka,sans-serif;color:#ffd166;display:block}
+.mcard small{color:var(--muted);font-weight:800}
+h2.sec{font:700 1.45rem Fredoka,sans-serif;margin:24px 0 12px;display:flex;align-items:center;gap:8px}
+.cnt{font-size:.9rem;padding:2px 10px;border-radius:99px;background:#ffffff14;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));grid-auto-flow:dense;gap:14px}
+.tile{position:relative;aspect-ratio:1;border-radius:24px;overflow:hidden;background:linear-gradient(135deg,var(--c1),var(--c2));cursor:pointer;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;box-shadow:0 6px 20px #0006;display:block}
+.tile.big{grid-column:span 2;grid-row:span 2}
+.tile:hover{transform:scale(1.06) rotate(-1deg);box-shadow:0 14px 36px #000b;z-index:2}
+.tile .emo{position:absolute;right:8%;top:6%;font-size:2.2rem;opacity:.92;filter:drop-shadow(0 3px 6px #0006);animation:fl 3s ease-in-out infinite alternate}
+.tile.big .emo{font-size:4.2rem}
+.tile img{position:absolute;left:50%;bottom:10%;width:62%;height:62%;object-fit:contain;transform:translateX(-50%);filter:drop-shadow(0 6px 10px #0007);transition:.3s}
+.tile:hover img{transform:translateX(-50%) scale(1.13) rotate(5deg)}
+.tile .nm{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 9px;text-align:center;font:700 1rem Fredoka,sans-serif;background:linear-gradient(transparent,#000d); transition:.25s}
+.tile.big .nm{font-size:1.55rem;padding-bottom:14px}
+.tag{position:absolute;left:8px;top:8px;padding:3px 10px;border-radius:99px;background:var(--gold);color:#1a0a00;font-weight:900;font-size:.72rem;z-index:2;box-shadow:0 2px 8px #0005}
+.tag.new{background:#00f5d4;color:#042a25}
+.tag.epic{background:linear-gradient(135deg,#ffd166,#ff85a2);color:#1a0a00}
+.fav{position:absolute;right:8px;bottom:40px;z-index:3;border:0;background:#0009;border-radius:50%;width:30px;height:30px;color:#fff;cursor:pointer;font-size:1rem;opacity:0;transition:.2s}
+.tile:hover .fav,.fav.on{opacity:1}
+.fav.on{color:var(--pink)}
+@keyframes fl{to{transform:translateY(-8px) rotate(8deg)}}
+.hero{display:grid;grid-template-columns:1.45fr 1fr;gap:16px;align-items:stretch}
+.hero .feat{position:relative;border-radius:30px;overflow:hidden;min-height:250px;padding:28px;background:linear-gradient(135deg,var(--c1),var(--c2));display:flex;flex-direction:column;justify-content:flex-end;gap:6px;box-shadow:0 12px 34px #0007}
+.feat img{position:absolute;right:4%;bottom:0;height:86%;filter:drop-shadow(0 10px 20px #0008);animation:fl 3s ease-in-out infinite alternate}
+.feat h1{font:700 clamp(1.8rem,4vw,2.8rem) Fredoka,sans-serif;text-shadow:0 3px 10px #0006;position:relative}
+.feat p{max-width:62%;font-weight:800;position:relative;text-shadow:0 2px 6px #0007}
+.play{align-self:flex-start;margin-top:8px;padding:12px 30px;border-radius:99px;background:#fff;color:#1a0a44;font:700 1.15rem Fredoka,sans-serif;position:relative;box-shadow:0 6px 18px #0005;transition:.2s}
+.play:hover{transform:scale(1.06)}
+.book{border-radius:30px;padding:24px;background:linear-gradient(145deg,#1e1948,#2a1a5a);border:1px solid #ffffff22;display:flex;gap:16px;align-items:center}
+.book img{width:110px;border-radius:10px;box-shadow:0 8px 20px #0008;transform:rotate(-4deg)}
+.book h3{font:700 1.4rem Fredoka,sans-serif;color:var(--gold)}
+.book p{font-weight:700;color:var(--muted);margin:6px 0 10px;font-size:.92rem}
+.book a{display:inline-block;padding:9px 20px;border-radius:99px;background:linear-gradient(135deg,var(--pink),var(--purple));font-weight:900}
+.empty{color:var(--muted);font-weight:700;padding:20px}
+footer{padding:30px 20px 40px;text-align:center;color:var(--muted);font-weight:700;font-size:.9rem}
+footer a{color:var(--gold)}
+.modal{position:fixed;inset:0;background:rgba(5,7,24,.86);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal[hidden]{display:none}
+.mbox{max-width:680px;width:100%;max-height:86vh;overflow-y:auto;background:linear-gradient(155deg,#192158,#2d1b63);border:2px solid rgba(255,255,255,.24);border-radius:28px;padding:24px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px;margin-top:14px}
+.ccard{padding:12px 8px;border-radius:18px;text-align:center;background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.14)}
+.ccard.got{background:linear-gradient(145deg,rgba(255,209,102,.18),rgba(255,133,162,.18));border-color:#ffd166}
+.ccard img{width:54px;height:54px;object-fit:contain;filter:grayscale(1) opacity(.35)}
+.ccard.got img{filter:drop-shadow(0 4px 10px #0008)}
+@media(max-width:860px){
+  .layout{flex-direction:column}
+  nav.side{position:static;width:100%;height:auto;flex-direction:row;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid #ffffff12}
+  .cat{min-width:74px}.hero{grid-template-columns:1fr}.feat p{max-width:65%}.me{display:none}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(125px,1fr))}.logo{font-size:1.3rem}.search{max-width:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html"><img src="../assets/personagens/ovelha-arcoiris.png" alt="">Ovelhas Play</a>
+  <div class="search"><input id="q" type="search" placeholder="🔍 Procurar entre 32 jogos..."></div>
+  <button class="hbtn gold" id="btnDaily">🎁 Baú Diário</button>
+  <button class="hbtn" id="btnAlbum">🃏 Álbum (<span id="albumCnt">0</span>/18)</button>
+  <button class="rnd" id="rnd">🎲 Jogo Surpresa</button>
+  <span class="me" id="me"></span>
+  <a class="back" href="../index.html">← Site</a>
+</header>
+<div class="layout">
+  <nav class="side" id="side"></nav>
+  <main>
+    <div id="heroWrap" class="hero"></div>
+    <div id="missionsBar" class="missions"></div>
+    <div id="rowFav"></div><div id="rowRec"></div>
+    <h2 class="sec"><span id="allTitle">🎮 Todos os jogos</span><span class="cnt" id="cnt"></span></h2>
+    <div class="grid" id="grid"></div>
+    <p class="empty" id="none" hidden>Nenhum jogo encontrado 🐑</p>
+  </main>
+</div>
+
+<!-- Modal do Álbum de Cromos Galáctico -->
+<div class="modal" id="albumModal" hidden>
+  <div class="mbox">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+      <div>
+        <h2 style="font:700 1.65rem Fredoka,sans-serif;color:#ffd166">🃏 Álbum de Cromos Galáctico</h2>
+        <p style="font-size:.9rem;color:#d8d5f0;font-weight:700">Ganha cromos a jogar qualquer jogo, nos Presentes Flutuantes 🎁 ou troca Estrelas por um Pacote Surpresa!</p>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="hbtn gold" id="buyPack">✨ Abrir Pacote (20⭐)</button>
+        <button class="back" id="closeAlbum" style="background:none;color:#fff;cursor:pointer">✖ Fechar</button>
+      </div>
+    </div>
+    <div class="cgrid" id="albumGrid"></div>
+  </div>
+</div>
+
+<footer>🐑 <b>Ovelhas Play</b> · 32 jogos originais, mundos guardados, gratuitos e sem anúncios · <a href="../index.html">Ovelhas Coloridas: Uma Aventura no Espaço</a></footer>
+<script src="games.js"></script>
+<script>
+const G=OP_GAMES,$=id=>document.getElementById(id);
+const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let cat='todos',query='';
+const favs=()=>get('op_favs',[]),recent=()=>get('op_recent',[]);
+
+const CARDS=[
+  { id:'c1', name:'Ovelha Arco-Íris Capitã', rarity:'Lendário', emo:'🌈', img:'ovelha-arcoiris' },
+  { id:'c2', name:'Ovelha Azul Astrónoma', rarity:'Comum', emo:'🔭', img:'ovelha-azul' },
+  { id:'c3', name:'Ovelha Rosa Estilista', rarity:'Comum', emo:'💖', img:'ovelha-rosa' },
+  { id:'c4', name:'Ovelha Verde Botânica', rarity:'Comum', emo:'🌱', img:'ovelha-verde' },
+  { id:'c5', name:'Ovelha Roxa Alquimista', rarity:'Raro', emo:'🔮', img:'ovelha-roxa' },
+  { id:'c6', name:'Ovelha Laranja Piloto', rarity:'Raro', emo:'🚀', img:'ovelha-laranja' },
+  { id:'c7', name:'Ovelha Melancia DJ', rarity:'Raro', emo:'🍉', img:'ovelha-melancia' },
+  { id:'c8', name:'Elefante Amendoim Chef', rarity:'Épico', emo:'🐘', img:'elefante-amendoim' },
+  { id:'c9', name:'Pato Magnético Espacial', rarity:'Épico', emo:'🦆', img:'pato' },
+  { id:'c10', name:'Cometa de Lã Dourada', rarity:'Raro', emo:'☄️', img:'ovelha-arcoiris' },
+  { id:'c11', name:'Guardião da Nebulosa', rarity:'Lendário', emo:'👾', img:'elefante-amendoim' },
+  { id:'c12', name:'Submarino da Lua Azul', rarity:'Raro', emo:'🫧', img:'ovelha-azul' },
+  { id:'c13', name:'Expresso das Estrelas', rarity:'Épico', emo:'🚂', img:'ovelha-roxa' },
+  { id:'c14', name:'Tarte Dourada de Amendoim', rarity:'Comum', emo:'🥧', img:'elefante-amendoim' },
+  { id:'c15', name:'Batuta da Aurora Cósmica', rarity:'Épico', emo:'🎻', img:'ovelha-rosa' },
+  { id:'c16', name:'Relógio do Tempo Solar', rarity:'Raro', emo:'⚙️', img:'ovelha-laranja' },
+  { id:'c17', name:'Árvore de Cristal', rarity:'Épico', emo:'🌳', img:'ovelha-verde' },
+  { id:'c18', name:'Coroa do Rei da Colina', rarity:'Lendário', emo:'👑', img:'ovelha-arcoiris' }
+];
+
+function checkDaily(){
+  const today=new Date().toISOString().slice(0,10);
+  const st=get('op_daily',{lastDate:'',streak:1,claimed:false,gamesPlayed:[],starsToday:0});
+  if(st.lastDate!==today){
+    const yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
+    st.streak=(st.lastDate===yest)?(st.streak+1):1;
+    st.lastDate=today;st.claimed=false;st.gamesPlayed=[];st.starsToday=0;
+    set('op_daily',st);
+  }
+  return st;
+}
+
+function tile(g,big){
+  const fv=favs().includes(g.id);
+  const tagTxt=g.tag==='Hit'?'🔥 Hit':g.tag==='Épico'?'👑 Mundo Guardado':'🆕 Novo';
+  const tagCls=g.tag==='Novo'?'new':g.tag==='Épico'?'epic':'';
+  return `<a class="tile${big?' big':''}" href="jogo.html?g=${g.id}" style="--c1:${g.bg[0]};--c2:${g.bg[1]}">
+   ${g.tag?`<span class="tag ${tagCls}">${tagTxt}</span>`:''}
+   <span class="emo">${g.emoji}</span><img src="${OP_SPRITE(g.sheep)}" alt="" loading="lazy">
+   <button class="fav${fv?' on':''}" data-id="${g.id}" aria-label="Favorito">${fv?'♥':'♡'}</button>
+   <div class="nm">${g.name}</div></a>`}
+function row(title,ids,el){
+  const l=ids.map(i=>G.find(g=>g.id===i)).filter(Boolean);
+  $(el).innerHTML=l.length?`<h2 class="sec">${title}</h2><div class="grid">${l.map(g=>tile(g)).join('')}</div>`:'';
+}
+function renderMissions(){
+  const d=checkDaily();
+  const owned=get('op_cards',{});
+  const gotCnt=Object.keys(owned).length;
+  $('albumCnt').textContent=gotCnt;
+  $('btnDaily').textContent=d.claimed?`🔥 ${d.streak} Dias Seguidos`:`🎁 Abrir Baú Diário (🔥${d.streak})`;
+  $('missionsBar').innerHTML=`
+    <div class="mcard"><span class="mi">🔥</span><div><b>Assiduidade: ${d.streak} Dia(s) Seguido(s)</b><small>${d.claimed?'✔ Baú de hoje já aberto!':'Toca em 🎁 Baú Diário no topo para receber +15⭐ e 1 Cromo!'}</small></div></div>
+    <div class="mcard"><span class="mi">🎮</span><div><b>Explorador do Dia (${(d.gamesPlayed||[]).length}/3)</b><small>Experimenta 3 jogos diferentes hoje (+10⭐)</small></div></div>
+    <div class="mcard"><span class="mi">🃏</span><div><b>Colecionador (${gotCnt}/18 Cromos)</b><small>Apanha Presentes 🎁 durante os jogos para completar o Álbum!</small></div></div>
+  `;
+}
+function render(){
+  const l=G.filter(g=>(cat==='todos'||g.cat===cat)&&(g.name+' '+g.desc+' '+g.cat).toLowerCase().includes(query));
+  const home=cat==='todos'&&!query;
+  $('grid').innerHTML=l.map(g=>tile(g,home&&g.big)).join('');
+  $('cnt').textContent=l.length;
+  $('none').hidden=l.length>0;
+  $('heroWrap').style.display=home?'':'none';
+  $('missionsBar').style.display=home?'':'none';
+  row('♥ Os meus favoritos',home?favs():[],'rowFav');
+  row('🕑 Continua a jogar',home?recent().slice(0,6):[],'rowRec');
+  const catObj=OP_CATS.find(c=>c[0]===cat);
+  $('allTitle').textContent=query?'🔎 Resultados':cat==='todos'?'🎮 Todos os 32 jogos':`${catObj[1]} Jogos de ${catObj[2]}`;
+  $('me').textContent='⭐ '+get('op_stars',0)+' · '+rank();
+  renderMissions();
+}
+function rank(){const s=get('op_stars',0);return[[0,'🐣 Cadete'],[15,'🐑 Aprendiz'],[45,'🚀 Piloto'],[110,'🌟 Capitão'],[250,'👑 Comandante'],[500,'🌌 Lenda']].filter(r=>s>=r[0]).pop()[1]}
+
+$('btnDaily').onclick=()=>{
+  const d=checkDaily();
+  if(d.claimed){
+    alert(`🔥 Já tens ${d.streak} dia(s) seguido(s)! Volta amanhã para mais um Baú Cósmico!`);
+    return;
+  }
+  d.claimed=true;set('op_daily',d);
+  const stars=get('op_stars',0)+15;set('op_stars',stars);
+  const owned=get('op_cards',{});
+  const pick=CARDS[Math.floor(Math.random()*CARDS.length)];
+  owned[pick.id]=(owned[pick.id]||0)+1;set('op_cards',owned);
+  render();
+  alert(`🎁 BAÚ DIÁRIO ABERTO!\n\n+15 ⭐ Estrelas\n🃏 Cromo Desbloqueado: ${pick.emo} ${pick.name} (${pick.rarity})!`);
+};
+
+function renderAlbum(){
+  const owned=get('op_cards',{});
+  $('albumGrid').innerHTML=CARDS.map(c=>{
+    const cnt=owned[c.id]||0;
+    return `<div class="ccard ${cnt?'got':''}">
+      <div style="font-size:1.3rem">${c.emo}</div>
+      <img src="../assets/personagens/${c.img}.png" alt="">
+      <div style="font:700 .82rem Fredoka,sans-serif;margin-top:4px">${cnt?c.name:'??? Misterioso'}</div>
+      <small style="color:#ffd166;font-weight:900">${c.rarity} ${cnt>1?`(x${cnt})`:''}</small>
+    </div>`;
+  }).join('');
+}
+$('btnAlbum').onclick=()=>{renderAlbum();$('albumModal').hidden=false;};
+$('closeAlbum').onclick=()=>{$('albumModal').hidden=true;};
+$('buyPack').onclick=()=>{
+  const s=get('op_stars',0);
+  if(s<20){alert('Precisas de 20 ⭐ Estrelas para abrir um Pacote Surpresa!');return;}
+  set('op_stars',s-20);
+  const owned=get('op_cards',{});
+  const pick=CARDS[Math.floor(Math.random()*CARDS.length)];
+  owned[pick.id]=(owned[pick.id]||0)+1;set('op_cards',owned);
+  render();renderAlbum();
+};
+
+$('side').innerHTML=OP_CATS.map(c=>{
+  const n=c[0]==='todos'?G.length:G.filter(g=>g.cat===c[0]).length;
+  return `<button class="cat${c[0]==='todos'?' on':''}" data-c="${c[0]}"><span>${c[1]}</span>${c[2]}<small>${n}</small></button>`;
+}).join('');
+$('side').onclick=e=>{const b=e.target.closest('.cat');if(!b)return;cat=b.dataset.c;document.querySelectorAll('.cat').forEach(x=>x.classList.toggle('on',x===b));render()};
+$('q').oninput=e=>{query=e.target.value.toLowerCase().trim();render()};
+$('rnd').onclick=()=>{const g=G[Math.floor(Math.random()*G.length)];location.href='jogo.html?g='+g.id};
+document.addEventListener('click',e=>{const b=e.target.closest('.fav');if(!b)return;e.preventDefault();e.stopPropagation();
+  let f=favs();f=f.includes(b.dataset.id)?f.filter(x=>x!==b.dataset.id):[...f,b.dataset.id];localStorage.setItem('op_favs',JSON.stringify(f));render()},true);
+const feat=G[0];
+$('heroWrap').innerHTML=`<div class="feat" style="--c1:${feat.bg[0]};--c2:${feat.bg[1]}">
+  <img src="${OP_SPRITE(feat.sheep)}" alt="">
+  <span style="font-weight:900;position:relative">👑 MUNDO GUARDADO EM DESTAQUE</span><h1>${feat.emoji} ${feat.name}</h1><p>${feat.desc}</p>
+  <a class="play" href="jogo.html?g=${feat.id}">▶ Entrar no Mundo</a></div>
+ <div class="book"><img src="../assets/capa-livro.png" alt="Capa do livro"><div><h3>📖 Já conheces o livro?</h3><p>Estas ovelhas vivem uma aventura no espaço! Descobre a história que deu origem aos jogos.</p><a href="../index.html#sobre">Descobrir o livro</a></div></div>`;
+render();
+</script>
+</body>
+</html>

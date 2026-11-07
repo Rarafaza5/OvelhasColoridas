@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Raio Trator</title>
+<link rel="stylesheet" href="../../oc.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🐑 Resgatadas: <span id="sc">0</span>/15</div>
+  <div class="pill">⚡ Energia: <span id="en">100</span>%</div>
+  <div class="pill">❤️ <span id="hp">3</span></div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🛸🐑</div>
+    <h1>Raio Trator</h1>
+    <p>Pilota a nave-pastora das Ovelhas Coloridas! Move a nave e <b>mantém premido para ativar o Raio Trator</b> e abduzir as ovelhas adormecidas nas nuvens antes que os ventos solares as levem, mas desvia-te das nuvens de trovoada!</p>
+    <div class="kbs"><span class="kb">Rato / Toque / Setas</span> Mover Nave <span class="kb">Segurar Clique / Espaço</span> Raio Trator</div>
+    <br><button class="btn" id="go">Ativar Raio Trator!</button>
+  </div>
+</div>
+<script src="../../oc.js"></script>
+<script>
+const {c,ctx}=OC.canvas();
+const IMGS=[
+  OC.img('ovelha-azul.png'),OC.img('ovelha-rosa.png'),OC.img('ovelha-verde.png'),
+  OC.img('ovelha-roxa.png'),OC.img('ovelha-laranja.png'),OC.img('ovelha-melancia.png')
+];
+const imgRainbow=OC.img('ovelha-arcoiris.png');
+
+let st='wait',sc=0,energy=100,hp=3,beamOn=false;
+let ufo={x:0,y:0,vx:0,targetX:null};
+let keys={l:0,r:0};
+let sheepList=[],storms=[],crystals=[],spawnT=0;
+
+function init(){
+  sc=0;energy=100;hp=3;beamOn=false;
+  ufo={x:c.width/2,y:c.height*0.2,vx:0,targetX:null};
+  sheepList=[];storms=[];crystals=[];spawnT=0.3;
+  document.getElementById('sc').textContent='0';
+  document.getElementById('en').textContent='100';
+  document.getElementById('hp').textContent='3';
+}
+
+window.addEventListener('keydown',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA'){keys.l=1;ufo.targetX=null;}
+  if(e.code==='ArrowRight'||e.code==='KeyD'){keys.r=1;ufo.targetX=null;}
+  if(e.code==='Space'){e.preventDefault();beamOn=true;}
+});
+window.addEventListener('keyup',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA')keys.l=0;
+  if(e.code==='ArrowRight'||e.code==='KeyD')keys.r=0;
+  if(e.code==='Space')beamOn=false;
+});
+
+c.addEventListener('pointerdown',e=>{ufo.targetX=e.clientX;beamOn=true;});
+c.addEventListener('pointermove',e=>{if(beamOn||e.buttons)ufo.targetX=e.clientX;});
+window.addEventListener('pointerup',()=>{beamOn=false;});
+
+function spawnStuff(){
+  const W=c.width,H=c.height;
+  const fromLeft=Math.random()<0.5;
+  const x=fromLeft?-40:W+40;
+  const vx=(fromLeft?1:-1)*(65+Math.random()*75);
+  sheepList.push({
+    x,y:H*(0.68+Math.random()*0.18),
+    vx,vy:0,
+    img:IMGS[Math.floor(Math.random()*IMGS.length)],
+    caught:false
+  });
+  if(Math.random()<0.55){
+    storms.push({
+      x:fromLeft?W+40:-40,
+      y:H*(0.38+Math.random()*0.25),
+      vx:(fromLeft?-1:1)*(95+Math.random()*80),
+      r:32
+    });
+  }
+  if(Math.random()<0.4){
+    crystals.push({
+      x:80+Math.random()*(W-160),
+      y:H*(0.45+Math.random()*0.3),
+      t:8
+    });
+  }
+}
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+  ufo.y=H*0.2;
+
+  if(st==='play'){
+    if(keys.l)ufo.vx=-360;
+    else if(keys.r)ufo.vx=360;
+    else if(ufo.targetX!==null){
+      ufo.vx=(ufo.targetX-ufo.x)*7;
+    }else ufo.vx*=0.85;
+
+    ufo.x=Math.max(60,Math.min(W-60,ufo.x+ufo.vx*dt));
+
+    const activeBeam=beamOn && energy>2;
+    if(activeBeam){
+      energy=Math.max(0,energy-18*dt);
+    }else{
+      energy=Math.min(100,energy+14*dt);
+    }
+    document.getElementById('en').textContent=Math.round(energy);
+
+    spawnT-=dt;
+    if(spawnT<=0){
+      spawnStuff();
+      spawnT=1.35;
+    }
+
+    // Update crystals
+    for(let i=crystals.length-1;i>=0;i--){
+      const cr=crystals[i];
+      cr.t-=dt;
+      if(activeBeam && Math.abs(cr.x-ufo.x)<58 && cr.y>ufo.y){
+        cr.y-=220*dt;
+        cr.x+=(ufo.x-cr.x)*4*dt;
+        if(Math.hypot(cr.x-ufo.x,cr.y-ufo.y)<42){
+          energy=Math.min(100,energy+35);
+          OC.sfx.coin();
+          OC.fx.burst(cr.x,cr.y,'#4ECDC4',14);
+          OC.fx.floatText(cr.x,cr.y,'+ENERGIA!','#4ECDC4');
+          crystals.splice(i,1);continue;
+        }
+      }
+      if(cr.t<=0)crystals.splice(i,1);
+    }
+
+    // Update storms
+    for(let i=storms.length-1;i>=0;i--){
+      const sm=storms[i];
+      sm.x+=sm.vx*dt;
+      if(activeBeam && Math.abs(sm.x-ufo.x)<46 && sm.y>ufo.y){
+        // Storm zaps beam!
+        hp--;
+        beamOn=false;
+        document.getElementById('hp').textContent=hp;
+        OC.sfx.hit();
+        OC.fx.shake(12);
+        OC.fx.burst(sm.x,sm.y,'#FF5252',22);
+        storms.splice(i,1);
+        if(hp<=0){
+          st='end';
+          OC.end({win:false,stars:1,score:sc*100,title:'Curto-Circuito no Feixe!',msg:`Resgataste ${sc} ovelhas antes da trovoada!`,onRetry:()=>{init();st='play';}});
+        }
+        continue;
+      }
+      if(sm.x<-90||sm.x>W+90)storms.splice(i,1);
+    }
+
+    // Update sheep
+    for(let i=sheepList.length-1;i>=0;i--){
+      const sh=sheepList[i];
+      if(activeBeam && Math.abs(sh.x-ufo.x)<64 && sh.y>ufo.y){
+        sh.vy=-210;
+        sh.x+=(ufo.x-sh.x)*5*dt;
+        sh.y+=sh.vy*dt;
+        if(Math.hypot(sh.x-ufo.x,sh.y-ufo.y)<44){
+          sc++;
+          document.getElementById('sc').textContent=sc;
+          OC.sfx.pop();
+          OC.fx.burst(ufo.x,ufo.y+20,'#FFD93D',18);
+          OC.fx.floatText(ufo.x,ufo.y,'+1 RESGATADA!','#FFD93D');
+          sheepList.splice(i,1);
+          if(sc>=15){
+            st='end';
+            OC.end({win:true,stars:hp===3?3:2,score:sc*100+hp*150,title:'Rebanho Abduzido com Amor!',msg:'Resgataste todas as 15 ovelhas para a nave-mãe!',onRetry:()=>{init();st='play';}});
+          }
+          continue;
+        }
+      }else{
+        sh.x+=sh.vx*dt;
+        if(sh.y<H*0.72)sh.y+=110*dt;
+      }
+      if(sh.x<-90||sh.x>W+90)sheepList.splice(i,1);
+    }
+  }
+
+  // Draw Tractor Beam
+  if(st==='play' && beamOn && energy>2){
+    ctx.save();
+    const g=ctx.createLinearGradient(ufo.x,ufo.y,ufo.x,H);
+    g.addColorStop(0,'rgba(78,205,196,0.55)');
+    g.addColorStop(1,'rgba(155,93,229,0.08)');
+    ctx.fillStyle=g;
+    ctx.beginPath();
+    ctx.moveTo(ufo.x-26,ufo.y+15);
+    ctx.lineTo(ufo.x+26,ufo.y+15);
+    ctx.lineTo(ufo.x+85,H);
+    ctx.lineTo(ufo.x-85,H);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw crystals
+  for(const cr of crystals){
+    ctx.save();
+    ctx.fillStyle='#4ECDC4';ctx.shadowColor='#4ECDC4';ctx.shadowBlur=12;
+    ctx.beginPath();
+    ctx.moveTo(cr.x,cr.y-16);ctx.lineTo(cr.x+14,cr.y);ctx.lineTo(cr.x,cr.y+16);ctx.lineTo(cr.x-14,cr.y);
+    ctx.closePath();ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw sheep
+  for(const sh of sheepList){
+    ctx.save();
+    ctx.fillStyle='rgba(255,255,255,0.22)';
+    ctx.beginPath();ctx.ellipse(sh.x,sh.y+18,28,12,0,0,Math.PI*2);ctx.fill();
+    ctx.drawImage(sh.img,sh.x-26,sh.y-26,52,52);
+    ctx.restore();
+  }
+
+  // Draw storm clouds
+  for(const sm of storms){
+    ctx.save();
+    ctx.fillStyle='#37474F';ctx.strokeStyle='#FF5252';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(sm.x-14,sm.y,20,0,Math.PI*2);ctx.arc(sm.x+12,sm.y,22,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#FFD93D';ctx.font='22px sans-serif';ctx.textAlign='center';
+    ctx.fillText('⚡',sm.x,sm.y+8);
+    ctx.restore();
+  }
+
+  // Draw Shepherd UFO
+  ctx.save();
+  ctx.translate(ufo.x,ufo.y);
+  ctx.fillStyle='#B39DDB';ctx.strokeStyle='#fff';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(0,-8,28,Math.PI,0);ctx.fill();ctx.stroke();
+  ctx.drawImage(imgRainbow,-20,-32,40,40);
+  ctx.fillStyle='#4ECDC4';ctx.strokeStyle='#1B1438';ctx.lineWidth=3;
+  ctx.beginPath();ctx.ellipse(0,4,52,16,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.restore();
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

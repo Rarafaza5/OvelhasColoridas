@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Engrenagens do Tempo</title>
+<script src="../../oc.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">⚙️ Relógio: <span id="lv">1</span>/6</div>
+  <div class="pill">🔩 Engrenagens Livres: <span id="gr">2</span></div>
+  <div class="pill" id="stTxt">Arrasta as engrenagens douradas!</div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">⚙️🕰️</div>
+    <h1>Engrenagens do Tempo</h1>
+    <p>O Grande Relógio Cósmico das Ovelhas parou! <b>Arrasta as engrenagens douradas</b> para ligar o Motor Solar às Ovelhas-Relógio até que todas girem em simultâneo!</p>
+    <div class="kbs"><span class="kb">Arrastar Engrenagens Douradas</span> Transmitir Movimento Mecânico</div>
+    <br><button class="btn" id="go">Dar Corda ao Tempo!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const imgMotor=OC.img('ovelha-laranja.png'),imgTarget=OC.img('ovelha-azul.png');
+
+let st='wait',lv=1,sc=0;
+let gears=[],dragGear=null,winT=0;
+
+function loadLevel(){
+  const W=c.width,H=c.height;
+  winT=0;dragGear=null;
+  gears=[
+    {x:W*0.2,y:H*0.5,r:48,type:'motor',ang:0,spd:2.2,dir:1},
+    {x:W*0.8,y:H*0.36,r:46,type:'target',ang:0,spd:0,dir:0},
+    {x:W*0.8,y:H*0.66,r:46,type:'target',ang:0,spd:0,dir:0}
+  ];
+  if(lv>=3){
+    gears.push({x:W*0.5,y:H*0.24,r:44,type:'target',ang:0,spd:0,dir:0});
+  }
+  const freeCount=3+(lv>=3?1:0);
+  for(let i=0;i<freeCount;i++){
+    gears.push({
+      x:W*(0.32+i*0.12),y:H*0.82,
+      r:i%2===0?42:36,type:'free',ang:0,spd:0,dir:0
+    });
+  }
+  document.getElementById('lv').textContent=lv;
+  document.getElementById('gr').textContent=freeCount;
+}
+
+function solveTorque(){
+  for(const g of gears){
+    if(g.type!=='motor'){g.spd=0;g.dir=0;}
+  }
+  let changed=true;
+  while(changed){
+    changed=false;
+    for(const a of gears){
+      if(a.dir===0)continue;
+      for(const b of gears){
+        if(b.dir!==0||a===b)continue;
+        const d=Math.hypot(a.x-b.x,a.y-b.y);
+        if(Math.abs(d-(a.r+b.r))<18){
+          // Snap slightly for crisp meshing when not dragging
+          if(dragGear!==b && b.type==='free'){
+            const ang=Math.atan2(b.y-a.y,b.x-a.x);
+            b.x=a.x+Math.cos(ang)*(a.r+b.r);
+            b.y=a.y+Math.sin(ang)*(a.r+b.r);
+          }
+          b.dir=-a.dir;
+          b.spd=a.spd*(a.r/b.r);
+          changed=true;
+        }
+      }
+    }
+  }
+}
+
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play')return;
+  for(const g of gears){
+    if(g.type==='free' && Math.hypot(e.clientX-g.x,e.clientY-g.y)<g.r+12){
+      dragGear=g;OC.sfx.click();return;
+    }
+  }
+});
+c.addEventListener('pointermove',e=>{
+  if(!dragGear)return;
+  dragGear.x=e.clientX;dragGear.y=e.clientY;
+  solveTorque();
+});
+window.addEventListener('pointerup',()=>{
+  if(dragGear){dragGear=null;solveTorque();OC.sfx.pop();}
+});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();lv=1;sc=0;loadLevel();st='play';
+};
+
+function drawGear(g){
+  ctx.save();
+  ctx.translate(g.x,g.y);
+  ctx.rotate(g.ang);
+  const col=g.type==='motor'?'#ff9f1c':g.type==='target'?(g.dir!==0?'#06d6a0':'#4cc9f0'):'#ffd166';
+  ctx.fillStyle=col+'44';ctx.strokeStyle=col;ctx.lineWidth=4;
+  if(g.dir!==0){ctx.shadowColor=col;ctx.shadowBlur=14;}
+  const teeth=Math.round(g.r/4);
+  ctx.beginPath();
+  for(let i=0;i<teeth*2;i++){
+    const a=i*Math.PI/teeth,r=i%2===0?g.r+6:g.r-4;
+    if(i===0)ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+    else ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
+  }
+  ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.rotate(-g.ang);
+  if(g.type==='motor')ctx.drawImage(imgMotor,-24,-24,48,48);
+  else if(g.type==='target')ctx.drawImage(imgTarget,-24,-24,48,48);
+  ctx.restore();
+}
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  if(st==='play'){
+    solveTorque();
+    let allLit=true;
+    for(const g of gears){
+      g.ang+=g.spd*g.dir*dt;
+      if(g.type==='target' && g.dir===0)allLit=false;
+    }
+    if(allLit && !dragGear){
+      winT+=dt;
+      document.getElementById('stTxt').textContent='✨ Relógio Sincronizado!';
+      if(winT>0.8){
+        sc+=150;OC.sfx.win();
+        OC.fx.burst(W/2,H/2,'#ffd166',30);
+        if(lv>=6){
+          st='end';
+          OC.end({win:true,stars:3,score:sc,title:'Mestre Relojoeiro Cósmico!',msg:'Sincronizaste todos os 6 mecanismos do tempo!',onRetry:()=>{lv=1;sc=0;loadLevel();st='play';}});
+        }else{
+          lv++;loadLevel();
+        }
+      }
+    }else{
+      winT=0;
+      document.getElementById('stTxt').textContent='Liga o Motor Laranja a todas as Ovelhas Azuis!';
+    }
+  }
+
+  for(const g of gears)drawGear(g);
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+loadLevel();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

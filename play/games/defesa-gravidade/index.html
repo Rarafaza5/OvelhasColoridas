@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Guardião da Atmosfera</title>
+<script src="../../oc.js"></script>
+<style>
+#bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6}
+.obtn{pointer-events:auto;padding:8px 14px;border-radius:14px;border:2px solid rgba(255,255,255,.22);background:rgba(16,22,58,.88);color:#fff;font:700 .86rem Fredoka,sans-serif;cursor:pointer}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🌍 Atmosfera: <span id="hp">100</span>%</div>
+  <div class="pill">✨ Poeira Estelar: <span id="en">30</span></div>
+  <div class="pill">☄️ Onda: <span id="wv">1</span>/5</div>
+</div>
+<div id="bar">
+  <button class="obtn" id="bAddShd">🛡️ +Escudo Orbital (25✨)</button>
+  <button class="obtn" id="bAddSat">🛰️ +Satélite Laser (35✨)</button>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🌍🛰️</div>
+    <h1>Guardião da Atmosfera</h1>
+    <p>Comanda os 2 anéis orbitais do Planeta das Ovelhas! Roda o <b>Anel de Escudos</b> com as Setas ou Rato para refletir meteoros e apanhar Poeira Estelar, e constrói <b>Satélites Laser</b> no anel exterior para destruir ameaças automaticamente!</p>
+    <div class="kbs"><span class="kb">◀ ▶ / Rato / Toque</span> Rodar Escudos <span class="kb">Botões</span> Lançar Novos Módulos Orbitais</div>
+    <br><button class="btn" id="go">Proteger Atmosfera!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const imgPlanet=OC.img('ovelha-arcoiris.png'),imgSat=OC.img('ovelha-azul.png');
+
+let st='wait',hp=100,energy=30,wave=1,sc=0,cleared=0;
+let shdAng=0,satAng=0,shields=2,sats=1;
+let keys={l:0,r:0},meteors=[],beams=[],spawnT=0;
+
+function init(){
+  hp=100;energy=30;wave=1;sc=0;cleared=0;
+  shdAng=0;satAng=0;shields=2;sats=1;
+  meteors=[];beams=[];spawnT=0.5;
+  updUI();
+}
+
+function updUI(){
+  document.getElementById('hp').textContent=Math.max(0,hp);
+  document.getElementById('en').textContent=energy;
+  document.getElementById('wv').textContent=wave;
+}
+
+document.getElementById('bAddShd').onclick=()=>{
+  if(st!=='play'||energy<25||shields>=5)return;
+  energy-=25;shields++;OC.sfx.good();updUI();
+};
+document.getElementById('bAddSat').onclick=()=>{
+  if(st!=='play'||energy<35||sats>=6)return;
+  energy-=35;sats++;OC.sfx.good();updUI();
+};
+
+window.addEventListener('keydown',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA')keys.l=1;
+  if(e.code==='ArrowRight'||e.code==='KeyD')keys.r=1;
+});
+window.addEventListener('keyup',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA')keys.l=0;
+  if(e.code==='ArrowRight'||e.code==='KeyD')keys.r=0;
+});
+c.addEventListener('pointermove',e=>{
+  if(st!=='play')return;
+  shdAng=Math.atan2(e.clientY-c.height/2,e.clientX-c.width/2);
+});
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play')return;
+  shdAng=Math.atan2(e.clientY-c.height/2,e.clientX-c.width/2);
+});
+
+let satCd=0;
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height,cx=W/2,cy=H/2;
+  const pR=52,shdR=105,satR=155;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  if(st==='play'){
+    if(keys.l)shdAng-=3.5*dt;
+    if(keys.r)shdAng+=3.5*dt;
+    satAng+=1.1*dt;
+
+    spawnT-=dt;
+    if(spawnT<=0){
+      const a=Math.random()*Math.PI*2;
+      const dist=Math.hypot(W,H)*0.55;
+      const star=Math.random()<0.3;
+      meteors.push({a,dist,spd:75+wave*16,hp:star?1:2,star});
+      spawnT=Math.max(0.55,1.35-wave*0.14);
+    }
+
+    // Satellites auto-fire
+    satCd-=dt;
+    if(satCd<=0 && meteors.length>0){
+      for(let i=0;i<sats;i++){
+        const sa=satAng+i*(Math.PI*2/sats);
+        const sx=cx+Math.cos(sa)*satR,sy=cy+Math.sin(sa)*satR;
+        const tgt=meteors.find(m=>!m.star && m.dist<satR+110);
+        if(tgt){
+          const tx=cx+Math.cos(tgt.a)*tgt.dist,ty=cy+Math.sin(tgt.a)*tgt.dist;
+          tgt.hp--;
+          beams.push({x1:sx,y1:sy,x2:tx,y2:ty,l:0.18});
+          OC.sfx.pop();
+          if(tgt.hp<=0){
+            energy+=8;sc+=25;cleared++;
+            OC.fx.burst(tx,ty,'#4cc9f0',14);
+            meteors.splice(meteors.indexOf(tgt),1);
+          }
+          break;
+        }
+      }
+      satCd=Math.max(0.35,0.9-sats*0.1);
+    }
+
+    // Update meteors
+    for(let i=meteors.length-1;i>=0;i--){
+      const m=meteors[i];
+      m.dist-=m.spd*dt;
+      const mx=cx+Math.cos(m.a)*m.dist,my=cy+Math.sin(m.a)*m.dist;
+
+      // Check shield collision at shdR
+      if(Math.abs(m.dist-shdR)<18){
+        let blocked=false;
+        for(let s=0;s<shields;s++){
+          const sa=shdAng+s*(Math.PI*2/shields);
+          let diff=Math.atan2(Math.sin(m.a-sa),Math.cos(m.a-sa));
+          if(Math.abs(diff)<0.42){blocked=true;break;}
+        }
+        if(blocked){
+          energy+=m.star?15:6;
+          sc+=30;cleared++;
+          OC.sfx.coin();
+          OC.fx.burst(mx,my,m.star?'#ffd166':'#06d6a0',16);
+          meteors.splice(i,1);
+          wave=Math.min(5,1+Math.floor(cleared/10));
+          updUI();
+          if(cleared>=45){
+            st='end';
+            OC.end({win:true,stars:3,score:sc+hp*5,title:'Atmosfera Impenetrável!',msg:`Protegeste o planeta durante as 5 tempestades cósmicas!`,onRetry:()=>{init();st='play';}});
+          }
+          continue;
+        }
+      }
+
+      if(m.dist<=pR){
+        if(m.star){
+          energy+=12;OC.sfx.coin();
+        }else{
+          hp-=20;OC.sfx.hit();OC.fx.shake(10);OC.fx.burst(mx,my,'#ff595e',20);
+          if(hp<=0){
+            st='end';
+            OC.end({win:wave>=4,stars:wave>=4?2:1,score:sc,title:'Escudo Planetário Caiu!',msg:`Defendeste o planeta até à onda ${wave} com ${sc} pontos!`,onRetry:()=>{init();st='play';}});
+          }
+        }
+        meteors.splice(i,1);
+        updUI();
+      }
+    }
+  }
+
+  // Draw Orbital Rings
+  ctx.save();
+  ctx.strokeStyle='rgba(76,201,240,0.2)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(cx,cy,shdR,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='rgba(255,209,102,0.18)';
+  ctx.beginPath();ctx.arc(cx,cy,satR,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+
+  // Draw Shields
+  for(let s=0;s<shields;s++){
+    const sa=shdAng+s*(Math.PI*2/shields);
+    ctx.save();
+    ctx.strokeStyle='#06d6a0';ctx.lineWidth=10;ctx.lineCap='round';
+    ctx.shadowColor='#06d6a0';ctx.shadowBlur=14;
+    ctx.beginPath();ctx.arc(cx,cy,shdR,sa-0.36,sa+0.36);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Satellites
+  for(let i=0;i<sats;i++){
+    const sa=satAng+i*(Math.PI*2/sats);
+    const sx=cx+Math.cos(sa)*satR,sy=cy+Math.sin(sa)*satR;
+    ctx.drawImage(imgSat,sx-18,sy-18,36,36);
+  }
+
+  // Draw Laser Beams
+  for(let i=beams.length-1;i>=0;i--){
+    const b=beams[i];b.l-=dt;
+    if(b.l<=0){beams.splice(i,1);continue;}
+    ctx.save();
+    ctx.strokeStyle='#00f5d4';ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(b.x1,b.y1);ctx.lineTo(b.x2,b.y2);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Meteors & Stardust
+  for(const m of meteors){
+    const mx=cx+Math.cos(m.a)*m.dist,my=cy+Math.sin(m.a)*m.dist;
+    ctx.save();
+    ctx.fillStyle=m.star?'#ffd166':'#ef476f';
+    ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=12;
+    ctx.beginPath();ctx.arc(mx,my,m.star?12:16,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw Planet Core
+  ctx.save();
+  ctx.fillStyle='#2b1d52';ctx.strokeStyle='#4cc9f0';ctx.lineWidth=4;
+  ctx.beginPath();ctx.arc(cx,cy,pR,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.drawImage(imgPlanet,cx-34,cy-34,68,68);
+  ctx.restore();
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

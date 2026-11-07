@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Elevador de Nuvens</title><script src="../../oc.js"></script></head><body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hs">☁️ 0 m</span><span id="ho">☀️ 100%</span><span id="hb"></span></div>
+<div class="ov" id="ov"><h2>🎈 Elevador de Nuvens</h2>
+<p>Tu controlas o <b>Vento Solar</b>! A ovelha flutua dentro de uma bolha de lã: <b>mantém premido</b> (rato, toque ou Espaço) para soprar ar quente e subir, e <b>larga</b> para planar.<br>
+☀️ Apanha sóis para recarregar o ar quente e passa pelos anéis de arco-íris!</p>
+<button class="btn" id="go">▶ Subir aos Céus</button></div>
+<script>
+const W=420,H=660,cv=document.getElementById('c'),x=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='nuvem-pula',TAU=Math.PI*2,$=id=>document.getElementById(id);
+const sheep=OC.img('ovelha-azul');
+let pl,rings,clouds,suns,parts,pops,camY,genY,score,heat,hold=false,targetX=W/2,keyL=0,keyR=0,running=false,over=false,t=0,shake=0,best=OC.best(ID),stars=[];
+for(let i=0;i<65;i++)stars.push([Math.random()*W,Math.random()*H,Math.random()*1.5+.3]);
+$('hb').textContent='🏆 '+best;
+function init(){
+ pl={x:W/2,y:500,vx:0,vy:0};rings=[];clouds=[];suns=[];parts=[];pops=[];
+ camY=0;genY=420;score=0;heat=100;over=false;hold=false;targetX=W/2;
+ gen();upd();
+}
+function gen(){
+ while(genY>camY-160){
+  genY-=115+Math.random()*45;
+  const rx=75+Math.random()*(W-150);
+  if(Math.random()<.55)rings.push({x:rx,y:genY,got:false});
+  else suns.push({x:rx,y:genY,got:false});
+  if(Math.random()<.65)clouds.push({x:60+Math.random()*(W-120),y:genY+55,vx:(Math.random()<.5?1:-1)*(55+Math.random()*55)});
+ }
+}
+function upd(){$('hs').textContent=`☁️ ${score} m`;$('ho').textContent=`☀️ ${Math.ceil(heat)}%`;$('hb').textContent='🏆 '+Math.max(best,score)}
+function update(dt){
+ t+=dt;shake=Math.max(0,shake-dt*30);
+ if(!running||over)return;
+ const k=keyR-keyL;
+ if(k)pl.vx+=(k*260-pl.vx)*dt*6;
+ else pl.vx+=((targetX-pl.x)*4-pl.vx)*dt*6;
+ if(hold&&heat>0){
+  heat=Math.max(0,heat-dt*22);
+  pl.vy=Math.max(-290,pl.vy-620*dt);
+  if(Math.random()<.7)parts.push({x:pl.x+(Math.random()-.5)*20,y:pl.y+28,vx:(Math.random()-.5)*30,vy:120,l:.35,c:'#ffd166'});
+ }else{
+  heat=Math.min(100,heat+dt*8);
+  pl.vy=Math.min(190,pl.vy+320*dt);
+ }
+ pl.x=Math.max(32,Math.min(W-32,pl.x+pl.vx*dt));
+ pl.y+=pl.vy*dt;
+ if(pl.y-H*.52<camY)camY=pl.y-H*.52;
+ score=Math.max(score,Math.floor((500-pl.y)/8)+rings.filter(r=>r.got).length*15);
+ gen();
+ for(const r of rings){
+  if(!r.got&&Math.hypot(pl.x-r.x,pl.y-r.y)<40){
+   r.got=true;heat=Math.min(100,heat+20);OC.sfx.good();
+   pops.push({s:'🌈 ANEL! +15',x:r.x,y:r.y,l:.9,c:'#00f5d4'});
+  }
+ }
+ for(const s of suns){
+  if(!s.got&&Math.hypot(pl.x-s.x,pl.y-s.y)<36){
+   s.got=true;heat=100;OC.sfx.pop();
+   pops.push({s:'☀️ AR QUENTE 100%',x:s.x,y:s.y,l:.9,c:'#ffd166'});
+  }
+ }
+ for(const c of clouds){
+  c.x+=c.vx*dt;if(c.x<45||c.x>W-45)c.vx*=-1;
+  if(Math.hypot(pl.x-c.x,pl.y-c.y)<38){
+   over=true;running=false;shake=14;OC.sfx.bad();OC.best(ID,score);best=OC.best(ID);
+   setTimeout(()=>OC.end({id:ID,title:'Trovoada na Bolha!',text:`Subiste até ${score} m nas correntes térmicas! Recorde: ${best}.`,stars:Math.max(1,Math.ceil(score/60)),retry:()=>{init();running=true}}),600);
+   return;
+  }
+ }
+ if(pl.y>camY+H+40){
+  over=true;running=false;OC.sfx.bad();OC.best(ID,score);best=OC.best(ID);
+  setTimeout(()=>OC.end({id:ID,title:'Fim da Brisa!',text:`Subiste até ${score} m! Recorde: ${best}.`,stars:Math.max(1,Math.ceil(score/60)),retry:()=>{init();running=true}}),500);
+ }
+ if(Math.floor(t*4)%2===0)upd();
+ parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt});parts=parts.filter(p=>p.l>0);
+ pops.forEach(p=>{p.y-=35*dt;p.l-=dt});pops=pops.filter(p=>p.l>0);
+}
+function draw(){
+ const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#13194a');g.addColorStop(1,'#382272');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle='#fff';stars.forEach(s=>{x.globalAlpha=.45;x.beginPath();x.arc(s[0],((s[1]-camY*.2)%H+H)%H,s[2],0,TAU);x.fill()});x.globalAlpha=1;
+ x.save();x.translate((Math.random()-.5)*shake,-camY+(Math.random()-.5)*shake);
+ x.textAlign='center';x.textBaseline='middle';
+ rings.forEach(r=>{
+  if(r.got||r.y<camY-60||r.y>camY+H+60)return;
+  x.strokeStyle='#00f5d4';x.lineWidth=5;x.beginPath();x.arc(r.x,r.y,30,0,TAU);x.stroke();
+ });
+ x.font='30px sans-serif';
+ suns.forEach(s=>{if(!s.got&&s.y>camY-60&&s.y<camY+H+60)x.fillText('☀️',s.x,s.y)});
+ clouds.forEach(c=>{
+  if(c.y<camY-60||c.y>camY+H+60)return;
+  x.fillStyle='#4a3e7a';x.beginPath();x.arc(c.x,c.y,24,0,TAU);x.fill();
+  x.fillText('⛈️',c.x,c.y);
+ });
+ parts.forEach(p=>{x.globalAlpha=Math.max(0,p.l*2);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,4,0,TAU);x.fill()});x.globalAlpha=1;
+ // bolha térmica da ovelha
+ x.fillStyle=hold?'#ffd16633':'#4cc9f028';x.strokeStyle=hold?'#ffd166':'#4cc9f0';x.lineWidth=3;
+ x.beginPath();x.arc(pl.x,pl.y,32,0,TAU);x.fill();x.stroke();
+ if(sheep.complete)x.drawImage(sheep,pl.x-26,pl.y-26,52,52);
+ x.font='700 18px Fredoka,sans-serif';
+ pops.forEach(p=>{x.globalAlpha=Math.min(1,p.l*2);x.fillStyle=p.c;x.fillText(p.s,p.x,p.y)});x.globalAlpha=1;
+ x.restore();
+}
+cv.addEventListener('pointerdown',e=>{hold=true;targetX=P(e).x;OC.tone(320,.08,'sine',.05,0,480)});
+cv.addEventListener('pointermove',e=>targetX=P(e).x);
+addEventListener('pointerup',()=>hold=false);
+addEventListener('keydown',e=>{
+ if(['ArrowLeft','KeyA'].includes(e.code))keyL=1;
+ if(['ArrowRight','KeyD'].includes(e.code))keyR=1;
+ if(e.code==='Space'||e.code==='ArrowUp'){e.preventDefault();hold=true}
+});
+addEventListener('keyup',e=>{
+ if(['ArrowLeft','KeyA'].includes(e.code))keyL=0;
+ if(['ArrowRight','KeyD'].includes(e.code))keyR=0;
+ if(e.code==='Space'||e.code==='ArrowUp')hold=false;
+});
+init();
+let last=performance.now();
+(function loop(n){const dt=Math.min(.04,(n-last)/1000);last=n;update(dt);draw();requestAnimationFrame(loop)})(last);
+$('go').onclick=()=>{$('ov').style.display='none';running=true};
+</script></body></html>

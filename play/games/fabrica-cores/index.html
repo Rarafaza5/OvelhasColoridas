@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Fábrica de Cores</title><script src="../../oc.js"></script>
+<style>
+body{background:radial-gradient(circle at 50% 0,#321d6b,#0a0e27);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:48px 12px 12px;touch-action:manipulation}
+.stage{display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap}
+.cust{position:relative;width:190px;height:190px;display:flex;align-items:center;justify-content:center}
+.splat{position:absolute;width:182px;height:182px;border-radius:46% 54% 50% 50%/55% 45% 55% 45%;background:var(--m,#222);transition:background .22s,box-shadow .22s;box-shadow:0 0 42px var(--m,#222);animation:wob 4s ease-in-out infinite alternate;border:3px solid #ffffff55}
+@keyframes wob{to{border-radius:55% 45% 45% 55%/45% 55% 45% 55%;transform:rotate(8deg)}}
+.cust img{position:relative;width:142px;filter:drop-shadow(0 8px 12px #000a)}
+.bubble{position:relative;padding:14px 18px;border-radius:24px;background:#fff;color:#1a0a44;font:700 1.05rem Fredoka,sans-serif;text-align:center;box-shadow:0 12px 28px #0008}
+.compare{display:flex;gap:10px;align-items:center;justify-content:center;margin-top:8px}
+.sw{width:76px;height:56px;border-radius:14px;border:3px solid #1a0a44;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-size:.7rem;color:#fff;text-shadow:0 1px 3px #000}
+.mtr{margin-top:8px;height:10px;border-radius:99px;background:#e4e0f5;overflow:hidden}
+.mtr i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ef476f,#ffd166,#06d6a0);transition:width .2s}
+.pots{display:flex;gap:12px}
+.pot{width:96px;padding:10px 6px;border-radius:22px;border:3px solid #ffffff44;background:#151c4a;text-align:center;cursor:pointer;font:700 .95rem Fredoka,sans-serif;transition:.12s;box-shadow:0 6px 18px #0006}
+.pot:hover{transform:translateY(-3px)}.pot:active{transform:scale(.93)}
+.pot b{display:block;font-size:2rem}.pot .d{letter-spacing:2px;font-size:.95rem;height:20px;margin:2px 0}
+.pot small{font-size:.72rem;color:#c9c6e8}
+.row{display:flex;gap:10px}.sm{padding:10px 22px;font-size:1rem}.g{background:#ffffff22;color:#fff;box-shadow:none}
+#info{font:700 1.2rem Fredoka,sans-serif;min-height:28px;color:#00f5d4;text-align:center}
+</style></head><body>
+<div class="hud"><span id="o">🎨 Pedido 1/6</span><span id="tm">⏱ 30s</span><span id="p">⭐ 0</span></div>
+<div class="stage">
+ <div class="cust"><div class="splat" id="splat"></div><img id="sh" alt=""></div>
+ <div class="bubble">
+  Quero esta cor mágica!
+  <div class="compare">
+   <div><div class="sw" id="sw">Alvo</div></div>
+   <div><div class="sw" id="my">Tua</div></div>
+  </div>
+  <div class="mtr"><i id="accBar"></i></div>
+  <div id="accTxt" style="font-size:.82rem;margin-top:4px;color:#5a3ea1">Semelhança: 0%</div>
+ </div>
+</div>
+<div id="info">Toca nos frascos (ou teclas 1, 2, 3) para misturar gotas de luz!</div>
+<div class="pots" id="pots"></div>
+<div class="row">
+ <button class="btn sm g" id="clr">🧽 Limpar</button>
+ <button class="btn sm" id="ok">🎁 Entregar Cor</button>
+</div>
+<div class="ov" id="ov"><h2>🎨 Fábrica de Cores</h2>
+<p>As ovelhas vieram pintar a lã! Mistura gotas de luz <b>Vermelha 🔴</b>, <b>Verde 🟢</b> e <b>Azul 🔵</b> até a tua amostra ficar igual à cor pedida.<br>
+💡 Dica: Vermelho + Verde = Amarelo · Vermelho + Azul = Roxo!</p>
+<button class="btn" id="go">▶ Abrir Fábrica</button></div>
+<script>
+const $=id=>document.getElementById(id);
+const P=[['Vermelho','#ff4d6d','🔴'],['Verde','#06d6a0','🟢'],['Azul','#4cc9f0','🔵']];
+let d=[0,0,0],tgt=[3,2,4],n=0,score=0,timer,tl=30,running=false;
+const rgb=a=>`rgb(${a[0]*51},${a[1]*51},${a[2]*51})`;
+function accuracy(){
+ const dist=Math.hypot(...d.map((v,i)=>(v-tgt[i])*51));
+ return Math.max(0,Math.round((1-dist/442)*100));
+}
+function pots(){
+ $('pots').innerHTML=P.map((p,i)=>`<div class="pot" data-i="${i}" style="border-color:${p[1]}"><b>${p[2]}</b><div class="d" style="color:${p[1]}">${'●'.repeat(d[i])+'○'.repeat(5-d[i])}</div><small>${p[0]} (${d[i]}/5)</small></div>`).join('');
+ $('splat').style.setProperty('--m',rgb(d));
+ $('my').style.background=rgb(d);
+ const acc=accuracy();
+ $('accBar').style.width=acc+'%';
+ $('accTxt').textContent=`Semelhança: ${acc}%`+(acc===100?' ✨ EXATA!':'');
+}
+function addDrop(i,delta=1){
+ if(!running)return;
+ d[i]=(d[i]+delta+6)%6;
+ OC.tone(420+d[i]*85,.08,'triangle',.11);
+ pots();
+}
+$('pots').onclick=e=>{const p=e.target.closest('.pot');if(p)addDrop(+p.dataset.i,1)};
+$('clr').onclick=()=>{if(!running)return;d=[0,0,0];OC.sfx.pop();pots()};
+function next(){
+ if(n>=6)return finish();
+ do tgt=[0,0,0].map(()=>Math.floor(Math.random()*6)); while(tgt.reduce((a,b)=>a+b)<2);
+ d=[0,0,0];n++;tl=30;
+ $('o').textContent=`🎨 Pedido ${n}/6`;$('sw').style.background=rgb(tgt);
+ const s=OC.SHEEP[Math.floor(Math.random()*OC.SHEEP.length)];$('sh').src=OC.A+'ovelha-'+s+'.png';
+ $('info').textContent='Mistura gotas de luz mágica 🪄';pots();clearInterval(timer);
+ timer=setInterval(()=>{tl--;$('tm').textContent='⏱ '+tl+'s';if(tl<=0){clearInterval(timer);judge()}},1000);
+ $('tm').textContent='⏱ '+tl+'s';
+}
+function judge(){
+ clearInterval(timer);running=false;
+ const acc=accuracy();
+ const pts=acc===100?4:acc>=86?3:acc>=72?2:acc>=55?1:0;
+ score+=pts;$('p').textContent='⭐ '+score;
+ $('info').textContent=pts===4?'🌟 PERFEITO! 100% Exata! (+4 ⭐)':pts>=2?`😍 Muito perto (${acc}%)! (+${pts} ⭐)`:pts===1?`🙂 Quase (${acc}%)! (+1 ⭐)`:`😅 Era (${tgt.join(', ')})...`;
+ (pts?OC.sfx.good:OC.sfx.bad)();
+ setTimeout(()=>{running=true;next()},1400);
+}
+$('ok').onclick=()=>{if(running)judge()};
+addEventListener('keydown',e=>{
+ if(!running)return;
+ if(['Digit1','Digit2','Digit3'].includes(e.code))addDrop(+e.code.slice(-1)-1,1);
+ if(e.code==='Enter'||e.code==='Space'){e.preventDefault();judge()}
+});
+function finish(){
+ running=false;OC.best('fabrica-cores',score);
+ OC.end({id:'fabrica-cores',title:score>=18?'Mestre Colorista!':'Boa pintura!',text:`Fizeste ${score} pontos em 6 clientes! Recorde: ${OC.best('fabrica-cores')}.`,stars:Math.max(1,score),retry:start});
+}
+function start(){n=0;score=0;running=true;$('p').textContent='⭐ 0';next()}
+$('go').onclick=()=>{$('ov').style.display='none';start()};
+</script></body></html>

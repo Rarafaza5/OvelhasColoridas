@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Comboio Galáctico</title><script src="../../oc.js"></script></head><body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hs">⭐ 0</span><span id="hw">🐑 Fila: 1</span><span id="hb"></span></div>
+<div class="ov" id="ov"><h2>🚂 Comboio Galáctico</h2>
+<p>Guia a Ovelha-Pastora pelo prado cósmico em direção livre (360°)!<br>
+🐑 <b>Resgata as ovelhas</b> de cada cor e leva a tua caravana até ao <b>Portal da Cor Certa 🌀</b> para fazeres entregas em grupo!<br>
+⚠️ Desvia-te dos meteoritos que tentam separar a tua fila! (Rato/Toque ou Setas/WASD)</p>
+<button class="btn" id="go">▶ Guiar o Rebanho</button></div>
+<script>
+const W=720,H=480,cv=document.getElementById('c'),x=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='cobra-la',TAU=Math.PI*2,$=id=>document.getElementById(id);
+const IM=OC.SHEEP.map(n=>OC.img('ovelha-'+n));
+let leader,train,strays,gates,meteors,parts,pops,score,lives,targetP,keys={},running=false,over=false,t=0,shake=0,best=OC.best(ID),stars=[];
+for(let i=0;i<65;i++)stars.push([Math.random()*W,Math.random()*H,Math.random()*1.5+.3]);
+$('hb').textContent='🏆 '+best;
+function init(){
+ leader={x:W/2,y:H/2,ang:0,sp:215};
+ train=[];strays=[];meteors=[];parts=[];pops=[];score=0;lives=3;over=false;targetP=null;
+ gates=[
+  {x:85,y:95,c:1},{x:W-85,y:95,c:2},{x:85,y:H-85,c:3},{x:W-85,y:H-85,c:5}
+ ];
+ for(let i=0;i<6;i++)spawnStray();
+ upd();
+}
+function spawnStray(){
+ const cols=[1,2,3,5];
+ strays.push({x:130+Math.random()*(W-260),y:110+Math.random()*(H-220),c:cols[Math.floor(Math.random()*cols.length)],wob:Math.random()*6});
+}
+function upd(){$('hs').textContent=`⭐ ${score} · ❤️`.repeat(1)+('❤️'.repeat(Math.max(0,lives)));$('hw').textContent=`🐑 Fila: ${train.length+1}`;$('hb').textContent='🏆 '+Math.max(best,score)}
+function burst(px,py,c,n=14){for(let i=0;i<n;i++){const a=Math.random()*TAU,v=40+Math.random()*160;parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.5,m:.5,c,r:2.5+Math.random()*3.5})}}
+function update(dt){
+ t+=dt;shake=Math.max(0,shake-dt*30);
+ if(!running||over)return;
+ const kx=(keys.ArrowRight||keys.KeyD?1:0)-(keys.ArrowLeft||keys.KeyA?1:0);
+ const ky=(keys.ArrowDown||keys.KeyS?1:0)-(keys.ArrowUp||keys.KeyW?1:0);
+ if(kx||ky){
+  const ta=Math.atan2(ky,kx);
+  let d=ta-leader.ang;while(d>Math.PI)d-=TAU;while(d<-Math.PI)d+=TAU;
+  leader.ang+=d*Math.min(1,dt*10);targetP=null;
+ }else if(targetP){
+  const dx=targetP.x-leader.x,dy=targetP.y-leader.y;
+  if(Math.hypot(dx,dy)>12){
+   const ta=Math.atan2(dy,dx);
+   let d=ta-leader.ang;while(d>Math.PI)d-=TAU;while(d<-Math.PI)d+=TAU;
+   leader.ang+=d*Math.min(1,dt*9);
+  }
+ }
+ leader.x+=Math.cos(leader.ang)*leader.sp*dt;
+ leader.y+=Math.sin(leader.ang)*leader.sp*dt;
+ if(leader.x<28){leader.x=28;leader.ang=Math.PI-leader.ang}
+ if(leader.x>W-28){leader.x=W-28;leader.ang=Math.PI-leader.ang}
+ if(leader.y<28){leader.y=28;leader.ang=-leader.ang}
+ if(leader.y>H-28){leader.y=H-28;leader.ang=-leader.ang}
+ // seguir em caravana suave
+ let px=leader.x,py=leader.y;
+ for(const s of train){
+  const dx=px-s.x,dy=py-s.y,d=Math.hypot(dx,dy)||1;
+  if(d>28){s.x+=dx/d*(d-28);s.y+=dy/d*(d-28)}
+  px=s.x;py=s.y;
+ }
+ // apanhar ovelhas perdidas
+ for(const s of strays){
+  if(Math.hypot(leader.x-s.x,leader.y-s.y)<34){
+   s.got=true;
+   const tail=train.length?train[train.length-1]:leader;
+   train.push({x:tail.x,y:tail.y,c:s.c});
+   OC.sfx.pop();spawnStray();upd();
+  }
+ }
+ strays=strays.filter(s=>!s.got);
+ // entregar nos portais da mesma cor
+ for(const g of gates){
+  if(Math.hypot(leader.x-g.x,leader.y-g.y)<48){
+   const match=train.filter(s=>s.c===g.c);
+   if(match.length>0){
+    const pts=match.length*match.length*15;
+    score+=pts;train=train.filter(s=>s.c!==g.c);
+    burst(g.x,g.y,OC.COLORS[OC.SHEEP[g.c]],20);
+    pops.push({s:`+${pts} (${match.length}x!)`,x:g.x,y:g.y-25,l:1,c:'#ffd166'});
+    OC.sfx.good();upd();
+   }
+  }
+ }
+ // meteoritos
+ if(Math.random()<dt*(.7+score/600)){
+  const side=Math.floor(Math.random()*4);
+  const mx=side===0?0:side===1?W:Math.random()*W,my=side===2?0:side===3?H:Math.random()*H;
+  const a=Math.atan2(H/2+(Math.random()-.5)*180-my,W/2+(Math.random()-.5)*240-mx);
+  meteors.push({x:mx,y:my,vx:Math.cos(a)*165,vy:Math.sin(a)*165,r:18});
+ }
+ for(const m of meteors){
+  m.x+=m.vx*dt;m.y+=m.vy*dt;
+  if(Math.hypot(m.x-leader.x,m.y-leader.y)<30){
+   m.hit=true;lives--;shake=12;OC.sfx.bad();burst(leader.x,leader.y,'#ef476f',20);upd();
+   if(lives<=0){
+    over=true;running=false;OC.best(ID,score);best=OC.best(ID);
+    setTimeout(()=>OC.end({id:ID,title:'Fim da Caravana!',text:`Entregaste ${score} pontos de ovelhas nos portais! Recorde: ${best}.`,stars:Math.max(1,Math.ceil(score/80)),retry:()=>{init();running=true}}),600);
+   }
+  }
+  // se bater no meio do comboio, espalha os últimos vagões
+  for(let i=0;i<train.length;i++){
+   if(Math.hypot(m.x-train[i].x,m.y-train[i].y)<26){
+    m.hit=true;burst(train[i].x,train[i].y,'#ff9f1c',14);train.splice(i,1);OC.sfx.bad();upd();break;
+   }
+  }
+ }
+ meteors=meteors.filter(m=>!m.hit&&m.x>-40&&m.x<W+40&&m.y>-40&&m.y<H+40);
+ parts.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.l-=dt});parts=parts.filter(p=>p.l>0);
+ pops.forEach(p=>{p.y-=35*dt;p.l-=dt});pops=pops.filter(p=>p.l>0);
+}
+function draw(){
+ const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#111948');g.addColorStop(1,'#241450');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.fillStyle='#fff';stars.forEach(s=>{x.globalAlpha=.4;x.beginPath();x.arc(s[0],s[1],s[2],0,TAU);x.fill()});x.globalAlpha=1;
+ x.save();if(shake>0)x.translate((Math.random()-.5)*shake,(Math.random()-.5)*shake);
+ // portais de entrega nos 4 cantos
+ gates.forEach(gt=>{
+  const col=OC.COLORS[OC.SHEEP[gt.c]];
+  x.fillStyle=col+'33';x.strokeStyle=col;x.lineWidth=4;
+  x.beginPath();x.arc(gt.x,gt.y,36+Math.sin(t*4)*3,0,TAU);x.fill();x.stroke();
+  if(IM[gt.c].complete)x.drawImage(IM[gt.c],gt.x-18,gt.y-18,36,36);
+ });
+ // ovelhas à espera
+ strays.forEach(s=>{
+  const col=OC.COLORS[OC.SHEEP[s.c]],bob=Math.sin(t*5+s.wob)*3;
+  x.fillStyle=col+'55';x.beginPath();x.arc(s.x,s.y+bob,18,0,TAU);x.fill();
+  if(IM[s.c].complete)x.drawImage(IM[s.c],s.x-20,s.y-20+bob,40,40);
+ });
+ // corda luminosa que une o comboio
+ if(train.length){
+  x.strokeStyle='#ffd16688';x.lineWidth=4;x.beginPath();x.moveTo(leader.x,leader.y);
+  train.forEach(s=>x.lineTo(s.x,s.y));x.stroke();
+ }
+ for(let i=train.length-1;i>=0;i--){
+  const s=train[i];
+  x.fillStyle=OC.COLORS[OC.SHEEP[s.c]];x.beginPath();x.arc(s.x,s.y,15,0,TAU);x.fill();
+  if(IM[s.c].complete)x.drawImage(IM[s.c],s.x-18,s.y-18,36,36);
+ }
+ // líder
+ x.fillStyle='#ffd166';x.beginPath();x.arc(leader.x,leader.y,20,0,TAU);x.fill();
+ if(IM[0].complete)x.drawImage(IM[0],leader.x-24,leader.y-24,48,48);
+ // meteoritos
+ x.font='30px sans-serif';x.textAlign='center';x.textBaseline='middle';
+ meteors.forEach(m=>x.fillText('☄️',m.x,m.y));
+ for(const p of parts){x.globalAlpha=Math.max(0,p.l/p.m);x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,p.r,0,TAU);x.fill()}x.globalAlpha=1;
+ x.font='700 20px Fredoka,sans-serif';
+ for(const p of pops){x.globalAlpha=Math.min(1,p.l*2);x.fillStyle=p.c;x.strokeStyle='#000a';x.lineWidth=3;x.strokeText(p.s,p.x,p.y);x.fillText(p.s,p.x,p.y)}x.globalAlpha=1;
+ x.restore();
+}
+cv.addEventListener('pointerdown',e=>targetP=P(e));
+cv.addEventListener('pointermove',e=>{if(e.buttons)targetP=P(e)});
+addEventListener('keydown',e=>keys[e.code]=true);addEventListener('keyup',e=>keys[e.code]=false);
+init();
+let last=performance.now();
+(function loop(n){const dt=Math.min(.04,(n-last)/1000);last=n;update(dt);draw();requestAnimationFrame(loop)})(last);
+$('go').onclick=()=>{$('ov').style.display='none';running=true};
+</script></body></html>

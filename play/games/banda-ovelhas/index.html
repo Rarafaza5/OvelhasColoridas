@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Banda das Ovelhas</title><script src="../../oc.js"></script>
+<style>
+body{background:radial-gradient(circle at 50% 0,#34195b,#0a0e27);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:44px 10px 10px}
+.stage{display:flex;gap:12px;align-items:flex-end;justify-content:center;height:96px}
+.sh{width:68px;text-align:center;transition:transform .12s}.sh img{width:62px;height:62px;object-fit:contain;filter:drop-shadow(0 6px 10px #0008)}
+.sh.jump{transform:translateY(-16px) scale(1.12)}
+.seq{display:grid;grid-template-columns:90px repeat(8,1fr);gap:6px;width:min(96vw,640px);background:#121842;padding:12px;border-radius:22px;border:2px solid #ffffff22}
+.lbl{display:flex;align-items:center;gap:4px;font:700 .85rem Fredoka,sans-serif}
+.cell{aspect-ratio:1.25;border-radius:12px;background:#1e2761;border:2px solid #ffffff1a;cursor:pointer;transition:.1s}
+.cell.on{background:var(--c);border-color:#fff;box-shadow:0 0 12px var(--c)}
+.cell.cur{outline:3px solid #ffd166}
+.bar{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.sm{padding:8px 16px;font-size:.92rem}.g{background:#ffffff22;color:#fff;box-shadow:none}
+</style></head><body>
+<div class="hud"><span id="hm">🎵 Estúdio Espacial</span><span id="hs">⭐ 0</span></div>
+<div class="stage" id="stage"></div>
+<div class="seq" id="seq"></div>
+<div class="bar">
+ <button class="btn sm" id="play">⏸ A Tocar</button>
+ <button class="btn sm g" id="pre">🎼 Ritmo Mágico</button>
+ <button class="btn sm g" id="ch">🎯 Desafio</button>
+ <button class="btn sm g" id="clr">🧽 Limpar</button>
+</div>
+<div class="ov" id="ov"><h2>🎸 Banda das Ovelhas</h2>
+<p>Cria a tua própria música espacial! Cada linha é uma ovelha com o seu instrumento. Toca nos quadrados para ligar/desligar notas ou experimenta o <b>Desafio</b> para ganhares estrelas ⭐!</p>
+<button class="btn" id="go">▶ Subir ao Palco</button></div>
+<script>
+const $=id=>document.getElementById(id);
+const TRACKS=[
+ {n:'🥁 Bombo',sheep:'laranja',c:'#ff9f1c',play:()=>OC.tone(115,.16,'sine',.22,0,42)},
+ {n:'👏 Palmas',sheep:'rosa',c:'#ff9ecd',play:()=>{OC.tone(900,.06,'sawtooth',.08);OC.tone(1400,.08,'triangle',.07,.02)}},
+ {n:'🎸 Baixo',sheep:'roxa',c:'#9b5de5',play:s=>OC.tone([131,147,165,196,220,196,165,147][s],.2,'triangle',.16)},
+ {n:'🎹 Sint.',sheep:'azul',c:'#4cc9f0',play:s=>OC.tone([262,294,330,392,440,523,392,330][s],.18,'sine',.14)},
+ {n:'🔔 Estrela',sheep:'arcoiris',c:'#ffd166',play:s=>OC.tone([523,659,784,880,1047,880,784,659][s],.22,'triangle',.12)}
+];
+const PRESETS=[
+ [[1,0,0,0,1,0,0,0],[0,0,1,0,0,0,1,0],[1,0,1,0,1,0,1,1],[0,1,0,1,0,1,0,0],[1,0,0,1,0,0,1,0]],
+ [[1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1],[1,1,0,0,1,1,0,0],[0,0,1,1,0,0,1,1],[1,0,1,0,0,1,0,1]],
+ [[1,0,0,1,1,0,0,0],[0,0,1,0,0,1,1,0],[1,0,0,1,0,1,0,0],[1,1,0,1,1,0,1,0],[0,1,1,0,1,0,0,1]]
+];
+let grid=PRESETS[0].map(r=>[...r]),target=null,step=0,playing=true,presetIdx=0,stars=0;
+$('stage').innerHTML=TRACKS.map((t,i)=>`<div class="sh" id="sh${i}"><img src="${OC.A}ovelha-${t.sheep}.png"></div>`).join('');
+function build(){
+ let h='';
+ TRACKS.forEach((t,r)=>{
+  h+=`<div class="lbl" style="color:${t.c}">${t.n}</div>`;
+  for(let c=0;c<8;c++){
+   const want=target&&target[r][c];
+   h+=`<div class="cell ${grid[r][c]?'on':''}" id="c_${r}_${c}" data-r="${r}" data-c="${c}" style="--c:${t.c};${want&&!grid[r][c]?'border:2px dashed #ffd166':''}"></div>`;
+  }
+ });
+ $('seq').innerHTML=h;
+}
+$('seq').onclick=e=>{
+ const el=e.target.closest('.cell');if(!el)return;
+ const r=+el.dataset.r,c=+el.dataset.c;
+ grid[r][c]=grid[r][c]?0:1;
+ if(grid[r][c])TRACKS[r].play(c);
+ build();checkChallenge();
+};
+function checkChallenge(){
+ if(!target)return;
+ if(TRACKS.every((_,r)=>grid[r].every((v,c)=>v===target[r][c]))){
+  target=null;stars+=3;OC.addStars(3);$('hs').textContent='⭐ '+stars;$('hm').textContent='🎉 Desafio completo! +3 ⭐';OC.sfx.win();build();
+ }
+}
+setInterval(()=>{
+ if(!playing||$('ov').style.display!=='none')return;
+ document.querySelectorAll('.cell.cur').forEach(e=>e.classList.remove('cur'));
+ TRACKS.forEach((t,r)=>{
+  const el=$('c_'+r+'_'+step),sh=$('sh'+r);
+  if(el)el.classList.add('cur');
+  if(grid[r][step]){t.play(step);sh.classList.add('jump');setTimeout(()=>sh.classList.remove('jump'),150)}
+ });
+ step=(step+1)%8;
+},240);
+$('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'⏸ A Tocar':'▶ Tocar'};
+$('pre').onclick=()=>{target=null;presetIdx=(presetIdx+1)%PRESETS.length;grid=PRESETS[presetIdx].map(r=>[...r]);$('hm').textContent='🎵 Estúdio Espacial';build()};
+$('clr').onclick=()=>{target=null;grid=TRACKS.map(()=>Array(8).fill(0));build()};
+$('ch').onclick=()=>{
+ target=TRACKS.map(()=>Array.from({length:8},()=>Math.random()<.35?1:0));
+ grid=TRACKS.map(()=>Array(8).fill(0));
+ $('hm').textContent='🎯 Toca nos quadrados tracejados!';OC.sfx.pop();build();
+};
+build();$('go').onclick=()=>$('ov').style.display='none';
+</script></body></html>

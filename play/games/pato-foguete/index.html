@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Pato Magnético</title>
+<link rel="stylesheet" href="../../oc.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🥜 <span id="sc">0</span></div>
+  <div class="pill">⚡ Polaridade: <span id="pol" style="color:#4ECDC4">NORTE ▲</span></div>
+  <div class="pill">❤️ <span id="hp">3</span></div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🦆🧲</div>
+    <h1>Pato Magnético</h1>
+    <p>O Pato veste um colete magnético espacial! Toca ou carrega em <b>Espaço</b> para inverter a polaridade magnética entre o carril <b>Norte (Topo)</b> e <b>Sul (Base)</b>, ou mantém premido para levitar no eixo neutro central!</p>
+    <div class="kbs"><span class="kb">Toque / Espaço</span> Inverter Carril <span class="kb">Manter Premido</span> Eixo Neutro</div>
+    <br><button class="btn" id="go">Ativar Magnetismo!</button>
+  </div>
+</div>
+<script src="../../oc.js"></script>
+<script>
+const {c,ctx}=OC.canvas();
+const imgPato=OC.img('pato.png'),imgEle=OC.img('elefante-amendoim.png'),imgBlue=OC.img('ovelha-azul.png');
+let st='wait',sc=0,hp=3,spd=320,dist=0,polarity=-1,holding=false,holdT=0;
+let duck={y:0,vy:0,rot:0,inv:0};
+let items=[],rings=[],sparks=[],spawnT=0;
+
+function railY(pol,H){
+  const top=H*0.24,bot=H*0.76,mid=H*0.5;
+  return pol===0?mid:(pol<0?top:bot);
+}
+
+function init(){
+  sc=0;hp=3;spd=320;dist=0;polarity=-1;holding=false;holdT=0;
+  duck={y:c.height*0.24,vy:0,rot:0,inv:0};
+  items=[];rings=[];sparks=[];spawnT=0.4;
+  document.getElementById('sc').textContent='0';
+  document.getElementById('hp').textContent='3';
+  updatePolUI();
+}
+
+function updatePolUI(){
+  const el=document.getElementById('pol');
+  if(holding && holdT>0.12){el.textContent='NEUTRO ●';el.style.color='#FFD93D';}
+  else if(polarity<0){el.textContent='NORTE ▲';el.style.color='#4ECDC4';}
+  else{el.textContent='SUL ▼';el.style.color='#FF6B9D';}
+}
+
+function flipDown(){
+  if(st!=='play')return;
+  polarity*=-1;
+  holding=true;holdT=0;
+  OC.sfx.jump();
+  OC.fx.burst(c.width*0.22,duck.y,polarity<0?'#4ECDC4':'#FF6B9D',10);
+  updatePolUI();
+}
+function flipUp(){
+  holding=false;holdT=0;
+  updatePolUI();
+}
+
+c.addEventListener('pointerdown',flipDown);
+window.addEventListener('pointerup',flipUp);
+window.addEventListener('keydown',e=>{if((e.code==='Space'||e.code==='ArrowUp'||e.code==='ArrowDown')&&!e.repeat){e.preventDefault();flipDown();}});
+window.addEventListener('keyup',e=>{if(e.code==='Space'||e.code==='ArrowUp'||e.code==='ArrowDown'){flipUp();}});
+
+function spawnPattern(){
+  const W=c.width,H=c.height;
+  const pat=Math.floor(Math.random()*4);
+  if(pat===0){
+    // Alternating peanuts on rails
+    const p=Math.random()<0.5?-1:1;
+    for(let i=0;i<3;i++){
+      items.push({x:W+80+i*95,lane:p,type:'peanut',r:20,got:false});
+    }
+    items.push({x:W+175,lane:-p,type:'drone',r:26,hit:false,phase:Math.random()*6});
+  }else if(pat===1){
+    // Middle ring + rail hazards
+    rings.push({x:W+120,lane:0,r:36,passed:false});
+    items.push({x:W+120,lane:-1,type:'drone',r:25,hit:false,phase:0});
+    items.push({x:W+120,lane:1,type:'drone',r:25,hit:false,phase:3});
+  }else if(pat===2){
+    // Zigzag peanuts
+    items.push({x:W+80,lane:-1,type:'peanut',r:20,got:false});
+    items.push({x:W+190,lane:0,type:'peanut',r:20,got:false});
+    items.push({x:W+300,lane:1,type:'peanut',r:20,got:false});
+    items.push({x:W+190,lane:Math.random()<0.5?-1:1,type:'drone',r:26,hit:false,phase:1});
+  }else{
+    // Polarity booster gate
+    const goodLane=Math.random()<0.5?-1:1;
+    rings.push({x:W+110,lane:goodLane,r:38,passed:false});
+    items.push({x:W+110,lane:-goodLane,type:'drone',r:28,hit:false,phase:2});
+    items.push({x:W+230,lane:goodLane,type:'peanut',r:20,got:false});
+  }
+}
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  const topY=railY(-1,H),botY=railY(1,H),midY=railY(0,H),dx=W*0.22;
+
+  // Draw magnetic rails
+  ctx.save();
+  // Top North Rail (Cyan)
+  ctx.strokeStyle='#4ECDC4';ctx.lineWidth=6;ctx.shadowColor='#4ECDC4';ctx.shadowBlur=12;
+  ctx.beginPath();ctx.moveTo(0,topY-38);ctx.lineTo(W,topY-38);ctx.stroke();
+  // Bottom South Rail (Pink)
+  ctx.strokeStyle='#FF6B9D';ctx.shadowColor='#FF6B9D';
+  ctx.beginPath();ctx.moveTo(0,botY+38);ctx.lineTo(W,botY+38);ctx.stroke();
+  // Neutral center dashed line
+  ctx.shadowBlur=0;ctx.strokeStyle='rgba(255,217,61,0.28)';ctx.lineWidth=2;ctx.setLineDash([12,12]);
+  ctx.beginPath();ctx.moveTo(0,midY);ctx.lineTo(W,midY);ctx.stroke();
+  ctx.restore();
+
+  if(st==='play'){
+    spd=Math.min(620,320+sc*2.2);
+    dist+=spd*dt;
+    if(holding){
+      holdT+=dt;
+      if(holdT>0.12)updatePolUI();
+    }
+    const targetLane=(holding && holdT>0.12)?0:polarity;
+    const targetY=railY(targetLane,H);
+    const dy=targetY-duck.y;
+    duck.vy+=(dy*42 - duck.vy*11)*dt;
+    duck.y+=duck.vy*dt;
+    duck.rot=Math.max(-0.45,Math.min(0.45,duck.vy*0.0012));
+    if(duck.inv>0)duck.inv-=dt;
+
+    spawnT-=dt;
+    if(spawnT<=0){
+      spawnPattern();
+      spawnT=Math.max(0.75,1.45-sc*0.006);
+    }
+
+    for(let i=rings.length-1;i>=0;i--){
+      const rg=rings[i];
+      rg.x-=spd*dt;
+      const ry=railY(rg.lane,H);
+      if(!rg.passed && Math.hypot(rg.x-dx,ry-duck.y)<rg.r+24){
+        rg.passed=true;
+        sc+=5;
+        document.getElementById('sc').textContent=sc;
+        OC.sfx.coin();
+        OC.fx.burst(rg.x,ry,'#FFD93D',18);
+        OC.fx.floatText(rg.x,ry-20,'+5 PORTAL!','#FFD93D');
+      }
+      if(rg.x<-80)rings.splice(i,1);
+    }
+
+    for(let i=items.length-1;i>=0;i--){
+      const it=items[i];
+      it.x-=spd*dt;
+      const iy=railY(it.lane,H)+(it.type==='drone'?Math.sin(now*0.005+it.phase)*14:0);
+      const d=Math.hypot(it.x-dx,iy-duck.y);
+      if(it.type==='peanut' && !it.got && d<it.r+26){
+        it.got=true;
+        sc+=2;
+        document.getElementById('sc').textContent=sc;
+        OC.sfx.pop();
+        OC.fx.burst(it.x,iy,'#F7B731',10);
+        OC.fx.floatText(it.x,iy-15,'+2 🥜','#FFD93D');
+        items.splice(i,1);continue;
+      }else if(it.type==='drone' && !it.hit && duck.inv<=0 && d<it.r+22){
+        it.hit=true;
+        hp--;
+        duck.inv=1.3;
+        document.getElementById('hp').textContent=hp;
+        OC.sfx.hit();
+        OC.fx.shake(12);
+        OC.fx.burst(dx,duck.y,'#FF5252',22);
+        if(hp<=0){
+          st='end';
+          OC.end({win:sc>=35,stars:sc>=80?3:sc>=45?2:1,score:sc,title:sc>=35?'Mestre do Magnetismo!':'Curto-Circuito!',msg:`O Pato Magnético recolheu ${sc} pontos de energia e amendoins!`,onRetry:()=>{init();st='play';}});
+        }
+      }
+      if(it.x<-80)items.splice(i,1);
+    }
+  }
+
+  // Draw rings
+  for(const rg of rings){
+    const ry=railY(rg.lane,H);
+    ctx.save();
+    ctx.strokeStyle=rg.passed?'#6BCB77':'#FFD93D';
+    ctx.lineWidth=5;ctx.shadowColor=ctx.strokeStyle;ctx.shadowBlur=14;
+    ctx.beginPath();ctx.ellipse(rg.x,ry,16,rg.r,0,0,Math.PI*2);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw items
+  for(const it of items){
+    const iy=railY(it.lane,H)+(it.type==='drone'?Math.sin(now*0.005+it.phase)*14:0);
+    if(it.type==='peanut'){
+      ctx.save();
+      ctx.fillStyle='#F7B731';ctx.strokeStyle='#8B5A2B';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(it.x-6,iy,11,0,Math.PI*2);ctx.arc(it.x+7,iy,10,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.restore();
+    }else{
+      ctx.save();
+      ctx.fillStyle='#FF5252';ctx.shadowColor='#FF5252';ctx.shadowBlur=12;
+      ctx.beginPath();ctx.arc(it.x,iy,it.r,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=3;
+      for(let a=0;a<6;a++){
+        const ang=now*0.004+a*Math.PI/3;
+        ctx.beginPath();ctx.moveTo(it.x+Math.cos(ang)*it.r,iy+Math.sin(ang)*it.r);
+        ctx.lineTo(it.x+Math.cos(ang)*(it.r+8),iy+Math.sin(ang)*(it.r+8));ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
+  // Draw magnetic tether beam from duck to active rail
+  const activeLane=(holding && holdT>0.12)?0:polarity;
+  if(activeLane!==0){
+    const beamY=activeLane<0?topY-38:botY+38;
+    ctx.save();
+    ctx.strokeStyle=activeLane<0?'rgba(78,205,196,0.55)':'rgba(255,107,157,0.55)';
+    ctx.lineWidth=6;ctx.setLineDash([6,6]);
+    ctx.beginPath();ctx.moveTo(dx,duck.y);ctx.lineTo(dx,beamY);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Duck
+  ctx.save();
+  ctx.translate(dx,duck.y);
+  ctx.rotate(duck.rot);
+  if(duck.inv>0 && Math.floor(now/80)%2===0)ctx.globalAlpha=0.45;
+  ctx.strokeStyle=activeLane===0?'#FFD93D':(activeLane<0?'#4ECDC4':'#FF6B9D');
+  ctx.lineWidth=4;ctx.beginPath();ctx.arc(0,0,34,0,Math.PI*2);ctx.stroke();
+  ctx.drawImage(imgPato,-30,-30,60,60);
+  ctx.restore();
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

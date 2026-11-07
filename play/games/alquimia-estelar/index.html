@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Café Galáctico do Elefante</title>
+<script src="../../oc.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">📅 Dia <span id="dy">1</span> · 🪙 <span id="sc">0</span></div>
+  <div class="pill">☕ Clientes Hoje: <span id="sv">0</span>/<span id="tg">6</span></div>
+  <div class="pill">🔥 Combo: <span id="cb">x1</span></div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🍹🐘</div>
+    <h1>Café Galáctico do Elefante</h1>
+    <p>Constrói o maior restaurante da galáxia! Seleciona os <b>2 ingredientes</b> que cada ovelha pede, aquece no <b>Forno (🔥)</b> quando pedido e toca no cliente. As tuas <b>Moedas, Dias e Melhorias VIP ficam sempre guardados!</b></p>
+    <div class="kbs"><span class="kb">1. Ingredientes</span> <span class="kb">2. Forno (se 🔥)</span> <span class="kb">3. Tocar no Cliente</span></div>
+    <br><button class="btn" id="go">Abrir Café Galáctico!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const INGS=[
+  {id:0,name:'Amendoim',emo:'🥜',col:'#FFB74D'},
+  {id:1,name:'Melancia',emo:'🍉',col:'#FF5252'},
+  {id:2,name:'Mirtilo',emo:'🫐',col:'#4FC3F7'},
+  {id:3,name:'Menta',emo:'🌿',col:'#81C784'}
+];
+const SHEEP_IMGS=[
+  OC.img('ovelha-azul.png'),OC.img('ovelha-rosa.png'),OC.img('ovelha-verde.png'),
+  OC.img('ovelha-roxa.png'),OC.img('ovelha-laranja.png'),OC.img('ovelha-melancia.png')
+];
+const imgEle=OC.img('elefante-amendoim.png'),imgPato=OC.img('pato.png'),imgVip=OC.img('ovelha-arcoiris.png');
+
+let SAVE=OC.get('op_cafe_save',{coins:0,day:1,pato:false,vipDecor:false});
+function save(){OC.set('op_cafe_save',SAVE);}
+
+let st='wait',served=0,combo=1;
+let tray={items:[],cooked:false};
+let clients=[],spawnT=0;
+
+function targetForDay(){return 5+Math.min(10,SAVE.day);}
+
+function init(){
+  served=0;combo=1;
+  tray={items:[],cooked:false};
+  clients=[null,null,null];
+  spawnClient();spawnClient();
+  updHUD();
+}
+
+function updHUD(){
+  document.getElementById('dy').textContent=SAVE.day;
+  document.getElementById('sc').textContent=SAVE.coins;
+  document.getElementById('sv').textContent=served;
+  document.getElementById('tg').textContent=targetForDay();
+  document.getElementById('cb').textContent='x'+combo;
+}
+
+function spawnClient(){
+  const free=[];
+  for(let i=0;i<3;i++)if(!clients[i])free.push(i);
+  if(!free.length)return;
+  const slot=free[Math.floor(Math.random()*free.length)];
+  const a=Math.floor(Math.random()*INGS.length);
+  const b=Math.floor(Math.random()*INGS.length);
+  const hot=Math.random()<0.45;
+  const vip=Math.random()<0.22;
+  clients[slot]={
+    img:vip?imgVip:SHEEP_IMGS[Math.floor(Math.random()*SHEEP_IMGS.length)],
+    vip,
+    req:[a,b].sort((x,y)=>x-y),
+    hot,
+    pat:26,maxPat:26
+  };
+}
+
+function getZones(W,H){
+  const ingBtns=INGS.map((g,i)=>({
+    x:W*0.14+i*(W*0.14),y:H*0.78,r:38,ing:i
+  }));
+  const ovenBtn={x:W*0.72,y:H*0.78,r:42};
+  const trashBtn={x:W*0.86,y:H*0.78,r:34};
+  const patoBtn={x:W*0.86,y:H*0.18,r:34};
+  const vipBtn={x:W*0.72,y:H*0.18,r:34};
+  const clientZones=[0,1,2].map(i=>({
+    x:W*0.24+i*(W*0.24),y:H*0.36,r:56,slot:i
+  }));
+  return {ingBtns,ovenBtn,trashBtn,patoBtn,vipBtn,clientZones};
+}
+
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play')return;
+  const W=c.width,H=c.height;
+  const {ingBtns,ovenBtn,trashBtn,patoBtn,vipBtn,clientZones}=getZones(W,H);
+
+  for(const b of ingBtns){
+    if(Math.hypot(e.clientX-b.x,e.clientY-b.y)<b.r+8){
+      if(tray.items.length<2){
+        tray.items.push(b.ing);
+        tray.items.sort((x,y)=>x-y);
+        OC.sfx.pop();
+        OC.fx.burst(b.x,b.y,INGS[b.ing].col,10);
+      }
+      return;
+    }
+  }
+
+  if(Math.hypot(e.clientX-ovenBtn.x,e.clientY-ovenBtn.y)<ovenBtn.r+8){
+    if(tray.items.length===2 && !tray.cooked){
+      tray.cooked=true;
+      OC.sfx.jump();
+      OC.fx.burst(ovenBtn.x,ovenBtn.y,'#FF5252',16);
+      OC.fx.floatText(ovenBtn.x,ovenBtn.y-30,'🔥 AQUECIDO!','#FFD93D');
+    }
+    return;
+  }
+
+  if(Math.hypot(e.clientX-trashBtn.x,e.clientY-trashBtn.y)<trashBtn.r+8){
+    tray={items:[],cooked:false};
+    OC.sfx.click();
+    return;
+  }
+
+  if(!SAVE.pato && SAVE.coins>=60 && Math.hypot(e.clientX-patoBtn.x,e.clientY-patoBtn.y)<patoBtn.r+12){
+    SAVE.coins-=60;SAVE.pato=true;save();
+    OC.sfx.win();
+    OC.fx.floatText(patoBtn.x,patoBtn.y,'🦆 PATO CHEF ATIVO!','#06d6a0');
+    updHUD();return;
+  }
+
+  if(!SAVE.vipDecor && SAVE.coins>=90 && Math.hypot(e.clientX-vipBtn.x,e.clientY-vipBtn.y)<vipBtn.r+12){
+    SAVE.coins-=90;SAVE.vipDecor=true;save();
+    OC.sfx.win();
+    OC.fx.floatText(vipBtn.x,vipBtn.y,'✨ DECORAÇÃO VIP (+50% 🪙)!','#ffd166');
+    updHUD();return;
+  }
+
+  for(const cz of clientZones){
+    const cl=clients[cz.slot];
+    if(cl && Math.hypot(e.clientX-cz.x,e.clientY-cz.y)<cz.r+16){
+      if(tray.items.length===2 && tray.items[0]===cl.req[0] && tray.items[1]===cl.req[1] && tray.cooked===cl.hot){
+        const tip=Math.ceil(cl.pat);
+        const mult=(cl.vip?2:1)*(SAVE.vipDecor?1.5:1);
+        const gain=Math.round((20+tip+combo*4)*mult);
+        SAVE.coins+=gain;served++;combo=Math.min(8,combo+1);
+        save();
+        OC.sfx.win();
+        OC.fx.burst(cz.x,cz.y,'#FFD93D',24);
+        OC.fx.floatText(cz.x,cz.y-30,`+${gain} 🪙 ${cl.vip?'VIP!':''}`,'#FFD93D');
+        clients[cz.slot]=null;
+        tray={items:[],cooked:false};
+        updHUD();
+        if(served>=targetForDay()){
+          SAVE.day++;save();
+          st='end';
+          OC.end({win:true,stars:3,score:SAVE.coins,title:`Dia ${SAVE.day-1} Concluído!`,msg:`O teu Café Galáctico avançou para o Dia ${SAVE.day} com ${SAVE.coins} moedas guardadas!`,onRetry:()=>{init();st='play';}});
+        }
+      }else{
+        combo=1;updHUD();
+        OC.sfx.hit();
+        OC.fx.shake(8);
+        OC.fx.floatText(cz.x,cz.y-20,'RECEITA ERRADA!','#FF5252');
+      }
+      return;
+    }
+  }
+});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+  const {ingBtns,ovenBtn,trashBtn,patoBtn,vipBtn,clientZones}=getZones(W,H);
+
+  if(st==='play'){
+    spawnT-=dt;
+    if(spawnT<=0){spawnClient();spawnT=2.8;}
+
+    for(let i=0;i<3;i++){
+      const cl=clients[i];
+      if(!cl)continue;
+      cl.pat-=dt*(SAVE.pato?0.5:1);
+      if(cl.pat<=0){
+        combo=1;updHUD();
+        OC.sfx.hit();
+        OC.fx.floatText(clientZones[i].x,clientZones[i].y,'CLIENTE FUGIU!','#FF5252');
+        clients[i]=null;
+      }
+    }
+  }
+
+  // Draw Counter Table
+  ctx.save();
+  ctx.fillStyle=SAVE.vipDecor?'rgba(62,28,98,0.9)':'rgba(35,24,78,0.85)';
+  ctx.strokeStyle=SAVE.vipDecor?'#ffd166':'rgba(255,255,255,0.22)';
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.roundRect(W*0.06,H*0.54,W*0.88,H*0.36,24);ctx.fill();ctx.stroke();
+  ctx.restore();
+
+  // Draw Elefante Chef
+  ctx.drawImage(imgEle,W*0.04,H*0.42,84,84);
+
+  // Draw Upgrades (Pato & VIP Decor)
+  ctx.save();
+  ctx.fillStyle=SAVE.pato?'#06d6a0':(SAVE.coins>=60?'#FFD93D':'rgba(255,255,255,0.15)');
+  ctx.beginPath();ctx.arc(patoBtn.x,patoBtn.y,patoBtn.r,0,Math.PI*2);ctx.fill();
+  ctx.drawImage(imgPato,patoBtn.x-22,patoBtn.y-22,44,44);
+  ctx.fillStyle='#fff';ctx.font='bold 11px Fredoka,sans-serif';ctx.textAlign='center';
+  ctx.fillText(SAVE.pato?'Pato Ativo!':'Pato (60🪙)',patoBtn.x,patoBtn.y+patoBtn.r+14);
+
+  ctx.fillStyle=SAVE.vipDecor?'#06d6a0':(SAVE.coins>=90?'#FFD93D':'rgba(255,255,255,0.15)');
+  ctx.beginPath();ctx.arc(vipBtn.x,vipBtn.y,vipBtn.r,0,Math.PI*2);ctx.fill();
+  ctx.font='24px sans-serif';ctx.textBaseline='middle';
+  ctx.fillText('👑',vipBtn.x,vipBtn.y);
+  ctx.fillStyle='#fff';ctx.font='bold 11px Fredoka,sans-serif';
+  ctx.fillText(SAVE.vipDecor?'VIP Ativo!':'Sala VIP (90🪙)',vipBtn.x,vipBtn.y+vipBtn.r+14);
+  ctx.restore();
+
+  // Draw Clients & Order Bubbles
+  for(const cz of clientZones){
+    const cl=clients[cz.slot];
+    if(!cl)continue;
+    ctx.save();
+    ctx.drawImage(cl.img,cz.x-42,cz.y-42,84,84);
+    if(cl.vip){
+      ctx.font='22px sans-serif';ctx.textAlign='center';
+      ctx.fillText('👑',cz.x,cz.y-46);
+    }
+    const pw=76,ph=8,pct=Math.max(0,cl.pat/cl.maxPat);
+    ctx.fillStyle='rgba(0,0,0,0.5)';ctx.fillRect(cz.x-pw/2,cz.y+48,pw,ph);
+    ctx.fillStyle=pct>0.5?'#06d6a0':pct>0.25?'#ffd166':'#ff595e';
+    ctx.fillRect(cz.x-pw/2,cz.y+48,pw*pct,ph);
+
+    ctx.fillStyle=cl.vip?'#fff8d6':'rgba(255,255,255,0.94)';
+    ctx.beginPath();ctx.roundRect(cz.x-54,cz.y-105,108,48,14);ctx.fill();
+    ctx.font='24px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    const txt=`${INGS[cl.req[0]].emo}+${INGS[cl.req[1]].emo}${cl.hot?'🔥':''}`;
+    ctx.fillText(txt,cz.x,cz.y-81);
+    ctx.restore();
+  }
+
+  // Draw Current Blender Tray in Center
+  ctx.save();
+  ctx.fillStyle='rgba(255,255,255,0.14)';
+  ctx.strokeStyle=tray.cooked?'#FF5252':'#4ECDC4';ctx.lineWidth=3;
+  ctx.beginPath();ctx.roundRect(W*0.36,H*0.57,W*0.28,50,16);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#fff';ctx.font='bold 18px Fredoka,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  const trayTxt=tray.items.length===0?'Bandeja Vazia (Escolhe 2)':tray.items.map(i=>INGS[i].emo).join(' + ')+(tray.cooked?' 🔥':'');
+  ctx.fillText(trayTxt,W*0.5,H*0.57+25);
+  ctx.restore();
+
+  // Draw Ingredient Stations
+  for(const b of ingBtns){
+    const g=INGS[b.ing];
+    ctx.save();
+    ctx.fillStyle=g.col;ctx.strokeStyle='#fff';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.font='28px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(g.emo,b.x,b.y);
+    ctx.fillStyle='#fff';ctx.font='bold 12px Fredoka,sans-serif';
+    ctx.fillText(g.name,b.x,b.y+b.r+15);
+    ctx.restore();
+  }
+
+  // Oven & Trash buttons
+  ctx.save();
+  ctx.fillStyle=tray.cooked?'#FF5252':'#FF9F1C';ctx.strokeStyle='#fff';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(ovenBtn.x,ovenBtn.y,ovenBtn.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.font='28px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('🔥',ovenBtn.x,ovenBtn.y);
+  ctx.fillStyle='#fff';ctx.font='bold 12px Fredoka,sans-serif';
+  ctx.fillText('Forno',ovenBtn.x,ovenBtn.y+ovenBtn.r+15);
+
+  ctx.fillStyle='#546E7A';
+  ctx.beginPath();ctx.arc(trashBtn.x,trashBtn.y,trashBtn.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.font='22px sans-serif';ctx.fillText('🗑️',trashBtn.x,trashBtn.y);
+  ctx.fillStyle='#fff';ctx.font='bold 12px Fredoka,sans-serif';
+  ctx.fillText('Limpar',trashBtn.x,trashBtn.y+trashBtn.r+15);
+  ctx.restore();
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

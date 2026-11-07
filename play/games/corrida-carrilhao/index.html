@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Oficina de Foguetões</title>
+<script src="../../oc.js"></script>
+<style>
+#bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6;flex-wrap:wrap;justify-content:center}
+.pbtn{pointer-events:auto;padding:8px 14px;border-radius:14px;border:2px solid rgba(255,255,255,.22);background:rgba(16,22,58,.88);color:#fff;font:700 .86rem Fredoka,sans-serif;cursor:pointer}
+.pbtn.act{border-color:#ffd166;background:#3a2778;color:#ffd166}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🏁 Distância: <span id="ds">0</span>/800m</div>
+  <div class="pill">⛽ Combustível: <span id="fl">100</span>%</div>
+  <div class="pill">🥜 <span id="sc">0</span></div>
+</div>
+<div id="bar">
+  <button class="pbtn act" id="bFrame">🟦 Bloco Lã</button>
+  <button class="pbtn" id="bWheel">🛞 Roda</button>
+  <button class="pbtn" id="bThr">🚀 Propulsor</button>
+  <button class="pbtn" id="bGo" style="background:#06d6a0;color:#081c15;border-color:#fff">▶ Lançar Veículo!</button>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🛠️🚜</div>
+    <h1>Oficina de Foguetões</h1>
+    <p>Desenha o teu próprio Rover Espacial na grelha 4×3! Coloca <b>Blocos de Lã</b>, <b>Rodas Amortecedoras</b> e <b>Propulsores a Jato</b>, e depois conduz a tua invenção pelas colinas da Lua Amendoim equilibrando a inclinação!</p>
+    <div class="kbs"><span class="kb">Oficina</span> Toca na grelha para montar peças <span class="kb">Pista</span> Setas ◀ ▶ / Espaço (Turbo)</div>
+    <br><button class="btn" id="go">Entrar na Oficina!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const imgPilot=OC.img('ovelha-laranja.png');
+
+let st='wait',phase='build',part='frame',sc=0;
+// 4x3 grid: 'cockpit' fixed at (1,1)
+let grid=[];
+let rover={x:120,y:200,vx:0,vy:0,ang:0,vang:0,fuel:100,wheels:1,thrusters:1,mass:3};
+let keys={l:0,r:0,up:0},peanuts=[];
+
+function resetGrid(){
+  grid=[
+    [null,'cockpit',null,null],
+    ['frame','frame','frame',null],
+    ['wheel',null,'wheel','thr']
+  ];
+  recalcSpecs();
+}
+
+function recalcSpecs(){
+  let w=0,t=0,m=1;
+  for(let r=0;r<3;r++){
+    for(let col=0;col<4;col++){
+      const v=grid[r][col];
+      if(v==='wheel')w++;
+      if(v==='thr')t++;
+      if(v)m++;
+    }
+  }
+  rover.wheels=Math.max(1,w);
+  rover.thrusters=t;
+  rover.mass=m;
+}
+
+function terrainY(wx,H){
+  return H*0.68 + Math.sin(wx*0.008)*55 + Math.sin(wx*0.021)*28 + Math.cos(wx*0.004)*40;
+}
+
+function startRun(){
+  recalcSpecs();
+  phase='drive';
+  rover.x=100;rover.y=terrainY(100,c.height)-50;
+  rover.vx=0;rover.vy=0;rover.ang=0;rover.vang=0;rover.fuel=100;
+  peanuts=[];
+  for(let x=260;x<4200;x+=180){
+    peanuts.push({x,y:terrainY(x,c.height)-52,got:false,fuel:x%540===0});
+  }
+  document.getElementById('bGo').textContent='🔧 Voltar à Oficina';
+}
+
+function setPart(p,id){
+  part=p;
+  ['bFrame','bWheel','bThr'].forEach(k=>document.getElementById(k).classList.toggle('act',k===id));
+}
+document.getElementById('bFrame').onclick=()=>setPart('frame','bFrame');
+document.getElementById('bWheel').onclick=()=>setPart('wheel','bWheel');
+document.getElementById('bThr').onclick=()=>setPart('thr','bThr');
+document.getElementById('bGo').onclick=()=>{
+  if(phase==='build')startRun();
+  else{phase='build';document.getElementById('bGo').textContent='▶ Lançar Veículo!';}
+};
+
+window.addEventListener('keydown',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA')keys.l=1;
+  if(e.code==='ArrowRight'||e.code==='KeyD')keys.r=1;
+  if(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW')keys.up=1;
+});
+window.addEventListener('keyup',e=>{
+  if(e.code==='ArrowLeft'||e.code==='KeyA')keys.l=0;
+  if(e.code==='ArrowRight'||e.code==='KeyD')keys.r=0;
+  if(e.code==='Space'||e.code==='ArrowUp'||e.code==='KeyW')keys.up=0;
+});
+
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play')return;
+  if(phase==='build'){
+    const W=c.width,H=c.height,cell=68,ox=W/2-cell*2,oy=H/2-cell*1.5;
+    const col=Math.floor((e.clientX-ox)/cell),r=Math.floor((e.clientY-oy)/cell);
+    if(r>=0&&r<3&&col>=0&&col<4){
+      if(grid[r][col]==='cockpit')return;
+      grid[r][col]=grid[r][col]===part?null:part;
+      OC.sfx.pop();recalcSpecs();
+    }
+  }else{
+    if(e.clientX<c.width*0.35)keys.l=1;
+    else if(e.clientX>c.width*0.65)keys.r=1;
+    else keys.up=1;
+  }
+});
+window.addEventListener('pointerup',()=>{if(phase==='drive'){keys.l=0;keys.r=0;keys.up=0;}});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();resetGrid();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  if(phase==='build'){
+    const cell=68,ox=W/2-cell*2,oy=H/2-cell*1.5;
+    ctx.save();
+    ctx.fillStyle='#ffd166';ctx.font='bold 20px Fredoka,sans-serif';ctx.textAlign='center';
+    ctx.fillText('🛠️ Monta o teu Rover na Grelha (Toca para adicionar/remover)',W/2,oy-24);
+    for(let r=0;r<3;r++){
+      for(let col=0;col<4;col++){
+        const x=ox+col*cell,y=oy+r*cell,v=grid[r][col];
+        ctx.fillStyle='rgba(255,255,255,0.08)';ctx.strokeStyle='rgba(255,255,255,0.28)';ctx.lineWidth=2;
+        ctx.beginPath();ctx.roundRect(x+3,y+3,cell-6,cell-6,12);ctx.fill();ctx.stroke();
+        if(v==='cockpit'){
+          ctx.drawImage(imgPilot,x+8,y+8,cell-16,cell-16);
+        }else if(v==='frame'){
+          ctx.fillStyle='#4cc9f0';ctx.beginPath();ctx.roundRect(x+10,y+10,cell-20,cell-20,10);ctx.fill();
+        }else if(v==='wheel'){
+          ctx.fillStyle='#222';ctx.strokeStyle='#ffd166';ctx.lineWidth=4;
+          ctx.beginPath();ctx.arc(x+cell/2,y+cell/2,cell*0.34,0,Math.PI*2);ctx.fill();ctx.stroke();
+        }else if(v==='thr'){
+          ctx.fillStyle='#ff595e';ctx.beginPath();ctx.roundRect(x+12,y+16,cell-24,cell-32,8);ctx.fill();
+          ctx.fillStyle='#ffd166';ctx.font='22px sans-serif';ctx.fillText('🚀',x+cell/2,y+cell/2+8);
+        }
+      }
+    }
+    ctx.restore();
+  }else if(phase==='drive' && st==='play'){
+    const ty=terrainY(rover.x,H);
+    const ty2=terrainY(rover.x+20,H);
+    const slope=Math.atan2(ty2-ty,20);
+    const onGround=rover.y>=ty-34;
+
+    if(rover.fuel>0){
+      if(keys.r && onGround){rover.vx+=rover.wheels*125*dt;rover.fuel-=4*dt;}
+      if(keys.l && onGround){rover.vx-=rover.wheels*85*dt;rover.fuel-=3*dt;}
+      if(keys.up && rover.thrusters>0){
+        rover.vx+=Math.cos(rover.ang)*rover.thrusters*180*dt;
+        rover.vy-=rover.thrusters*220*dt;
+        rover.fuel-=9*dt;
+        OC.fx.burst(rover.x-Math.cos(rover.ang)*30,rover.y,'#ff9f1c',2);
+      }
+    }
+    rover.fuel=Math.max(0,rover.fuel);
+    rover.vy+=380*dt;
+    rover.vx*=0.99;
+    rover.x+=rover.vx*dt;
+    rover.y+=rover.vy*dt;
+
+    if(rover.y>ty-32){
+      rover.y=ty-32;
+      rover.vy=Math.min(0,rover.vy);
+      rover.ang+=(slope-rover.ang)*8*dt;
+    }else{
+      if(keys.l)rover.ang-=2.6*dt;
+      if(keys.r)rover.ang+=2.6*dt;
+    }
+
+    const distM=Math.max(0,Math.floor((rover.x-100)/5));
+    document.getElementById('ds').textContent=distM;
+    document.getElementById('fl').textContent=Math.round(rover.fuel);
+
+    const camX=rover.x-W*0.28;
+
+    // Draw Terrain
+    ctx.save();
+    ctx.fillStyle='#332259';ctx.strokeStyle='#06d6a0';ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(0,H);
+    for(let sx=0;sx<=W;sx+=16){
+      ctx.lineTo(sx,terrainY(sx+camX,H));
+    }
+    ctx.lineTo(W,H);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.restore();
+
+    // Draw & collect peanuts / fuel
+    for(const p of peanuts){
+      if(p.got)continue;
+      const sx=p.x-camX;
+      if(sx<-40||sx>W+40)continue;
+      if(Math.hypot(rover.x-p.x,rover.y-p.y)<46){
+        p.got=true;
+        if(p.fuel){rover.fuel=Math.min(100,rover.fuel+40);OC.sfx.win();OC.fx.floatText(sx,p.y,'+COMBUSTÍVEL!','#06d6a0');}
+        else{sc+=15;document.getElementById('sc').textContent=sc;OC.sfx.coin();OC.fx.floatText(sx,p.y,'+15 🥜','#ffd166');}
+      }
+      ctx.save();
+      ctx.font='26px sans-serif';ctx.textAlign='center';
+      ctx.fillText(p.fuel?'⛽':'🥜',sx,p.y);
+      ctx.restore();
+    }
+
+    // Draw custom Rover
+    ctx.save();
+    ctx.translate(rover.x-camX,rover.y);
+    ctx.rotate(rover.ang);
+    const s=22;
+    for(let r=0;r<3;r++){
+      for(let col=0;col<4;col++){
+        const v=grid[r][col];if(!v)continue;
+        const bx=(col-1.5)*s,by=(r-1.5)*s;
+        if(v==='cockpit')ctx.drawImage(imgPilot,bx-4,by-4,s+8,s+8);
+        else if(v==='frame'){ctx.fillStyle='#4cc9f0';ctx.fillRect(bx,by,s-2,s-2);}
+        else if(v==='wheel'){ctx.fillStyle='#222';ctx.strokeStyle='#ffd166';ctx.lineWidth=2;ctx.beginPath();ctx.arc(bx+s/2,by+s/2,s*0.45,0,Math.PI*2);ctx.fill();ctx.stroke();}
+        else if(v==='thr'){ctx.fillStyle='#ff595e';ctx.fillRect(bx,by+3,s-2,s-6);}
+      }
+    }
+    ctx.restore();
+
+    if(distM>=800){
+      st='end';
+      OC.end({win:true,stars:3,score:sc+400,title:'Engenheiro de Rovers!',msg:`O teu veículo personalizado percorreu os 800m da Lua Amendoim!`,onRetry:()=>{sc=0;startRun();st='play';}});
+    }else if(rover.fuel<=0 && Math.abs(rover.vx)<8){
+      st='end';
+      OC.end({win:distM>=400,stars:distM>=550?2:1,score:sc+distM,title:'Sem Combustível!',msg:`O teu Rover alcançou ${distM}m! Ajusta as peças na oficina para ir mais longe.`,onRetry:()=>{phase='build';st='play';}});
+    }
+  }
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+resetGrid();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

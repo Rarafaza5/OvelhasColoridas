@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Labirinto da Lanterna</title><script src="../../oc.js"></script></head><body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hl">Nível 1</span><span id="hs">🐑 0/3</span><span id="hb">🔋 100%</span></div>
+<div class="ov" id="ov"><h2>🔦 Labirinto da Lanterna</h2>
+<p>A luz apagou-se na nebulosa! Explora o labirinto com a tua lanterna, resgata todas as <b>ovelhinhas perdidas</b> e leva-as até à saída 🚪.<br>
+Apanha pilhas 🔋 para a luz não diminuir! ⌨️ <b>Setas/WASD</b> ou 📱 <b>arrasta na direção</b>.</p>
+<button class="btn" id="go">▶ Explorar</button></div>
+<script>
+const W=520,H=520,cv=document.getElementById('c'),x=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='labirinto-lanterna',TAU=Math.PI*2,$=id=>document.getElementById(id);
+const IM=OC.SHEEP.map(n=>OC.img('ovelha-'+n));
+let lv=1,N,maze,pl,lost,bats,ghosts,exit,bat,saved,need,running=false,keys={},joy=null,t=0;
+function genMaze(n){
+ N=n;const cells=Array.from({length:N},()=>Array.from({length:N},()=>({v:false,w:[1,1,1,1]}))); // top,right,bottom,left
+ const st=[[0,0]];cells[0][0].v=true;
+ const D=[[-1,0,0,2],[0,1,1,3],[1,0,2,0],[0,-1,3,1]];
+ while(st.length){
+  const [r,c]=st[st.length-1];
+  const nb=D.map(([dr,dc,a,b])=>[r+dr,c+dc,a,b]).filter(([nr,nc])=>nr>=0&&nr<N&&nc>=0&&nc<N&&!cells[nr][nc].v);
+  if(!nb.length){st.pop();continue}
+  const [nr,nc,a,b]=nb[Math.floor(Math.random()*nb.length)];
+  cells[r][c].w[a]=0;cells[nr][nc].w[b]=0;cells[nr][nc].v=true;st.push([nr,nc]);
+ }
+ // abrir alguns atalhos extra para ser mais fluido
+ for(let i=0;i<N;i++){
+  const r=1+Math.floor(Math.random()*(N-2)),c=1+Math.floor(Math.random()*(N-2));
+  cells[r][c].w[1]=0;cells[r][c+1].w[3]=0;
+ }
+ return cells;
+}
+function startLv(){
+ const sz=Math.min(11,6+lv);maze=genMaze(sz);
+ pl={x:.5,y:.5,r:.28};exit={r:sz-1,c:sz-1};
+ need=Math.min(6,2+lv);saved=0;bat=100;lost=[];bats=[];ghosts=[];
+ const free=()=>{let r,c;do{r=Math.floor(Math.random()*sz);c=Math.floor(Math.random()*sz)}while((r<2&&c<2)||(r===exit.r&&c===exit.c));return{x:c+.5,y:r+.5}};
+ for(let i=0;i<need;i++)lost.push({...free(),c:(i+1)%7,got:false});
+ for(let i=0;i<2;i++)bats.push({...free(),got:false});
+ for(let i=0;i<Math.floor(lv/2);i++){const p=free();ghosts.push({x:p.x,y:p.y,vx:(Math.random()<.5?1:-1)*1.4,vy:0})}
+ upd();
+}
+function upd(){$('hl').textContent='Nível '+lv;$('hs').textContent=`🐑 ${saved}/${need}`;$('hb').textContent=`🔋 ${Math.ceil(bat)}%`}
+function tryMove(dx,dy){
+ const moveAxis=(ax,d)=>{
+  const nx=pl.x+(ax==='x'?d:0),ny=pl.y+(ax==='y'?d:0);
+  const c=Math.floor(pl.x),r=Math.floor(pl.y),cell=maze[r][c];
+  if(ax==='x'){
+   if(d<0&&nx-pl.r<c&&cell.w[3])pl.x=c+pl.r;
+   else if(d>0&&nx+pl.r>c+1&&cell.w[1])pl.x=c+1-pl.r;
+   else pl.x=nx;
+  }else{
+   if(d<0&&ny-pl.r<r&&cell.w[0])pl.y=r+pl.r;
+   else if(d>0&&ny+pl.r>r+1&&cell.w[2])pl.y=r+1-pl.r;
+   else pl.y=ny;
+  }
+ };
+ moveAxis('x',dx);moveAxis('y',dy);
+}
+function update(dt){
+ t+=dt;if(!running)return;
+ bat=Math.max(18,bat-dt*3.2);
+ let vx=(keys.ArrowRight||keys.KeyD?1:0)-(keys.ArrowLeft||keys.KeyA?1:0);
+ let vy=(keys.ArrowDown||keys.KeyS?1:0)-(keys.ArrowUp||keys.KeyW?1:0);
+ if(joy){vx=joy.dx;vy=joy.dy}
+ if(vx||vy){const d=Math.hypot(vx,vy)||1;tryMove(vx/d*3.1*dt,vy/d*3.1*dt)}
+ lost.forEach(s=>{if(!s.got&&Math.hypot(pl.x-s.x,pl.y-s.y)<.45){s.got=true;saved++;bat=Math.min(100,bat+15);OC.sfx.good();upd()}});
+ bats.forEach(b=>{if(!b.got&&Math.hypot(pl.x-b.x,pl.y-b.y)<.45){b.got=true;bat=100;OC.sfx.pop();upd()}});
+ ghosts.forEach(g=>{
+  g.x+=g.vx*dt;if(g.x<.6||g.x>N-.6)g.vx*=-1;
+  if(Math.hypot(pl.x-g.x,pl.y-g.y)<.42){bat=Math.max(18,bat-25*dt);if(Math.random()<.1)OC.sfx.bad()}
+ });
+ if(saved>=need&&Math.hypot(pl.x-(exit.c+.5),pl.y-(exit.r+.5))<.5){
+  OC.sfx.win();
+  if(lv>=5){OC.best(ID,lv);running=false;OC.end({id:ID,title:'Resgate Completo! 🔦',text:`Salvaste todas as ovelhas nos 5 labirintos!`,stars:12,retry:()=>{lv=1;startLv();running=true}})}
+  else{lv++;startLv()}
+ }
+ if(Math.floor(t*4)%2===0)upd();
+}
+function draw(){
+ const pad=26,cs=(W-pad*2)/N;
+ x.fillStyle='#13193e';x.fillRect(0,0,W,H);
+ x.save();x.translate(pad,pad);
+ // quadriculado
+ x.strokeStyle='#ffffff0a';x.lineWidth=1;
+ for(let i=0;i<=N;i++){x.beginPath();x.moveTo(i*cs,0);x.lineTo(i*cs,N*cs);x.moveTo(0,i*cs);x.lineTo(N*cs,i*cs);x.stroke()}
+ // saída
+ x.font=Math.floor(cs*.6)+'px sans-serif';x.textAlign='center';x.textBaseline='middle';
+ x.fillText(saved>=need?'🚪':'🔒',(exit.c+.5)*cs,(exit.r+.5)*cs);
+ // pilhas e ovelhas perdidas
+ bats.forEach(b=>{if(!b.got)x.fillText('🔋',b.x*cs,b.y*cs)});
+ lost.forEach(s=>{if(!s.got&&IM[s.c].complete)x.drawImage(IM[s.c],(s.x-.38)*cs,(s.y-.38)*cs,cs*.76,cs*.76)});
+ ghosts.forEach(g=>{x.fillText('👻',g.x*cs,g.y*cs+Math.sin(t*5)*3)});
+ // jogador
+ if(IM[0].complete)x.drawImage(IM[0],(pl.x-.42)*cs,(pl.y-.42)*cs,cs*.84,cs*.84);
+ // paredes
+ x.strokeStyle='#7a8cff';x.lineWidth=4;x.lineCap='round';x.beginPath();
+ for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+  const w=maze[r][c].w,px=c*cs,py=r*cs;
+  if(w[0]){x.moveTo(px,py);x.lineTo(px+cs,py)}
+  if(w[1]){x.moveTo(px+cs,py);x.lineTo(px+cs,py+cs)}
+  if(w[2]){x.moveTo(px,py+cs);x.lineTo(px+cs,py+cs)}
+  if(w[3]){x.moveTo(px,py);x.lineTo(px,py+cs)}
+ }
+ x.stroke();
+ // máscara escura com lanterna
+ const lx=pl.x*cs,ly=pl.y*cs,rad=(65+bat*1.35);
+ const g=x.createRadialGradient(lx,ly,rad*.22,lx,ly,rad);
+ g.addColorStop(0,'rgba(5,7,20,0)');g.addColorStop(.7,'rgba(5,7,20,.78)');g.addColorStop(1,'rgba(5,7,20,.97)');
+ x.fillStyle=g;x.fillRect(-pad,-pad,W,H);
+ // bússola subtil para a próxima ovelha ou saída
+ const target=lost.find(s=>!s.got)||{x:exit.c+.5,y:exit.r+.5};
+ const ang=Math.atan2(target.y-pl.y,target.x-pl.x);
+ x.fillStyle='#ffd166cc';x.beginPath();x.arc(lx+Math.cos(ang)*32,ly+Math.sin(ang)*32,4,0,TAU);x.fill();
+ x.restore();
+}
+addEventListener('keydown',e=>keys[e.code]=true);addEventListener('keyup',e=>keys[e.code]=false);
+cv.addEventListener('pointerdown',e=>{const p=P(e);joy={sx:p.x,sy:p.y,dx:0,dy:0};try{cv.setPointerCapture(e.pointerId)}catch(_){}});
+cv.addEventListener('pointermove',e=>{if(!joy)return;const p=P(e),dx=p.x-joy.sx,dy=p.y-joy.sy,d=Math.hypot(dx,dy);joy.dx=d>8?dx/d:0;joy.dy=d>8?dy/d:0});
+addEventListener('pointerup',()=>joy=null);
+startLv();
+let last=performance.now();
+(function loop(n){const dt=Math.min(.04,(n-last)/1000);last=n;update(dt);draw();requestAnimationFrame(loop)})(last);
+$('go').onclick=()=>{$('ov').style.display='none';running=true};
+</script></body></html>

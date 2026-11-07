@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Moinho de Lã</title>
+<link rel="stylesheet" href="../../oc.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🧶 Pontos: <span id="sc">0</span></div>
+  <div class="pill">🔄 Rotações: <span id="mv">22</span></div>
+  <div class="pill">🎯 Meta: <span id="tg">600</span></div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🌀🧶</div>
+    <h1>Moinho de Lã</h1>
+    <p>O tear galáctico funciona com <b>engrenagens rotativas</b>! Toca em qualquer <b>eixo dourado entre 4 ovelhas</b> para rodar esse grupo de 4 no sentido dos ponteiros do relógio. Forma quadrados 2x2 da mesma cor para tecer mantas cósmicas!</p>
+    <div class="kbs"><span class="kb">Toque / Clique</span> Rodar Eixo de 4 Ovelhas</div>
+    <br><button class="btn" id="go">Ligar Moinho!</button>
+  </div>
+</div>
+<script src="../../oc.js"></script>
+<script>
+const {c,ctx}=OC.canvas();
+const TYPES=[
+  {col:'#4FC3F7',img:OC.img('ovelha-azul.png')},
+  {col:'#F06292',img:OC.img('ovelha-rosa.png')},
+  {col:'#81C784',img:OC.img('ovelha-verde.png')},
+  {col:'#BA68C8',img:OC.img('ovelha-roxa.png')},
+  {col:'#FFB74D',img:OC.img('ovelha-laranja.png')}
+];
+const N=5;
+let st='wait',sc=0,moves=22,target=600;
+let grid=[],rotAnim=null,hoverKnob=-1;
+
+function init(){
+  sc=0;moves=22;rotAnim=null;
+  document.getElementById('sc').textContent='0';
+  document.getElementById('mv').textContent=moves;
+  grid=[];
+  for(let r=0;r<N;r++){
+    grid[r]=[];
+    for(let col=0;col<N;col++){
+      grid[r][col]=Math.floor(Math.random()*TYPES.length);
+    }
+  }
+  // Ensure no pre-existing 2x2 square at start
+  for(let r=0;r<N-1;r++){
+    for(let col=0;col<N-1;col++){
+      if(isSquareMatch(r,col)){
+        grid[r][col]=(grid[r][col]+1)%TYPES.length;
+      }
+    }
+  }
+}
+
+function isSquareMatch(r,col){
+  const v=grid[r][col];
+  return v>=0 && grid[r][col+1]===v && grid[r+1][col]===v && grid[r+1][col+1]===v;
+}
+
+function layout(W,H){
+  const cell=Math.min(W*0.82,H*0.72)/N;
+  const ox=(W-cell*N)/2,oy=(H-cell*N)/2+16;
+  return {cell,ox,oy};
+}
+
+function rotateKnob(kr,kc){
+  if(st!=='play'||rotAnim||moves<=0)return;
+  moves--;
+  document.getElementById('mv').textContent=moves;
+  OC.sfx.jump();
+  rotAnim={kr,kc,t:0,dur:0.22};
+}
+
+function finishRotate(kr,kc){
+  // Clockwise rotation of 2x2 block at (kr,kc)
+  const tl=grid[kr][kc],tr=grid[kr][kc+1],br=grid[kr+1][kc+1],bl=grid[kr+1][kc];
+  grid[kr][kc]=bl;
+  grid[kr][kc+1]=tl;
+  grid[kr+1][kc+1]=tr;
+  grid[kr+1][kc]=br;
+
+  checkSquares();
+}
+
+function checkSquares(){
+  const {cell,ox,oy}=layout(c.width,c.height);
+  let matched=[];
+  for(let r=0;r<N-1;r++){
+    for(let col=0;col<N-1;col++){
+      if(isSquareMatch(r,col)){
+        matched.push({r,col,t:grid[r][col]});
+      }
+    }
+  }
+  if(matched.length>0){
+    const pts=matched.length*120;
+    sc+=pts;
+    document.getElementById('sc').textContent=sc;
+    OC.sfx.win();
+    for(const m of matched){
+      const cx=ox+(m.col+1)*cell,cy=oy+(m.r+1)*cell;
+      OC.fx.burst(cx,cy,TYPES[m.t].col,26);
+      OC.fx.floatText(cx,cy,`+${120} MANTA!`,'#FFD93D');
+      // Respawn new diverse wool in that 2x2
+      for(let dr=0;dr<=1;dr++){
+        for(let dc=0;dc<=1;dc++){
+          grid[m.r+dr][m.col+dc]=Math.floor(Math.random()*TYPES.length);
+        }
+      }
+      if(isSquareMatch(m.r,m.col)){
+        grid[m.r][m.col]=(grid[m.r][m.col]+1)%TYPES.length;
+      }
+    }
+  }
+
+  if(sc>=target || moves<=0){
+    setTimeout(()=>{
+      if(st!=='play')return;
+      st='end';
+      const win=sc>=target;
+      OC.end({
+        win,
+        stars:sc>=target+240?3:win?2:1,
+        score:sc,
+        title:win?'Mestre Tecelão!':'Fim das Rotações!',
+        msg:`Teceste mantas cósmicas num total de ${sc} pontos!`,
+        onRetry:()=>{init();st='play';}
+      });
+    },350);
+  }
+}
+
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play'||rotAnim)return;
+  const {cell,ox,oy}=layout(c.width,c.height);
+  for(let kr=0;kr<N-1;kr++){
+    for(let kc=0;kc<N-1;kc++){
+      const kx=ox+(kc+1)*cell,ky=oy+(kr+1)*cell;
+      if(Math.hypot(e.clientX-kx,e.clientY-ky)<cell*0.42){
+        rotateKnob(kr,kc);
+        return;
+      }
+    }
+  }
+});
+
+c.addEventListener('pointermove',e=>{
+  const {cell,ox,oy}=layout(c.width,c.height);
+  hoverKnob=-1;
+  for(let kr=0;kr<N-1;kr++){
+    for(let kc=0;kc<N-1;kc++){
+      const kx=ox+(kc+1)*cell,ky=oy+(kr+1)*cell;
+      if(Math.hypot(e.clientX-kx,e.clientY-ky)<cell*0.42){
+        hoverKnob=kr*(N-1)+kc;
+        return;
+      }
+    }
+  }
+});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+  const {cell,ox,oy}=layout(W,H);
+
+  if(rotAnim){
+    rotAnim.t+=dt;
+    if(rotAnim.t>=rotAnim.dur){
+      const {kr,kc}=rotAnim;
+      rotAnim=null;
+      finishRotate(kr,kc);
+    }
+  }
+
+  // Board backdrop
+  ctx.save();
+  ctx.fillStyle='rgba(255,255,255,0.07)';
+  ctx.strokeStyle='rgba(255,255,255,0.22)';
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.roundRect(ox-12,oy-12,cell*N+24,cell*N+24,22);
+  ctx.fill();ctx.stroke();
+  ctx.restore();
+
+  // Draw cells
+  for(let r=0;r<N;r++){
+    for(let col=0;col<N;col++){
+      const t=grid[r][col];
+      let cx=ox+(col+0.5)*cell,cy=oy+(r+0.5)*cell;
+      if(rotAnim && (r===rotAnim.kr||r===rotAnim.kr+1) && (col===rotAnim.kc||col===rotAnim.kc+1)){
+        const kx=ox+(rotAnim.kc+1)*cell,ky=oy+(rotAnim.kr+1)*cell;
+        const p=Math.min(1,rotAnim.t/rotAnim.dur);
+        const ang=p*(Math.PI/2);
+        const dx=cx-kx,dy=cy-ky;
+        cx=kx+dx*Math.cos(ang)-dy*Math.sin(ang);
+        cy=ky+dx*Math.sin(ang)+dy*Math.cos(ang);
+      }
+      ctx.save();
+      ctx.fillStyle=TYPES[t].col+'33';
+      ctx.strokeStyle=TYPES[t].col;
+      ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(cx,cy,cell*0.36,0,Math.PI*2);ctx.fill();ctx.stroke();
+      const s=cell*0.58;
+      ctx.drawImage(TYPES[t].img,cx-s/2,cy-s/2,s,s);
+      ctx.restore();
+    }
+  }
+
+  // Draw interactive golden gear knobs at every 2x2 intersection
+  for(let kr=0;kr<N-1;kr++){
+    for(let kc=0;kc<N-1;kc++){
+      const kx=ox+(kc+1)*cell,ky=oy+(kr+1)*cell;
+      const isHov=(hoverKnob===kr*(N-1)+kc);
+      ctx.save();
+      ctx.fillStyle=isHov?'#FFF176':'#FFD93D';
+      ctx.strokeStyle='#1B1438';ctx.lineWidth=3;
+      ctx.shadowColor='#FFD93D';ctx.shadowBlur=isHov?18:8;
+      ctx.beginPath();ctx.arc(kx,ky,isHov?19:15,0,Math.PI*2);ctx.fill();ctx.stroke();
+      ctx.fillStyle='#1B1438';ctx.font='bold 14px Fredoka,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('↻',kx,ky+1);
+      ctx.restore();
+    }
+  }
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

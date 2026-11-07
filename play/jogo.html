@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jogar | Ovelhas Play</title>
+<link rel="icon" type="image/png" href="../assets/personagens/ovelha-arcoiris.png">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(circle at 30% 0%,#1f1650,#0a0e27 70%);color:#f0edff;font-family:Nunito,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}
+header{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px;padding:10px 20px;background:rgba(12,17,48,.92);backdrop-filter:blur(12px);border-bottom:1px solid #ffffff1a}
+.logo{display:flex;align-items:center;gap:8px;font:700 1.55rem Fredoka,sans-serif;background:linear-gradient(135deg,#ffd166,#ff85a2,#00f5d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo img{height:34px;-webkit-text-fill-color:initial}
+.sp{flex:1}
+.pill{padding:8px 14px;border-radius:99px;border:1px solid #ffffff30;font-weight:800;font-size:.88rem;background:#151c4a88;color:inherit;cursor:pointer;font-family:inherit;transition:.16s;display:inline-flex;align-items:center;gap:5px}
+.pill:hover{border-color:#ffd166;color:#ffd166;transform:translateY(-1px)}
+.pill.rnd{background:linear-gradient(135deg,#00f5d4,#9b5de5);border:0;color:#fff}
+.me{color:#ffd166;border-color:#ffd16666;background:#ffd16622}
+.wrap{max-width:1120px;margin:0 auto;padding:16px}
+.stage{position:relative;border-radius:26px;overflow:hidden;border:2px solid #ffffff26;background:#070a1e;box-shadow:0 20px 60px #000b}
+.loader{position:absolute;inset:0;bottom:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(circle,#1e1854,#090d24);z-index:4;transition:opacity .3s}
+.loader.hide{opacity:0;pointer-events:none}
+.loader img{width:84px;animation:bnc .6s ease-in-out infinite alternate}
+@keyframes bnc{to{transform:translateY(-14px) scale(1.06)}}
+.frame{width:100%;height:min(74vh,calc((100vw - 32px)*.75));min-height:440px;border:0;display:block;background:#0a0e27}
+.bar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:10px 16px;background:linear-gradient(90deg,#151c4a,#1f1852)}
+.bar h1{flex:1;font:700 1.3rem Fredoka,sans-serif;min-width:160px}
+.best{padding:5px 12px;border-radius:99px;background:#00f5d422;border:1px solid #00f5d466;color:#00f5d4;font-weight:900;font-size:.84rem}
+.info{display:grid;grid-template-columns:1.5fr 1fr;gap:16px;margin-top:16px}
+.box{padding:20px;border-radius:22px;background:#151c4a;border:1px solid #ffffff18}
+.box h3{font:700 1.2rem Fredoka,sans-serif;color:#ffd166;margin-bottom:6px}.box p{font-weight:700;color:#d8d5f0;line-height:1.5}
+.book{background:linear-gradient(145deg,#2a1a5a,#1e1948);display:flex;gap:14px;align-items:center}
+.book img{width:84px;border-radius:8px;transform:rotate(-4deg);box-shadow:0 6px 16px #000a}
+.book a.b{display:inline-block;margin-top:10px;padding:9px 18px;border-radius:99px;background:linear-gradient(135deg,#ff85a2,#9b5de5);font-weight:900}
+h2{font:700 1.5rem Fredoka,sans-serif;margin:26px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:12px}
+.tile{position:relative;aspect-ratio:1;border-radius:22px;overflow:hidden;background:linear-gradient(135deg,var(--c1),var(--c2));transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;display:block;box-shadow:0 6px 18px #0006}
+.tile:hover{transform:scale(1.07) rotate(-1deg);box-shadow:0 12px 28px #000a}
+.tile img{position:absolute;left:50%;bottom:10%;width:60%;height:60%;object-fit:contain;transform:translateX(-50%);filter:drop-shadow(0 5px 8px #0007)}
+.tile .nm{position:absolute;inset:auto 0 0;padding:18px 6px 7px;text-align:center;font:700 .9rem Fredoka,sans-serif;background:linear-gradient(transparent,#000d)}
+.tile .emo{position:absolute;right:8px;top:4px;font-size:1.6rem}
+@media(max-width:760px){.info{grid-template-columns:1fr}.me{display:none}.frame{height:70vh}}
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html"><img src="../assets/personagens/ovelha-arcoiris.png" alt="">Ovelhas Play</a>
+  <span class="sp"></span>
+  <button class="pill rnd" id="rnd">🎲 Outro Jogo</button>
+  <span class="pill me" id="me"></span>
+  <a class="pill" href="index.html">← Todos (28)</a>
+</header>
+<div class="wrap">
+  <div class="stage">
+    <div class="loader" id="ld"><img id="ldImg" alt=""><div style="font:700 1.2rem Fredoka,sans-serif;color:#ffd166">A preparar o jogo...</div></div>
+    <iframe class="frame" id="fr" allow="autoplay; fullscreen" title="Jogo"></iframe>
+    <div class="bar">
+      <h1 id="title"></h1>
+      <span class="best" id="best" hidden></span>
+      <button class="pill" id="rst">🔄 Reiniciar</button>
+      <button class="pill" id="fav">♡ Favorito</button>
+      <button class="pill" id="bgm">🎵 Música</button>
+      <button class="pill" id="mute">🔊 Som</button>
+      <button class="pill" id="full">⛶ Ecrã inteiro</button>
+    </div>
+  </div>
+  <div class="info">
+    <div class="box"><h3>Sobre o jogo</h3><p id="desc"></p><h3 style="margin-top:14px">🎯 Como jogar</h3><p id="how"></p></div>
+    <div class="box book"><img src="../assets/capa-livro.png" alt=""><div><h3>📖 O livro</h3><p>Gostas das Ovelhas Coloridas? Descobre a aventura completa no espaço!</p><a class="b" href="../index.html#sobre">Conhecer o livro</a></div></div>
+  </div>
+  <h2>🎮 Mais jogos para ti</h2><div class="grid" id="more"></div>
+</div>
+<script src="games.js"></script>
+<script>
+const $=id=>document.getElementById(id),get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const id=new URLSearchParams(location.search).get('g');
+const g=OP_GAMES.find(x=>x.id===id);
+if(!g)location.replace('index.html');
+document.title=g.name+' | Ovelhas Play';
+$('title').textContent=g.emoji+' '+g.name;$('desc').textContent=g.desc;$('how').textContent=g.how;
+$('ldImg').src=OP_SPRITE(g.sheep);
+$('fr').onload=()=>{setTimeout(()=>$('ld').classList.add('hide'),120);$('fr').focus()};
+$('fr').addEventListener('pointerdown',()=>$('fr').focus());
+$('fr').src='games/'+g.id+'/index.html';
+localStorage.setItem('op_recent',JSON.stringify([g.id,...get('op_recent',[]).filter(x=>x!==g.id)].slice(0,12)));
+const st=()=>{
+  const s=get('op_stars',0),b=get('op_best_'+g.id,0);
+  $('me').textContent='⭐ '+s;
+  if(b>0){$('best').hidden=false;$('best').textContent='🏆 Recorde: '+b}
+};
+st();
+addEventListener('message',e=>{if(e.data&&(e.data.op==='stars'||e.data.op==='best'))st()});
+const isFav=()=>get('op_favs',[]).includes(g.id);
+const paintFav=()=>{$('fav').textContent=isFav()?'♥ Favorito':'♡ Favorito';$('fav').style.color=isFav()?'#ff85a2':''};paintFav();
+$('fav').onclick=()=>{let f=get('op_favs',[]);f=isFav()?f.filter(x=>x!==g.id):[...f,g.id];localStorage.setItem('op_favs',JSON.stringify(f));paintFav()};
+let muted=get('op_muted',false);$('mute').textContent=muted?'🔇 Silêncio':'🔊 Som';
+$('mute').onclick=()=>{muted=!muted;localStorage.setItem('op_muted',muted);$('mute').textContent=muted?'🔇 Silêncio':'🔊 Som';$('fr').contentWindow.postMessage({op:'mute',v:muted},'*')};
+let bgm=get('op_bgm',true);$('bgm').style.opacity=bgm?1:.55;
+$('bgm').onclick=()=>{bgm=!bgm;localStorage.setItem('op_bgm',bgm);$('bgm').style.opacity=bgm?1:.55;$('fr').contentWindow.postMessage({op:'bgm',v:bgm},'*')};
+$('rst').onclick=()=>{$( 'ld').classList.remove('hide');$('fr').contentWindow.location.reload()};
+$('rnd').onclick=()=>{const pool=OP_GAMES.filter(x=>x.id!==g.id);location.href='jogo.html?g='+pool[Math.floor(Math.random()*pool.length)].id};
+$('full').onclick=()=>{const f=$('fr');(f.requestFullscreen||f.webkitRequestFullscreen).call(f)};
+$('more').innerHTML=OP_GAMES.filter(x=>x.id!==g.id).sort((a,b)=>(b.cat===g.cat)-(a.cat===g.cat)).slice(0,12).map(x=>`<a class="tile" href="jogo.html?g=${x.id}" style="--c1:${x.bg[0]};--c2:${x.bg[1]}"><span class="emo">${x.emoji}</span><img src="${OP_SPRITE(x.sheep)}" alt=""><div class="nm">${x.name}</div></a>`).join('');
+</script>
+</body>
+</html>

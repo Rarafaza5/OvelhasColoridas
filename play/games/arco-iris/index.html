@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Desenha o Arco-Íris</title><script src="../../oc.js"></script>
+<style>.bar{position:absolute;left:0;right:0;bottom:10px;display:flex;gap:8px;justify-content:center;z-index:6}.sm{padding:9px 18px;font-size:.95rem}.g{background:#ffffff22;color:#fff;box-shadow:none}</style></head><body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="lv">🌈 Nível 1/7</span><span id="st">⭐⭐⭐</span><span id="ink">🖍️ 100%</span></div>
+<div class="bar">
+ <button class="btn sm" id="run">▶ Largar Ovelha</button>
+ <button class="btn sm g" id="undo">↩ Apagar Traço</button>
+ <button class="btn sm g" id="rst">🔄 Limpar</button>
+</div>
+<div class="ov" id="ov"><h2>🌈 Desenha o Arco-Íris</h2>
+<p>Desenha pontes e rampas de arco-íris com o dedo ou o rato para a ovelha rolar até ao portal estelar ⭐!<br>
+Apanha as <b>estrelinhas</b> pelo caminho e poupa tinta mágica.</p>
+<button class="btn" id="go">▶ Começar a Desenhar</button></div>
+<script>
+const W=800,H=500,R=20,INK=1250,cv=document.getElementById('c'),x=cv.getContext('2d'),pt=OC.fit(cv,W,H);
+const ID='arco-iris',TAU=Math.PI*2,$=id=>document.getElementById(id);
+const sheep=OC.img('ovelha-verde');
+const L=[
+ {b:[120,65],s:[680,415],st:[[380,310],[530,385]],o:[[0,465,800,465]]},
+ {b:[120,65],s:[690,125],st:[[320,250],[535,175]],o:[[0,465,800,465],[470,465,470,255]]},
+ {b:[90,65],s:[400,425],st:[[250,210],[400,320]],o:[[0,200,260,260],[540,200,800,260],[300,465,500,465],[300,465,300,375],[500,465,500,375]]},
+ {b:[400,55],s:[130,415],st:[[390,235],[235,345]],o:[[250,160,550,160],[0,465,800,465],[260,465,260,300],[500,465,500,300]]},
+ {b:[85,80],s:[710,95],st:[[260,185],[460,180]],o:[[0,150,230,190],[0,465,800,465],[330,465,330,230],[330,230,560,230],[560,135,800,135]]},
+ {b:[110,70],s:[690,410],st:[[290,190],[490,300]],o:[[210,120,210,360],[410,220,410,465],[0,465,800,465]]},
+ {b:[690,65],s:[110,410],st:[[480,195],[270,310]],o:[[540,180,800,180],[260,300,540,300],[0,465,800,465]]}
+];
+let li=0,ball,lines,used,run,cur,lvl,done,total=0,got=0,parts=[],t=0;
+function load(){lvl=L[li];lines=[];used=0;reset();$('lv').textContent=`🌈 Nível ${li+1}/${L.length}`}
+function reset(){
+ ball={x:lvl.b[0],y:lvl.b[1],vx:0,vy:0};run=false;done=false;got=1;
+ lvl.stars=lvl.st.map(([sx,sy])=>({x:sx,y:sy,got:false}));upd();
+}
+function upd(){$('st').textContent='⭐'.repeat(got)+'☆'.repeat(3-got)}
+function allSegs(){
+ const a=lvl.o.slice();
+ lines.forEach(l=>{for(let i=1;i<l.length;i++)a.push([l[i-1][0],l[i-1][1],l[i][0],l[i][1]])});
+ return a;
+}
+cv.onpointerdown=e=>{if(done)return;cur=[];const p=pt(e);cur.push([p.x,p.y]);try{cv.setPointerCapture(e.pointerId)}catch(_){}};
+cv.onpointermove=e=>{
+ if(!cur)return;const p=pt(e),l=cur[cur.length-1],d=Math.hypot(p.x-l[0],p.y-l[1]);
+ if(d<8||used+d>INK)return;
+ used+=d;cur.push([p.x,p.y]);OC.tone(360+(used/INK)*350,.03,'sine',.03);
+};
+cv.onpointerup=()=>{if(cur&&cur.length>1)lines.push(cur);cur=null};
+$('run').onclick=()=>{if(!run&&!done){run=true;OC.sfx.jump()}else if(run){reset()}};
+$('undo').onclick=()=>{const l=lines.pop();if(l){for(let i=1;i<l.length;i++)used-=Math.hypot(l[i][0]-l[i-1][0],l[i][1]-l[i-1][1]);used=Math.max(0,used);OC.sfx.pop()}};
+$('rst').onclick=()=>{lines=[];used=0;reset();OC.sfx.pop()};
+function phys(){
+ const S=allSegs();
+ for(let k=0;k<4;k++){
+  ball.vy+=.095;ball.x+=ball.vx/4;ball.y+=ball.vy/4;
+  for(const[a,b,c,d]of S){
+   const dx=c-a,dy=d-b,u=Math.max(0,Math.min(1,((ball.x-a)*dx+(ball.y-b)*dy)/(dx*dx+dy*dy||1)));
+   const px=a+u*dx,py=b+u*dy,ex=ball.x-px,ey=ball.y-py,dist=Math.hypot(ex,ey);
+   if(dist<R+4){
+    const nx=dist?ex/dist:0,ny=dist?ey/dist:-1;
+    ball.x+=nx*(R+4-dist);ball.y+=ny*(R+4-dist);
+    const vn=ball.vx*nx+ball.vy*ny;
+    if(vn<0){ball.vx-=1.35*vn*nx;ball.vy-=1.35*vn*ny}
+    ball.vx*=.998;
+   }
+  }
+  if(ball.x<R){ball.x=R;ball.vx=Math.abs(ball.vx)*.5}
+  if(ball.x>W-R){ball.x=W-R;ball.vx=-Math.abs(ball.vx)*.5}
+ }
+}
+function update(){
+ t+=.05;
+ parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.l--});parts=parts.filter(p=>p.l>0);
+ $('run').textContent=run?'⏹ Repor Ovelha':'▶ Largar Ovelha';
+ if(!run||done)return;
+ phys();
+ lvl.stars.forEach(s=>{
+  if(!s.got&&Math.hypot(ball.x-s.x,ball.y-s.y)<R+18){
+   s.got=true;got++;upd();OC.sfx.good();
+   for(let i=0;i<12;i++)parts.push({x:s.x,y:s.y,vx:(Math.random()-.5)*5,vy:(Math.random()-.5)*5,l:24,c:'#ffd166'});
+  }
+ });
+ if(Math.hypot(ball.x-lvl.s[0],ball.y-lvl.s[1])<R+24){
+  done=true;OC.sfx.win();total+=got;
+  for(let i=0;i<24;i++)parts.push({x:lvl.s[0],y:lvl.s[1],vx:(Math.random()-.5)*7,vy:(Math.random()-.5)*7,l:30,c:'#00f5d4'});
+  setTimeout(()=>{
+   if(li<L.length-1){li++;load()}
+   else{OC.best(ID,total);OC.end({id:ID,title:'Artista do Arco-Íris!',text:`Completaste todos os ${L.length} níveis!`,stars:total,retry:()=>{li=0;total=0;load()}})}
+  },750);
+ }
+ if(ball.y>H+70){OC.sfx.bad();reset()}
+}
+const RB=['#ff4d6d','#ff9f1c','#ffd166','#06d6a0','#4cc9f0'];
+function stroke(l){
+ x.lineCap='round';x.lineJoin='round';
+ RB.forEach((c,b)=>{
+  x.strokeStyle=c;x.lineWidth=3.5;x.beginPath();
+  l.forEach((p,i)=>i?x.lineTo(p[0],p[1]+(b-2)*2.6):x.moveTo(p[0],p[1]+(b-2)*2.6));
+  x.stroke();
+ });
+}
+function draw(){
+ const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#1e1948');g.addColorStop(1,'#090d24');x.fillStyle=g;x.fillRect(0,0,W,H);
+ x.strokeStyle='#7a88d4';x.lineWidth=9;x.lineCap='round';
+ lvl.o.forEach(o=>{x.beginPath();x.moveTo(o[0],o[1]);x.lineTo(o[2],o[3]);x.stroke()});
+ lines.forEach(stroke);if(cur&&cur.length>1)stroke(cur);
+ x.textAlign='center';x.textBaseline='middle';
+ x.font='28px sans-serif';lvl.stars.forEach(s=>{if(!s.got)x.fillText('⭐',s.x,s.y+Math.sin(t+s.x)*3)});
+ x.font='46px sans-serif';x.fillText('🌟',lvl.s[0],lvl.s[1]+Math.sin(t*1.5)*3);
+ x.save();x.translate(ball.x,ball.y);x.rotate(ball.x*.035);
+ if(sheep.complete)x.drawImage(sheep,-R-8,-R-8,(R+8)*2,(R+8)*2);
+ x.restore();
+ parts.forEach(p=>{x.globalAlpha=p.l/30;x.fillStyle=p.c;x.beginPath();x.arc(p.x,p.y,4,0,TAU);x.fill()});x.globalAlpha=1;
+ $('ink').textContent='🖍️ '+Math.round(Math.max(0,1-used/INK)*100)+'%';
+}
+load();
+(function loop(){update();draw();requestAnimationFrame(loop)})();
+$('go').onclick=()=>$('ov').style.display='none';
+</script></body></html>

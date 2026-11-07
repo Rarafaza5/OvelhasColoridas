@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Eco das Estrelas</title>
+<link rel="stylesheet" href="../../oc.css">
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🔭 Constelação: <span id="rd">1</span>/8</div>
+  <div class="pill">⭐ Pontos: <span id="sc">0</span></div>
+  <div class="pill" id="msgPill">Observa o céu...</div>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🔭✨</div>
+    <h1>Eco das Estrelas</h1>
+    <p>O telescópio das Ovelhas Coloridas captou uma melodia estelar! Observa o caminho luminoso que se desenha no mapa de estrelas e <b>arrasta ou toca nas estrelas pela mesma ordem</b> para reconstruir a constelação!</p>
+    <div class="kbs"><span class="kb">Toque / Rato</span> Ligar Estrelas da Constelação <span class="kb">1-6</span> Atalhos de Estrela</div>
+    <br><button class="btn" id="go">Olhar pelo Telescópio!</button>
+  </div>
+</div>
+<script src="../../oc.js"></script>
+<script>
+const {c,ctx}=OC.canvas();
+const STARS=[
+  {name:'Vega Azul',col:'#4FC3F7',freq:330,img:OC.img('ovelha-azul.png'),rx:0.25,ry:0.32},
+  {name:'Nova Rosa',col:'#F06292',freq:392,img:OC.img('ovelha-rosa.png'),rx:0.50,ry:0.22},
+  {name:'Épsilon Verde',col:'#81C784',freq:440,img:OC.img('ovelha-verde.png'),rx:0.75,ry:0.32},
+  {name:'Nebulosa Roxa',col:'#BA68C8',freq:523.25,img:OC.img('ovelha-roxa.png'),rx:0.28,ry:0.68},
+  {name:'Sol Laranja',col:'#FFB74D',freq:587.33,img:OC.img('ovelha-laranja.png'),rx:0.50,ry:0.76},
+  {name:'Sirius Melancia',col:'#FF5252',freq:659.25,img:OC.img('ovelha-melancia.png'),rx:0.72,ry:0.68}
+];
+
+let st='wait',round=1,sc=0,seq=[],userSeq=[],litIdx=-1,litTimer=0,beamProg=0;
+
+function starPos(i,W,H){
+  return {x:W*STARS[i].rx,y:H*STARS[i].ry};
+}
+
+function playNote(i){
+  const s=STARS[i];
+  OC.sfx.tone(s.freq,0.28,'sine',0.22);
+  OC.sfx.tone(s.freq*1.5,0.18,'triangle',0.1);
+}
+
+function startRound(){
+  userSeq=[];litIdx=-1;
+  document.getElementById('rd').textContent=round;
+  document.getElementById('msgPill').textContent='🔭 Observa o feixe estelar...';
+  // Generate a new constellation path of length round+2 without immediate self-repeats
+  seq=[];
+  let prev=-1;
+  const len=Math.min(9,round+2);
+  for(let i=0;i<len;i++){
+    let nxt;
+    do{nxt=Math.floor(Math.random()*STARS.length);}while(nxt===prev);
+    seq.push(nxt);prev=nxt;
+  }
+  st='watch';
+  let step=0;
+  const iv=setInterval(()=>{
+    if(st!=='watch'){clearInterval(iv);return;}
+    if(step>=seq.length){
+      litIdx=-1;
+      clearInterval(iv);
+      st='input';
+      document.getElementById('msgPill').textContent='✨ Traça a constelação!';
+      return;
+    }
+    litIdx=seq[step];
+    litTimer=0.45;
+    playNote(litIdx);
+    const p=starPos(litIdx,c.width,c.height);
+    OC.fx.burst(p.x,p.y,STARS[litIdx].col,12);
+    step++;
+  },Math.max(420,680-round*28));
+}
+
+function init(){
+  round=1;sc=0;seq=[];userSeq=[];litIdx=-1;
+  document.getElementById('sc').textContent='0';
+  document.getElementById('rd').textContent='1';
+}
+
+function pickStar(idx){
+  if(st!=='input')return;
+  // Ignore holding over the exact same star just added
+  if(userSeq.length>0 && userSeq[userSeq.length-1]===idx && seq[userSeq.length]!==idx)return;
+  const expected=seq[userSeq.length];
+  const p=starPos(idx,c.width,c.height);
+  litIdx=idx;litTimer=0.35;
+  if(idx===expected){
+    userSeq.push(idx);
+    playNote(idx);
+    sc+=15*round;
+    document.getElementById('sc').textContent=sc;
+    OC.fx.burst(p.x,p.y,STARS[idx].col,14);
+    if(userSeq.length===seq.length){
+      st='pause';
+      OC.sfx.win();
+      OC.fx.floatText(c.width/2,c.height*0.48,'CONSTELAÇÃO COMPLETA!','#FFD93D');
+      if(round>=8){
+        setTimeout(()=>{
+          st='end';
+          OC.end({win:true,stars:3,score:sc,title:'Astrónomo das Ovelhas!',msg:`Mapeaste todas as 8 constelações musicais com ${sc} pontos!`,onRetry:()=>{init();startRound();}});
+        },700);
+      }else{
+        round++;
+        setTimeout(startRound,900);
+      }
+    }
+  }else{
+    OC.sfx.hit();
+    OC.fx.shake(10);
+    OC.fx.burst(p.x,p.y,'#FF5252',22);
+    st='end';
+    OC.end({win:round>=4,stars:round>=7?3:round>=4?2:1,score:sc,title:round>=4?'Belo Mapa Estelar!':'Constelação Desfeita!',msg:`Chegaste à constelação ${round} com ${sc} pontos!`,onRetry:()=>{init();startRound();}});
+  }
+}
+
+let pointerDown=false;
+function checkPtr(e){
+  if(st!=='input')return;
+  const W=c.width,H=c.height;
+  for(let i=0;i<STARS.length;i++){
+    const p=starPos(i,W,H);
+    if(Math.hypot(e.clientX-p.x,e.clientY-p.y)<48){
+      pickStar(i);break;
+    }
+  }
+}
+c.addEventListener('pointerdown',e=>{pointerDown=true;checkPtr(e);});
+c.addEventListener('pointermove',e=>{if(pointerDown)checkPtr(e);});
+window.addEventListener('pointerup',()=>{pointerDown=false;});
+window.addEventListener('keydown',e=>{
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=6)pickStar(n-1);
+});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();startRound();
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+  if(litTimer>0)litTimer-=dt;else litIdx=-1;
+
+  // Draw telescope vignette ring
+  ctx.save();
+  ctx.strokeStyle='rgba(78,205,196,0.22)';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(W/2,H/2,Math.min(W,H)*0.44,0,Math.PI*2);ctx.stroke();
+  ctx.restore();
+
+  // Draw constellation lines built by user so far
+  if(userSeq.length>1){
+    ctx.save();
+    ctx.strokeStyle='#FFD93D';ctx.lineWidth=5;ctx.shadowColor='#FFD93D';ctx.shadowBlur=14;
+    ctx.beginPath();
+    for(let i=0;i<userSeq.length;i++){
+      const p=starPos(userSeq[i],W,H);
+      if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw watch-mode preview line between previous and current lit star
+  if(st==='watch' && litIdx>=0){
+    const idxInSeq=seq.indexOf(litIdx);
+    if(idxInSeq>0){
+      const p0=starPos(seq[idxInSeq-1],W,H),p1=starPos(litIdx,W,H);
+      ctx.save();
+      ctx.strokeStyle=STARS[litIdx].col;ctx.lineWidth=4;ctx.setLineDash([8,8]);
+      ctx.beginPath();ctx.moveTo(p0.x,p0.y);ctx.lineTo(p1.x,p1.y);ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  // Draw Star Nodes
+  for(let i=0;i<STARS.length;i++){
+    const s=STARS[i],p=starPos(i,W,H);
+    const active=(litIdx===i)||userSeq.includes(i);
+    const r=litIdx===i?46:38;
+    ctx.save();
+    ctx.fillStyle=active?s.col:'rgba(255,255,255,0.12)';
+    ctx.strokeStyle=s.col;ctx.lineWidth=4;
+    if(litIdx===i){ctx.shadowColor=s.col;ctx.shadowBlur=25;}
+    ctx.beginPath();ctx.arc(p.x,p.y,r,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.drawImage(s.img,p.x-26,p.y-26,52,52);
+    ctx.fillStyle='#fff';ctx.font='bold 13px Fredoka,sans-serif';ctx.textAlign='center';
+    ctx.fillText(`${i+1}. ${s.name}`,p.x,p.y+r+18);
+    ctx.restore();
+  }
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

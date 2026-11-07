@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Incubadora Estelar: Coleção & Evolução</title>
+<script src="../../oc.js"></script>
+<style>
+#bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6;flex-wrap:wrap;justify-content:center}
+.ibtn{pointer-events:auto;padding:9px 16px;border-radius:16px;border:2px solid rgba(255,255,255,.24);background:rgba(16,22,58,.9);color:#fff;font:700 .88rem Fredoka,sans-serif;cursor:pointer;transition:.15s}
+.ibtn:hover{transform:translateY(-2px);border-color:#ffd166}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">✨ Luz Estelar: <span id="sl">50</span> (+<span id="cps">2</span>/s)</div>
+  <div class="pill">🥚 Criaturas: <span id="cnt">1</span></div>
+  <div class="pill">🏆 Poder da Equipa: <span id="pw">10</span></div>
+</div>
+<div id="bar">
+  <button class="ibtn" id="bEgg1">🥚 Chocar Ovo Comum (25✨)</button>
+  <button class="ibtn" id="bEgg2" style="border-color:#ff85a2">🔮 Ovo Raro Galáctico (90✨)</button>
+  <button class="ibtn" id="bMerge" style="background:#06d6a0;color:#081c15">🌟 Fundir & Evoluir Pares!</button>
+  <button class="ibtn" id="bBoss" style="background:#ffd166;color:#1a0a00">⚔️ Expedição Bónus!</button>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🥚✨🐑</div>
+    <h1>Incubadora Estelar</h1>
+    <p>Coleciona, choca e evolui Guardiões Estelares! Choca <b>Ovos Cósmicos</b> para descobrir variantes Raras e Lendárias, <b>funde pares iguais</b> para os evoluir até 5 Estrelas (★★★★★) e toca nas tuas criaturas para multiplicar a Luz Estelar. <b>Tudo fica guardado!</b></p>
+    <div class="kbs"><span class="kb">Tocar nas Criaturas</span> Gerar Luz Bónus <span class="kb">Fundir Pares</span> Evoluir Nível Estelar</div>
+    <br><button class="btn" id="go">Abrir Incubadora!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const SPECIES=[
+  {name:'Ovelha Azul',col:'#4cc9f0',base:2,img:OC.img('ovelha-azul.png')},
+  {name:'Ovelha Rosa',col:'#ff85a2',base:3,img:OC.img('ovelha-rosa.png')},
+  {name:'Ovelha Verde',col:'#06d6a0',base:5,img:OC.img('ovelha-verde.png')},
+  {name:'Ovelha Roxa',col:'#9b5de5',base:8,img:OC.img('ovelha-roxa.png')},
+  {name:'Ovelha Laranja',col:'#ff9f1c',base:12,img:OC.img('ovelha-laranja.png')},
+  {name:'Pato Dourado',col:'#ffd166',base:18,img:OC.img('pato.png')},
+  {name:'Arco-Íris Lendária',col:'#ff595e',base:30,img:OC.img('ovelha-arcoiris.png')}
+];
+
+let D=OC.get('op_incubadora_save',null);
+if(!D||!D.pets){
+  D={light:50,pets:[{sp:0,tier:1}]};
+}
+function save(){OC.set('op_incubadora_save',D);}
+
+let st='wait';
+
+function totalPower(){
+  return D.pets.reduce((s,p)=>s+SPECIES[p.sp].base*Math.pow(2.2,p.tier-1),0);
+}
+
+function updUI(){
+  const pw=Math.round(totalPower());
+  document.getElementById('sl').textContent=Math.floor(D.light);
+  document.getElementById('cps').textContent=pw;
+  document.getElementById('cnt').textContent=D.pets.length;
+  document.getElementById('pw').textContent=pw*5;
+}
+
+function hatch(rare){
+  const cost=rare?90:25;
+  if(D.light<cost||D.pets.length>=12){OC.sfx.hit();return;}
+  D.light-=cost;
+  const sp=rare?Math.min(6,2+Math.floor(Math.random()*5)):Math.floor(Math.random()*4);
+  D.pets.push({sp,tier:1});
+  OC.sfx.win();OC.addStars(rare?3:1);
+  OC.fx.burst(c.width/2,c.height/2,SPECIES[sp].col,26);
+  OC.fx.floatText(c.width/2,c.height*0.35,`🥚 NASCEU: ${SPECIES[sp].name}!`,'#ffd166');
+  save();updUI();
+}
+
+document.getElementById('bEgg1').onclick=()=>hatch(false);
+document.getElementById('bEgg2').onclick=()=>hatch(true);
+document.getElementById('bMerge').onclick=()=>{
+  for(let i=0;i<D.pets.length;i++){
+    for(let j=i+1;j<D.pets.length;j++){
+      if(D.pets[i].sp===D.pets[j].sp && D.pets[i].tier===D.pets[j].tier){
+        D.pets[i].tier++;
+        const sp=D.pets[i].sp,t=D.pets[i].tier;
+        D.pets.splice(j,1);
+        OC.sfx.win();OC.addStars(2);
+        OC.fx.burst(c.width/2,c.height/2,'#ffd166',30);
+        OC.fx.floatText(c.width/2,c.height*0.4,`🌟 EVOLUIU PARA ${'★'.repeat(t)}!`,'#06d6a0');
+        save();updUI();return;
+      }
+    }
+  }
+  OC.fx.floatText(c.width/2,c.height*0.4,'Precisas de 2 criaturas iguais para fundir!','#ff85a2');
+};
+document.getElementById('bBoss').onclick=()=>{
+  const bonus=Math.round(totalPower()*8);
+  D.light+=bonus;
+  OC.sfx.win();OC.addStars(2);
+  OC.fx.burst(c.width/2,c.height/2,'#00f5d4',28);
+  OC.fx.floatText(c.width/2,c.height*0.35,`⚔️ EXPEDIÇÃO VENCIDA! +${bonus}✨`,'#ffd166');
+  save();updUI();
+};
+
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play')return;
+  const gain=Math.max(3,Math.round(totalPower()*0.4));
+  D.light+=gain;
+  OC.sfx.pop();
+  OC.fx.burst(e.clientX,e.clientY,'#ffd166',10);
+  OC.fx.floatText(e.clientX,e.clientY-20,`+${gain}✨`,'#ffd166');
+  save();updUI();
+});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();updUI();st='play';
+};
+
+let last=performance.now(),incT=0;
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  if(st==='play'){
+    D.light+=totalPower()*dt;
+    incT+=dt;
+    if(incT>1){incT=0;save();updUI();}
+  }
+
+  // Draw Sanctuary Pedestals
+  const cols=4;
+  for(let i=0;i<D.pets.length;i++){
+    const p=D.pets[i],info=SPECIES[p.sp];
+    const col=i%cols,row=Math.floor(i/cols);
+    const x=W*0.2+col*(W*0.2),y=H*0.28+row*(H*0.24);
+    const bob=Math.sin(now*0.004+i)*6;
+    ctx.save();
+    ctx.fillStyle=info.col+'33';ctx.strokeStyle=info.col;ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(x,y+bob,42,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.drawImage(info.img,x-30,y+bob-30,60,60);
+    ctx.fillStyle='#ffd166';ctx.font='bold 13px Fredoka,sans-serif';ctx.textAlign='center';
+    ctx.fillText('★'.repeat(p.tier),x,y+bob-46);
+    ctx.fillStyle='#fff';ctx.font='bold 12px Nunito,sans-serif';
+    ctx.fillText(info.name,x,y+bob+56);
+    ctx.restore();
+  }
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+updUI();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

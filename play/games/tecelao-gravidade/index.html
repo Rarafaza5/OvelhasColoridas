@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Arquitetos de Gravidade</title>
+<script src="../../oc.js"></script>
+<style>
+#bar{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:6}
+.tbtn{pointer-events:auto;padding:8px 16px;border-radius:99px;border:2px solid rgba(255,255,255,.25);background:rgba(16,22,58,.88);color:#fff;font:700 .9rem Fredoka,sans-serif;cursor:pointer}
+.tbtn.act{border-color:#ffd166;background:#3a2778;color:#ffd166}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">🌉 Nível: <span id="lv">1</span>/6</div>
+  <div class="pill">🧶 Orçamento: <span id="bd">0</span>/<span id="mx">100</span></div>
+  <div class="pill" id="stTxt">Modo: Construção</div>
+</div>
+<div id="bar">
+  <button class="tbtn act" id="bRoad">🛣️ Passadiço de Lã</button>
+  <button class="tbtn" id="bCable">🪢 Cabo de Suporte</button>
+  <button class="tbtn" id="bUndo">↩️ Desfazer</button>
+  <button class="tbtn" id="bSim" style="background:#06d6a0;color:#081c15;border-color:#fff">▶ Testar Ponte!</button>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🌉📐</div>
+    <h1>Arquitetos de Gravidade</h1>
+    <p>Constrói pontes suspensas de lã para a caravana das Ovelhas atravessar o abismo espacial! Liga nós com <b>Passadiços de Lã</b> (onde a ovelha anda) e reforça a estrutura com <b>Cabos de Suporte</b> para os fios não partirem com a tensão física!</p>
+    <div class="kbs"><span class="kb">Arrastar entre Nós</span> Construir Viga/Cabo <span class="kb">▶ Testar Ponte</span> Simular Física</div>
+    <br><button class="btn" id="go">Projetar Estrutura!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const imgSheep=OC.img('ovelha-arcoiris.png'),imgEle=OC.img('elefante-amendoim.png');
+
+const LEVELS=[
+  {budget:420,anchors:[[0.18,0.55],[0.82,0.55],[0.5,0.28]],gap:[0.18,0.82]},
+  {budget:550,anchors:[[0.15,0.55],[0.85,0.55],[0.38,0.28],[0.62,0.28]],gap:[0.15,0.85]},
+  {budget:620,anchors:[[0.14,0.58],[0.86,0.58],[0.5,0.78],[0.35,0.3],[0.65,0.3]],gap:[0.14,0.86]},
+  {budget:680,anchors:[[0.12,0.52],[0.88,0.52],[0.35,0.75],[0.65,0.75],[0.5,0.25]],gap:[0.12,0.88]},
+  {budget:750,anchors:[[0.12,0.6],[0.88,0.45],[0.35,0.28],[0.65,0.25],[0.5,0.75]],gap:[0.12,0.88]},
+  {budget:820,anchors:[[0.1,0.55],[0.9,0.55],[0.3,0.25],[0.5,0.22],[0.7,0.25],[0.5,0.78]],gap:[0.1,0.9]}
+];
+
+let st='wait',lvIdx=0,mode='build',tool='road',spent=0;
+let nodes=[],beams=[],car={x:0,y:0,vx:0,vy:0},dragNode=null,ptr={x:0,y:0};
+
+function loadLevel(){
+  const W=c.width,H=c.height,L=LEVELS[lvIdx];
+  mode='build';spent=0;nodes=[];beams=[];dragNode=null;
+  for(const [rx,ry] of L.anchors){
+    nodes.push({x:W*rx,y:H*ry,ox:W*rx,oy:H*ry,vx:0,vy:0,fixed:true});
+  }
+  // Add intermediate buildable deck nodes
+  const x0=W*L.gap[0],x1=W*L.gap[1],y0=nodes[0].y,y1=nodes[1].y;
+  const steps=4;
+  for(let i=1;i<steps;i++){
+    const t=i/steps;
+    nodes.push({x:x0+(x1-x0)*t,y:y0+(y1-y0)*t,ox:x0+(x1-x0)*t,oy:y0+(y1-y0)*t,vx:0,vy:0,fixed:false});
+  }
+  car={x:nodes[0].x,y:nodes[0].y-24,vx:95,vy:0};
+  updUI();
+}
+
+function updUI(){
+  const L=LEVELS[lvIdx];
+  document.getElementById('lv').textContent=lvIdx+1;
+  document.getElementById('bd').textContent=Math.round(spent);
+  document.getElementById('mx').textContent=L.budget;
+  document.getElementById('stTxt').textContent=mode==='build'?'🛠️ Modo: Construção':'🚜 A Testar Tensão...';
+  document.getElementById('bSim').textContent=mode==='build'?'▶ Testar Ponte!':'⏹ Editar Ponte';
+}
+
+document.getElementById('bRoad').onclick=()=>{tool='road';document.getElementById('bRoad').classList.add('act');document.getElementById('bCable').classList.remove('act');};
+document.getElementById('bCable').onclick=()=>{tool='cable';document.getElementById('bCable').classList.add('act');document.getElementById('bRoad').classList.remove('act');};
+document.getElementById('bUndo').onclick=()=>{
+  if(mode!=='build'||!beams.length)return;
+  const b=beams.pop();spent=Math.max(0,spent-b.cost);OC.sfx.click();updUI();
+};
+document.getElementById('bSim').onclick=()=>{
+  if(mode==='build'){
+    mode='sim';
+    for(const n of nodes){n.x=n.ox;n.y=n.oy;n.vx=0;n.vy=0;}
+    for(const b of beams)b.broken=false;
+    car={x:nodes[0].x,y:nodes[0].y-22,vx:105,vy:0};
+    OC.sfx.jump();
+  }else{
+    mode='build';
+    for(const n of nodes){n.x=n.ox;n.y=n.oy;n.vx=0;n.vy=0;}
+    for(const b of beams)b.broken=false;
+  }
+  updUI();
+};
+
+c.addEventListener('pointerdown',e=>{
+  if(st!=='play'||mode!=='build')return;
+  ptr.x=e.clientX;ptr.y=e.clientY;
+  for(const n of nodes){
+    if(Math.hypot(e.clientX-n.x,e.clientY-n.y)<28){
+      dragNode=n;return;
+    }
+  }
+});
+c.addEventListener('pointermove',e=>{ptr.x=e.clientX;ptr.y=e.clientY;});
+window.addEventListener('pointerup',e=>{
+  if(!dragNode||mode!=='build'){dragNode=null;return;}
+  for(const n of nodes){
+    if(n!==dragNode && Math.hypot(e.clientX-n.x,e.clientY-n.y)<32){
+      const len=Math.hypot(n.ox-dragNode.ox,n.oy-dragNode.oy);
+      const cost=len*(tool==='road'?0.45:0.25);
+      const L=LEVELS[lvIdx];
+      const exists=beams.some(b=>(b.a===dragNode&&b.b===n)||(b.a===n&&b.b===dragNode));
+      if(!exists && spent+cost<=L.budget){
+        beams.push({a:dragNode,b:n,len,type:tool,cost,stress:0,broken:false});
+        spent+=cost;OC.sfx.pop();updUI();
+      }else if(spent+cost>L.budget){
+        OC.sfx.hit();OC.fx.floatText(n.x,n.y,'ORÇAMENTO EXCEDIDO!','#ff595e');
+      }
+      break;
+    }
+  }
+  dragNode=null;
+});
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();lvIdx=0;loadLevel();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.03,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  if(st==='play' && mode==='sim'){
+    // Physics solver (8 substeps)
+    for(let step=0;step<6;step++){
+      const sdt=dt/6;
+      for(const n of nodes){
+        if(!n.fixed){
+          n.vy+=340*sdt;
+          n.vx*=0.995;n.vy*=0.995;
+          n.x+=n.vx*sdt;n.y+=n.vy*sdt;
+        }
+      }
+      for(const b of beams){
+        if(b.broken)continue;
+        const dx=b.b.x-b.a.x,dy=b.b.y-b.a.y,d=Math.hypot(dx,dy)||1;
+        const diff=(d-b.len)/d;
+        b.stress=Math.abs(d-b.len)/b.len;
+        if(b.stress>0.28){
+          b.broken=true;
+          OC.sfx.hit();OC.fx.burst((b.a.x+b.b.x)/2,(b.a.y+b.b.y)/2,'#ff595e',14);
+          continue;
+        }
+        const k=0.45;
+        if(!b.a.fixed){b.a.x+=dx*diff*k;b.a.y+=dy*diff*k;}
+        if(!b.b.fixed){b.b.x-=dx*diff*k;b.b.y-=dy*diff*k;}
+      }
+    }
+
+    // Move sheep caravan along road beams
+    car.vy+=420*dt;
+    car.x+=car.vx*dt;
+    car.y+=car.vy*dt;
+
+    // Collide caravan with road beams
+    let supported=false;
+    for(const b of beams){
+      if(b.broken||b.type!=='road')continue;
+      const x1=Math.min(b.a.x,b.b.x)-8,x2=Math.max(b.a.x,b.b.x)+8;
+      if(car.x>=x1 && car.x<=x2){
+        const t=Math.max(0,Math.min(1,(car.x-b.a.x)/((b.b.x-b.a.x)||1)));
+        const by=b.a.y+(b.b.y-b.a.y)*t;
+        if(car.y>=by-26 && car.y<=by+24){
+          car.y=by-22;car.vy=0;supported=true;
+          if(!b.a.fixed)b.a.vy+=120*dt;
+          if(!b.b.fixed)b.b.vy+=120*dt;
+        }
+      }
+    }
+
+    // Check goal reached (anchor 1)
+    const goal=nodes[1];
+    if(Math.hypot(car.x-goal.x,car.y-goal.y)<48){
+      OC.sfx.win();
+      OC.fx.burst(goal.x,goal.y,'#ffd166',30);
+      if(lvIdx<LEVELS.length-1){
+        lvIdx++;loadLevel();
+        OC.fx.floatText(W/2,H*0.35,`PONTE ${lvIdx} APROVADA!`,'#06d6a0');
+      }else{
+        st='end';
+        OC.end({win:true,stars:3,score:(lvIdx+1)*250,title:'Engenheiro-Chefe Cósmico!',msg:'Construíste todas as 6 pontes suspensas com sucesso!',onRetry:()=>{lvIdx=0;loadLevel();st='play';}});
+      }
+    }else if(car.y>H+60){
+      OC.sfx.hit();
+      mode='build';
+      for(const n of nodes){n.x=n.ox;n.y=n.oy;n.vx=0;n.vy=0;}
+      for(const b of beams)b.broken=false;
+      updUI();
+      OC.fx.floatText(W/2,H*0.45,'A PONTE CEDEU! REFORÇA OS CABOS!','#ff595e');
+    }
+  }
+
+  // Draw cliffs
+  if(nodes.length>=2){
+    ctx.save();
+    ctx.fillStyle='#2b1d52';ctx.strokeStyle='#9b5de5';ctx.lineWidth=3;
+    ctx.fillRect(0,nodes[0].oy,nodes[0].ox+10,H);
+    ctx.fillRect(nodes[1].ox-10,nodes[1].oy,W,H);
+    ctx.drawImage(imgEle,nodes[1].ox+18,nodes[1].oy-58,58,58);
+    ctx.restore();
+  }
+
+  // Draw beams
+  for(const b of beams){
+    if(b.broken)continue;
+    ctx.save();
+    const s=Math.min(1,(b.stress||0)*4);
+    ctx.strokeStyle=mode==='sim'?`rgb(${Math.round(80+175*s)},${Math.round(220-160*s)},120)`:(b.type==='road'?'#ffd166':'#4cc9f0');
+    ctx.lineWidth=b.type==='road'?9:4;
+    if(b.type==='cable')ctx.setLineDash([6,5]);
+    ctx.beginPath();ctx.moveTo(b.a.x,b.a.y);ctx.lineTo(b.b.x,b.b.y);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Drag line preview
+  if(dragNode && mode==='build'){
+    ctx.save();
+    ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.setLineDash([6,6]);
+    ctx.beginPath();ctx.moveTo(dragNode.x,dragNode.y);ctx.lineTo(ptr.x,ptr.y);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw nodes
+  for(const n of nodes){
+    ctx.save();
+    ctx.fillStyle=n.fixed?'#ff85a2':'#ffd166';
+    ctx.strokeStyle='#1b1438';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(n.x,n.y,n.fixed?13:10,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Caravan Sheep
+  const cx=mode==='sim'?car.x:(nodes[0]?nodes[0].x:100);
+  const cy=mode==='sim'?car.y:(nodes[0]?nodes[0].y-24:100);
+  ctx.drawImage(imgSheep,cx-26,cy-26,52,52);
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+loadLevel();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

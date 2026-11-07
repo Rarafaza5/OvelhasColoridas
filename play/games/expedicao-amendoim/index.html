@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Expedição ao Planeta Amendoim</title>
+<script src="../../oc.js"></script>
+<style>
+#hangar{position:absolute;right:12px;bottom:12px;display:flex;gap:6px;flex-wrap:wrap;z-index:6;max-width:520px;justify-content:flex-end}
+.upbtn{pointer-events:auto;padding:7px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.22);background:rgba(16,22,58,.86);color:#fff;font:700 .82rem Fredoka,sans-serif;cursor:pointer;backdrop-filter:blur(6px);transition:.15s}
+.upbtn:hover:not(:disabled){transform:translateY(-2px);border-color:#ffd166;background:rgba(36,44,104,.92)}
+.upbtn:disabled{opacity:.45;cursor:default}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <div class="pill">💎 Cristais: <span id="cr">0</span></div>
+  <div class="pill">🐑 Tripulação: <span id="crw">1</span>/6</div>
+  <div class="pill">🛡️ Escudo: <span id="sh">100</span>%</div>
+  <div class="pill">🪐 Setor: <span id="sec">1</span>/4</div>
+</div>
+<div id="hangar">
+  <button class="upbtn" id="upLaser">⚡ Laser Nv.<span id="lvL">1</span> (💎<span id="cL">15</span>)</button>
+  <button class="upbtn" id="upEng">🚀 Motor Nv.<span id="lvE">1</span> (💎<span id="cE">15</span>)</button>
+  <button class="upbtn" id="upShd">🛡️ Casco Nv.<span id="lvS">1</span> (💎<span id="cS">20</span>)</button>
+</div>
+<div class="ov" id="st">
+  <div class="card">
+    <div style="font-size:3.2rem">🚀🥜</div>
+    <h1>Expedição ao Planeta Amendoim</h1>
+    <p>Comanda a Nave-Mãe das Ovelhas Coloridas! Usa o <b>Laser de Mineração</b> para extrair cristais de asteroides, resgata as <b>6 Ovelhas Especialistas</b> (cada uma ativa um módulo na nave), melhora os teus sistemas no Hangar e derrota o Guardião da Nebulosa no Setor 4!</p>
+    <div class="kbs"><span class="kb">WASD / Setas / Toque</span> Pilotar Nave <span class="kb">Automático</span> Laser & Módulos da Tripulação</div>
+    <br><button class="btn" id="go">Iniciar Expedição!</button>
+  </div>
+</div>
+<script>
+const {c,ctx}=OC.canvas();
+const CREW_TYPES=[
+  {name:'Arco-Íris',col:'#ff85a2',img:OC.img('ovelha-arcoiris.png'),role:'Capitania'},
+  {name:'Azul',col:'#4cc9f0',img:OC.img('ovelha-azul.png'),role:'Regeneração de Escudo'},
+  {name:'Rosa',col:'#ff9ecd',img:OC.img('ovelha-rosa.png'),role:'Feixe Magnético'},
+  {name:'Verde',col:'#06d6a0',img:OC.img('ovelha-verde.png'),role:'Drones de Mineração'},
+  {name:'Laranja',col:'#ff9f1c',img:OC.img('ovelha-laranja.png'),role:'Turbo Propulsor'},
+  {name:'Roxa',col:'#9b5de5',img:OC.img('ovelha-roxa.png'),role:'Canhão Gravitacional'}
+];
+const imgEle=OC.img('elefante-amendoim.png');
+
+let st='wait',crystals=0,sector=1,sectorProg=0;
+let ship={x:400,y:300,vx:0,vy:0,ang:-Math.PI/2,hp:100,maxHp:100,lvL:1,lvE:1,lvS:1,crew:1,gravCd:0};
+let keys={w:0,a:0,s:0,d:0},ptr={active:false,x:0,y:0};
+let rocks=[],gems=[],pods=[],drones=[],shots=[],boss=null,spawnT=0;
+
+function init(){
+  crystals=0;sector=1;sectorProg=0;
+  ship={x:c.width/2,y:c.height*0.65,vx:0,vy:0,ang:-Math.PI/2,hp:100,maxHp:100,lvL:1,lvE:1,lvS:1,crew:1,gravCd:0};
+  rocks=[];gems=[];pods=[];drones=[];shots=[];boss=null;spawnT=0.2;
+  for(let i=0;i<6;i++)spawnRock();
+  updateUI();
+}
+
+function cost(lv,base){return base*lv;}
+function updateUI(){
+  document.getElementById('cr').textContent=crystals;
+  document.getElementById('crw').textContent=ship.crew;
+  document.getElementById('sh').textContent=Math.max(0,Math.round(ship.hp/ship.maxHp*100));
+  document.getElementById('sec').textContent=sector;
+  document.getElementById('lvL').textContent=ship.lvL;
+  document.getElementById('cL').textContent=cost(ship.lvL,15);
+  document.getElementById('upLaser').disabled=crystals<cost(ship.lvL,15);
+  document.getElementById('lvE').textContent=ship.lvE;
+  document.getElementById('cE').textContent=cost(ship.lvE,15);
+  document.getElementById('upEng').disabled=crystals<cost(ship.lvE,15);
+  document.getElementById('lvS').textContent=ship.lvS;
+  document.getElementById('cS').textContent=cost(ship.lvS,20);
+  document.getElementById('upShd').disabled=crystals<cost(ship.lvS,20);
+}
+
+document.getElementById('upLaser').onclick=()=>{
+  const cs=cost(ship.lvL,15);if(crystals<cs)return;
+  crystals-=cs;ship.lvL++;OC.sfx.good();OC.fx.floatText(ship.x,ship.y-30,'LASER MELHORADO!','#ffd166');updateUI();
+};
+document.getElementById('upEng').onclick=()=>{
+  const cs=cost(ship.lvE,15);if(crystals<cs)return;
+  crystals-=cs;ship.lvE++;OC.sfx.good();OC.fx.floatText(ship.x,ship.y-30,'MOTOR MELHORADO!','#4cc9f0');updateUI();
+};
+document.getElementById('upShd').onclick=()=>{
+  const cs=cost(ship.lvS,20);if(crystals<cs)return;
+  crystals-=cs;ship.lvS++;ship.maxHp+=40;ship.hp=ship.maxHp;OC.sfx.good();OC.fx.floatText(ship.x,ship.y-30,'CASCO REFORÇADO!','#06d6a0');updateUI();
+};
+
+window.addEventListener('keydown',e=>{
+  if(e.code==='KeyW'||e.code==='ArrowUp')keys.w=1;
+  if(e.code==='KeyS'||e.code==='ArrowDown')keys.s=1;
+  if(e.code==='KeyA'||e.code==='ArrowLeft')keys.a=1;
+  if(e.code==='KeyD'||e.code==='ArrowRight')keys.d=1;
+});
+window.addEventListener('keyup',e=>{
+  if(e.code==='KeyW'||e.code==='ArrowUp')keys.w=0;
+  if(e.code==='KeyS'||e.code==='ArrowDown')keys.s=0;
+  if(e.code==='KeyA'||e.code==='ArrowLeft')keys.a=0;
+  if(e.code==='KeyD'||e.code==='ArrowRight')keys.d=0;
+});
+c.addEventListener('pointerdown',e=>{ptr.active=true;ptr.x=e.clientX;ptr.y=e.clientY;});
+c.addEventListener('pointermove',e=>{if(ptr.active){ptr.x=e.clientX;ptr.y=e.clientY;}});
+window.addEventListener('pointerup',()=>{ptr.active=false;});
+
+function spawnRock(){
+  const W=c.width,H=c.height;
+  const edge=Math.floor(Math.random()*4);
+  let x=edge===0?0:edge===1?W:Math.random()*W;
+  let y=edge===2?0:edge===3?H:Math.random()*H;
+  const r=22+Math.random()*22;
+  const hp=(25+sector*20)*(r/30);
+  const a=Math.atan2(H/2-y+(Math.random()-0.5)*200,W/2-x+(Math.random()-0.5)*200);
+  const sp=25+Math.random()*40+sector*8;
+  rocks.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,r,hp,maxHp:hp,rot:0,vrot:(Math.random()-0.5)*2,rich:Math.random()<0.35});
+}
+
+function spawnPod(){
+  if(ship.crew>=6||pods.length>0)return;
+  const W=c.width,H=c.height;
+  pods.push({x:80+Math.random()*(W-160),y:80+Math.random()*(H-160),idx:ship.crew,t:0});
+}
+
+document.getElementById('go').onclick=()=>{
+  document.getElementById('st').classList.add('hide');
+  OC.music.start();init();st='play';
+};
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  const W=c.width,H=c.height;
+  OC.fx.drawStars(ctx,W,H,now);
+
+  let laserTarget=null;
+
+  if(st==='play'){
+    // Crew passives:
+    // Crew 2 (Azul): shield regen
+    if(ship.crew>=2)ship.hp=Math.min(ship.maxHp,ship.hp+3.5*dt);
+    // Crew 5 (Laranja): extra speed
+    const spd=(210+ship.lvE*38)*(ship.crew>=5?1.25:1);
+
+    let ax=0,ay=0;
+    if(keys.a)ax-=1;if(keys.d)ax+=1;
+    if(keys.w)ay-=1;if(keys.s)ay+=1;
+    if(ptr.active){
+      const dx=ptr.x-ship.x,dy=ptr.y-ship.y,d=Math.hypot(dx,dy);
+      if(d>18){ax=dx/d;ay=dy/d;}
+    }
+    ship.vx+=(ax*spd-ship.vx*5)*dt;
+    ship.vy+=(ay*spd-ship.vy*5)*dt;
+    ship.x=Math.max(35,Math.min(W-35,ship.x+ship.vx*dt));
+    ship.y=Math.max(55,Math.min(H-55,ship.y+ship.vy*dt));
+    if(Math.hypot(ship.vx,ship.vy)>15)ship.ang=Math.atan2(ship.vy,ship.vx);
+
+    spawnT-=dt;
+    if(spawnT<=0){
+      if(rocks.length<6+sector*2)spawnRock();
+      if(Math.random()<0.35)spawnPod();
+      spawnT=1.4;
+    }
+
+    // Spawn Boss in Sector 4
+    if(sector===4 && !boss){
+      boss={x:W/2,y:110,vx:90,hp:650,maxHp:650,shootT:1.5};
+      OC.toast('⚠️ Guardião da Nebulosa detetado!');
+    }
+
+    // Find nearest target for mining laser
+    let bestD=210+ship.lvL*25;
+    for(const rk of rocks){
+      const d=Math.hypot(rk.x-ship.x,rk.y-ship.y);
+      if(d<bestD){bestD=d;laserTarget=rk;}
+    }
+    if(boss){
+      const d=Math.hypot(boss.x-ship.x,boss.y-ship.y);
+      if(d<bestD+60)laserTarget=boss;
+    }
+
+    if(laserTarget){
+      const dps=(38+ship.lvL*24)*(ship.crew>=4?1.35:1);
+      laserTarget.hp-=dps*dt;
+      if(Math.random()<0.35)OC.fx.burst(laserTarget.x+(Math.random()-0.5)*16,laserTarget.y+(Math.random()-0.5)*16,'#00f5d4',2);
+    }
+
+    // Crew 6 (Roxa): Gravity Cannon auto-shot
+    if(ship.crew>=6){
+      ship.gravCd-=dt;
+      if(ship.gravCd<=0 && (rocks.length>0||boss)){
+        const tgt=boss||rocks[0];
+        const a=Math.atan2(tgt.y-ship.y,tgt.x-ship.x);
+        shots.push({x:ship.x,y:ship.y,vx:Math.cos(a)*420,vy:Math.sin(a)*420,friendly:true,r:10});
+        ship.gravCd=1.1;
+      }
+    }
+
+    // Update shots
+    for(let i=shots.length-1;i>=0;i--){
+      const s=shots[i];
+      s.x+=s.vx*dt;s.y+=s.vy*dt;
+      if(s.friendly){
+        let hit=false;
+        if(boss && Math.hypot(s.x-boss.x,s.y-boss.y)<52){
+          boss.hp-=45;hit=true;OC.fx.burst(s.x,s.y,'#9b5de5',10);
+        }
+        for(const rk of rocks){
+          if(Math.hypot(s.x-rk.x,s.y-rk.y)<rk.r+8){
+            rk.hp-=45;hit=true;OC.fx.burst(s.x,s.y,'#9b5de5',10);break;
+          }
+        }
+        if(hit){shots.splice(i,1);continue;}
+      }else{
+        if(Math.hypot(s.x-ship.x,s.y-ship.y)<30){
+          ship.hp-=16;OC.sfx.hit();OC.fx.shake(8);OC.fx.burst(ship.x,ship.y,'#ff595e',12);
+          shots.splice(i,1);updateUI();continue;
+        }
+      }
+      if(s.x<-40||s.x>W+40||s.y<-40||s.y>H+40)shots.splice(i,1);
+    }
+
+    // Update rocks
+    for(let i=rocks.length-1;i>=0;i--){
+      const rk=rocks[i];
+      rk.x+=rk.vx*dt;rk.y+=rk.vy*dt;rk.rot+=rk.vrot*dt;
+      if(rk.x<-60)rk.x=W+50;if(rk.x>W+60)rk.x=-50;
+      if(rk.y<-60)rk.y=H+50;if(rk.y>H+60)rk.y=-50;
+
+      if(Math.hypot(rk.x-ship.x,rk.y-ship.y)<rk.r+24){
+        ship.hp-=18;
+        rk.vx*=-1;rk.vy*=-1;
+        ship.x-=rk.vx*0.08;ship.y-=rk.vy*0.08;
+        OC.sfx.hit();OC.fx.shake(10);OC.fx.burst(ship.x,ship.y,'#ff595e',14);
+        updateUI();
+      }
+
+      if(rk.hp<=0){
+        OC.sfx.pop();
+        OC.fx.burst(rk.x,rk.y,rk.rich?'#ffd166':'#4cc9f0',18);
+        const count=rk.rich?4:2;
+        for(let k=0;k<count;k++){
+          gems.push({x:rk.x+(Math.random()-0.5)*24,y:rk.y+(Math.random()-0.5)*24,val:rk.rich?4:2});
+        }
+        sectorProg++;
+        if(sector<4 && sectorProg>=sector*6){
+          sector++;
+          OC.sfx.win();
+          OC.fx.floatText(W/2,H*0.35,`SETOR ${sector} ALCANÇADO!`,'#ffd166');
+          updateUI();
+        }
+        rocks.splice(i,1);
+      }
+    }
+
+    // Update boss
+    if(boss){
+      boss.x+=boss.vx*dt;
+      if(boss.x<100||boss.x>W-100)boss.vx*=-1;
+      boss.shootT-=dt;
+      if(boss.shootT<=0){
+        for(let k=-1;k<=1;k++){
+          const a=Math.atan2(ship.y-boss.y,ship.x-boss.x)+k*0.25;
+          shots.push({x:boss.x,y:boss.y+30,vx:Math.cos(a)*230,vy:Math.sin(a)*230,friendly:false,r:9});
+        }
+        boss.shootT=1.45;
+      }
+      if(boss.hp<=0){
+        OC.fx.burst(boss.x,boss.y,'#ffd166',40);
+        boss=null;st='end';
+        OC.end({win:true,stars:3,score:crystals*10+ship.crew*100,title:'Planeta Amendoim Descoberto!',msg:`A tua tripulação de ${ship.crew} ovelhas aterrou no Planeta Amendoim com ${crystals} cristais!`,onRetry:()=>{init();st='play';}});
+      }
+    }
+
+    // Update pods (rescue crew)
+    for(let i=pods.length-1;i>=0;i--){
+      const p=pods[i];p.t+=dt;
+      if(Math.hypot(p.x-ship.x,p.y-ship.y)<44){
+        const cinfo=CREW_TYPES[p.idx];
+        ship.crew=Math.min(6,ship.crew+1);
+        OC.sfx.win();
+        OC.fx.burst(p.x,p.y,cinfo.col,24);
+        OC.fx.floatText(p.x,p.y-20,`+${cinfo.name}: ${cinfo.role}!`,cinfo.col);
+        pods.splice(i,1);
+        updateUI();
+      }
+    }
+
+    // Update gems (Crew 3 Rosa = Magnet)
+    const magR=ship.crew>=3?220:85;
+    for(let i=gems.length-1;i>=0;i--){
+      const g=gems[i];
+      const d=Math.hypot(ship.x-g.x,ship.y-g.y);
+      if(d<magR){
+        g.x+=(ship.x-g.x)*6*dt;
+        g.y+=(ship.y-g.y)*6*dt;
+      }
+      if(d<32){
+        crystals+=g.val;
+        OC.sfx.coin();
+        OC.fx.floatText(g.x,g.y,`+${g.val}💎`,'#00f5d4');
+        gems.splice(i,1);
+        updateUI();
+      }
+    }
+
+    if(ship.hp<=0){
+      st='end';
+      OC.end({win:sector>=3,stars:sector>=3?2:1,score:crystals*10+sector*100,title:'Nave Danificada!',msg:`Chegaste ao Setor ${sector} com ${ship.crew} tripulantes!`,onRetry:()=>{init();st='play';}});
+    }
+  }
+
+  // Draw rescue pods
+  for(const p of pods){
+    const cinfo=CREW_TYPES[p.idx];
+    ctx.save();
+    ctx.strokeStyle=cinfo.col;ctx.lineWidth=3;ctx.shadowColor=cinfo.col;ctx.shadowBlur=14;
+    ctx.beginPath();ctx.arc(p.x,p.y,28+Math.sin(p.t*4)*3,0,Math.PI*2);ctx.stroke();
+    ctx.drawImage(cinfo.img,p.x-22,p.y-22,44,44);
+    ctx.fillStyle='#fff';ctx.font='bold 12px Fredoka,sans-serif';ctx.textAlign='center';
+    ctx.fillText('SOS! '+cinfo.role,p.x,p.y+42);
+    ctx.restore();
+  }
+
+  // Draw gems
+  for(const g of gems){
+    ctx.save();
+    ctx.fillStyle=g.val>2?'#ffd166':'#00f5d4';
+    ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=10;
+    ctx.beginPath();ctx.arc(g.x,g.y,7,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw rocks
+  for(const rk of rocks){
+    ctx.save();
+    ctx.translate(rk.x,rk.y);ctx.rotate(rk.rot);
+    ctx.fillStyle=rk.rich?'#5e438f':'#333968';
+    ctx.strokeStyle=rk.rich?'#ffd166':'#7b84b8';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    for(let k=0;k<7;k++){
+      const a=k*Math.PI*2/7,rad=rk.r*(k%2?0.85:1.05);
+      if(k===0)ctx.moveTo(Math.cos(a)*rad,Math.sin(a)*rad);
+      else ctx.lineTo(Math.cos(a)*rad,Math.sin(a)*rad);
+    }
+    ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Boss
+  if(boss){
+    ctx.save();
+    ctx.fillStyle='#ef476f';ctx.strokeStyle='#ffd166';ctx.lineWidth=4;
+    ctx.shadowColor='#ef476f';ctx.shadowBlur=22;
+    ctx.beginPath();ctx.arc(boss.x,boss.y,48,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 14px Fredoka,sans-serif';ctx.textAlign='center';
+    ctx.fillText(`GUARDIÃO DA NEBULOSA (${Math.ceil(boss.hp)} HP)`,boss.x,boss.y-60);
+    ctx.drawImage(imgEle,boss.x-30,boss.y-30,60,60);
+    ctx.restore();
+  }
+
+  // Draw Shots
+  for(const s of shots){
+    ctx.save();
+    ctx.fillStyle=s.friendly?'#9b5de5':'#ff595e';
+    ctx.shadowColor=ctx.fillStyle;ctx.shadowBlur=12;
+    ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  }
+
+  // Draw Mining Laser
+  if(st==='play' && laserTarget){
+    ctx.save();
+    ctx.strokeStyle='#00f5d4';ctx.lineWidth=3+ship.lvL;
+    ctx.shadowColor='#00f5d4';ctx.shadowBlur=15;
+    ctx.beginPath();ctx.moveTo(ship.x,ship.y);ctx.lineTo(laserTarget.x,laserTarget.y);ctx.stroke();
+    ctx.restore();
+  }
+
+  // Draw Ship & Orbiting Crew Modules
+  ctx.save();
+  ctx.translate(ship.x,ship.y);
+  for(let i=1;i<ship.crew;i++){
+    const a=now*0.003+i*(Math.PI*2/5);
+    const ox=Math.cos(a)*46,oy=Math.sin(a)*46;
+    ctx.drawImage(CREW_TYPES[i].img,ox-14,oy-14,28,28);
+  }
+  ctx.strokeStyle='#4cc9f0';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(0,0,30,0,Math.PI*2);ctx.stroke();
+  ctx.drawImage(CREW_TYPES[0].img,-24,-24,48,48);
+  ctx.restore();
+
+  OC.fx.update(ctx,dt);
+  requestAnimationFrame(loop);
+}
+init();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
