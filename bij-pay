@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<title>A redirecionar…</title>
+<meta http-equiv="refresh" content="0;url=https://checkout.revolut.com/payment-link/c5631fbb-2c08-492f-b6f6-7d8b0f0bd1a7/">
+<script>location.replace("https://checkout.revolut.com/payment-link/c5631fbb-2c08-492f-b6f6-7d8b0f0bd1a7" + location.search + location.hash)</script>
+</head>
+<body><a href="https://checkout.revolut.com/payment-link/c5631fbb-2c08-492f-b6f6-7d8b0f0bd1a7">Continuar</a></body>
+</html>
