@@ -252,6 +252,8 @@ service cloud.firestore {
         && data.questions is list
         && data.questions.size() <= 200
         && (!data.keys().hasAny(['kitTitle']) || (data.kitTitle is string && data.kitTitle.size() <= 120))
+        // Modo de transmissão: game (jogo com grupos) ou presentation (apresentação sem leaderboard)
+        && (!data.keys().hasAny(['mode'])     || data.mode in ['game', 'presentation'])
       );
     }
 

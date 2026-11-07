@@ -203,6 +203,23 @@
   .toggle-wrap{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--mut);margin-top:10px;cursor:pointer;user-select:none}
   .toggle-wrap input{width:18px;height:18px;accent-color:var(--purple);cursor:pointer}
 
+  /* Barra de Modo de Transmissão (Jogo vs Apresentação) */
+  .live-mode-selector-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:10px 18px;margin-bottom:14px;flex-wrap:wrap}
+  .mode-switch-group{display:flex;background:var(--navy);padding:4px;border-radius:12px;border:1px solid var(--border);gap:4px}
+  .mode-switch-btn{background:transparent;color:var(--mut);border:none;border-radius:10px;padding:8px 18px;font:800 14px 'Nunito';cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .15s}
+  .mode-switch-btn:hover{color:#fff}
+  .mode-switch-btn.on{background:var(--purple);color:#fff;box-shadow:0 2px 8px rgba(155,93,229,.4)}
+  .mode-switch-btn.on.pres{background:var(--yellow);color:var(--navy);box-shadow:0 2px 8px rgba(255,209,102,.4)}
+  .mode-info-tag{font-size:13px;font-weight:700;color:var(--mut);display:flex;align-items:center;gap:6px}
+
+  /* Lista de Navegação Rápida na Apresentação */
+  .pres-q-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;padding-right:4px}
+  .pres-q-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--navy);border:1px solid var(--border);border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;transition:all .15s}
+  .pres-q-item:hover{border-color:var(--yellow);color:#fff}
+  .pres-q-item.active{border-color:var(--yellow);background:rgba(255,209,102,.12);color:var(--yellow)}
+  .pres-q-item .pnum{font-family:'Fredoka';font-size:15px;width:24px}
+  .pres-q-item .ptxt{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
   /* Modal & Toast */
   #modal{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:50;display:none;align-items:center;justify-content:center;padding:20px}
   #modal.on{display:flex}
@@ -244,11 +261,23 @@
 
   <!-- TAB: COMANDO AO VIVO -->
   <section class="tab" id="tab-game">
+    <div class="live-mode-selector-bar" id="liveModeBar">
+      <div class="mode-switch-group">
+        <button id="btnModeGame" class="mode-switch-btn on" onclick="setLiveMode('game')">
+          <span>🎮</span> Jogo em Grupos
+        </button>
+        <button id="btnModePres" class="mode-switch-btn" onclick="setLiveMode('presentation')">
+          <span>📽️</span> Modo Apresentação
+        </button>
+      </div>
+      <div id="liveModeBadgeInfo" class="mode-info-tag"></div>
+    </div>
+
     <div id="liveStepperBar" class="live-stepper-bar"></div>
-    <div class="live-grid">
+    <div class="live-grid" id="liveGrid">
       <div>
         <div class="card" id="ctrl"></div>
-        <div class="card">
+        <div class="card" id="cardPicks">
           <div class="picks-header">
             <h2>Respostas dos Grupos <span id="answerCounter" style="font-size:14px;color:var(--mut);font-family:Nunito"></span></h2>
             <button class="b s" id="btnTogglePicksView" onclick="togglePicksView()">☰ Mudar Visualização</button>
@@ -258,37 +287,35 @@
         </div>
       </div>
       <div>
-        <div class="card">
+        <div class="card" id="cardScores">
           <h2>🏆 Classificação em Direto</h2>
           <div id="scores"></div>
         </div>
-        <div class="card">
+        <div class="card" id="cardPresNotes" style="display:none">
+          <h2>📽️ Notas da Pergunta</h2>
+          <div id="presNotesContent" style="background:var(--navy);border:1px solid var(--border);border-radius:14px;padding:16px;line-height:1.5"></div>
+          <h2 style="margin-top:18px;margin-bottom:8px">Saltar para Pergunta</h2>
+          <div id="presJumpList" class="pres-q-list"></div>
+        </div>
+        <div class="card" id="cardAuto">
           <h2>Automatização & Controlos</h2>
-          <label class="toggle-wrap">
+          <label class="toggle-wrap" id="wrapAutoReveal">
             <input type="checkbox" id="chkAutoReveal" onchange="toggleAutoSetting('autoReveal', this.checked)">
             <span>Revelar resposta automaticamente ao chegar a 0s</span>
           </label>
-          <label class="toggle-wrap">
+          <label class="toggle-wrap" id="wrapAutoAdvance">
             <input type="checkbox" id="chkAutoAdvance" onchange="toggleAutoSetting('autoAdvance', this.checked)">
             <span>Revelar automaticamente quando todos responderem</span>
           </label>
           <div class="btns" style="margin-top:16px">
             <button class="b" onclick="editLive()">✏️ Editar este quiz</button>
-            <button class="b r" onclick="resetGame()">↺ Zerar Pontos</button>
+            <button class="b r" id="btnResetGame" onclick="resetGame()">↺ Zerar Pontos</button>
             <button class="b r" onclick="endLive()">⏹ Terminar Live</button>
           </div>
         </div>
       </div>
     </div>
-    <div class="live-hotkeys-footer">
-      <span>⌨️ <b>Atalhos Rápidos:</b></span>
-      <span><code>Espaço</code> Ação Principal</span>
-      <span><code>A</code>/<code>B</code>/<code>C</code>/<code>D</code> ou <code>1</code>..<code>4</code> Resposta do Grupo Ativo</span>
-      <span><code>Setas ↑/↓</code> Mudar Grupo</span>
-      <span><code>P</code> Pausar Tempo</span>
-      <span><code>+</code> / <code>-</code> ± Tempo</span>
-      <span><code>R</code> Reiniciar Tempo</span>
-    </div>
+    <div class="live-hotkeys-footer" id="liveHotkeysFooter"></div>
   </section>
 
   <!-- TAB: IMAGENS -->
@@ -423,14 +450,32 @@ window.addEventListener('keydown', e => {
   if(target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') return;
   if(target.tagName === 'BUTTON' && e.code === 'Space') return;
   
+  const isPres = S.mode === 'presentation';
+
   if(e.code === 'Space'){ e.preventDefault(); triggerMainAction(); }
   else if(e.code === 'KeyP'){ e.preventDefault(); togglePauseTime(); }
   else if(e.code === 'Equal' || e.code === 'NumpadAdd'){ e.preventDefault(); adjustLiveTime(10); }
   else if(e.code === 'Minus' || e.code === 'NumpadSubtract'){ e.preventDefault(); adjustLiveTime(-5); }
   else if(e.code === 'KeyR'){ e.preventDefault(); restartQ(); }
   
-  // Teclas Rápidas de Resposta por Grupo (A/1, B/2, C/3, D/4)
-  else if(S.phase === 'question'){
+  // Teclas de Navegação em Modo Apresentação
+  else if(isPres && (e.code === 'ArrowRight' || e.code === 'KeyN')){
+    e.preventDefault();
+    if(S.phase === 'question') reveal();
+    else if(S.phase === 'reveal') {
+      if(S.qIndex < (S.questions||[]).length - 1) startQ(S.qIndex + 1);
+      else setPhase('final');
+    } else if(S.phase === 'lobby') {
+      startQ(0);
+    }
+  }
+  else if(isPres && (e.code === 'ArrowLeft' || e.code === 'KeyB')){
+    e.preventDefault();
+    if(S.qIndex > 0) startQ(S.qIndex - 1);
+  }
+
+  // Teclas Rápidas de Resposta por Grupo (apenas em Jogo em Grupos)
+  else if(!isPres && S.phase === 'question'){
     if(e.code === 'Digit1' || e.code === 'Numpad1' || e.code === 'KeyA'){ e.preventDefault(); pickForActiveTeam(0); }
     else if(e.code === 'Digit2' || e.code === 'Numpad2' || e.code === 'KeyB'){ e.preventDefault(); pickForActiveTeam(1); }
     else if(e.code === 'Digit3' || e.code === 'Numpad3' || e.code === 'KeyC'){ e.preventDefault(); pickForActiveTeam(2); }
@@ -465,9 +510,10 @@ let K=null, KID=null, QI=0;
 let autoRevealTriggered = false;
 
 liveRef.onSnapshot(async d=>{
-  if(!d.exists){ await liveRef.set({live:false,phase:'lobby',qIndex:0,runId:0,picks:{},awarded:{},scores:{},questions:[],kitId:'',kitTitle:'',
+  if(!d.exists){ await liveRef.set({live:false,mode:'game',phase:'lobby',qIndex:0,runId:0,picks:{},awarded:{},scores:{},questions:[],kitId:'',kitTitle:'',
     teams:['Grupo A','Grupo B','Grupo C','Grupo D'].map((n,i)=>({id:'t'+(i+1),name:n}))}); return; }
   S=d.data();
+  if(!S.mode) S.mode = 'game';
   if($('chkAutoReveal')) $('chkAutoReveal').checked = S.autoReveal === true;
   if($('chkAutoAdvance')) $('chkAutoAdvance').checked = S.autoAdvance === true;
   renderGame(); renderTeams(); renderLibrary();
@@ -502,7 +548,7 @@ function renderLibrary(){
       </div>
       <div class="ft">
         <button class="b s p" onclick="openKit('${k.id}')">✏️ Editar</button>
-        <button class="b s r" onclick="playKit('${k.id}')">🔴 LIVE</button>
+        <button class="b s r" onclick="choosePlayMode('${k.id}')">🔴 LIVE</button>
       </div>
       <div class="ft" style="padding-top:0">
         <button class="b s" onclick="dupKit('${k.id}')">⧉ Duplicar</button>
@@ -542,17 +588,65 @@ function kitProblems(k){
 
 function editLive(){ if(S&&KITS[S.kitId]) openKit(S.kitId); else alert('Quiz não encontrado.'); }
 
-async function playKit(id){
+function choosePlayMode(id){
   const k = id===KID&&K ? K : KITS[id];
   if(!k || !k.questions.length) return alert('Este quiz não tem perguntas.');
   const p=kitProblems(k); if(p.length) return alert('Corrige os seguintes pontos antes de ir ao vivo:\n\n'+p.join('\n'));
-  if(S&&S.live&&S.kitId===id){ show('game'); return; }
-  if(S&&S.live&&!confirm('Já existe um quiz ao vivo. Substituí-lo por "'+k.title+'" e zerar a pontuação?')) return;
+  
+  $('modal').classList.add('on');
+  $('modalBox').innerHTML = `
+    <h2 style="font-family:Fredoka;font-size:26px;margin-bottom:8px;color:var(--lilac)">Escolher Modo de Transmissão</h2>
+    <p class="hint" style="font-size:15px;margin-bottom:20px">Como pretendes apresentar <b>"${esc(k.title)}"</b> no projetor?</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:24px">
+      <div onclick="closeModal();playKit('${id}','game')" style="background:var(--navy);border:2px solid var(--purple);border-radius:18px;padding:22px;cursor:pointer;transition:all .15s;text-align:center" onmouseover="this.style.borderColor='var(--yellow)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--purple)';this.style.transform='none'">
+        <div style="font-size:46px;margin-bottom:10px">🎮</div>
+        <div style="font-family:Fredoka;font-size:22px;color:#fff;margin-bottom:8px">Jogo em Grupos</div>
+        <div style="font-size:13px;color:var(--mut);line-height:1.4">Competição por equipas, registo de respostas, pontos ao vivo, leaderboard e pódio de vencedores.</div>
+      </div>
+      <div onclick="closeModal();playKit('${id}','presentation')" style="background:var(--navy);border:2px solid var(--yellow);border-radius:18px;padding:22px;cursor:pointer;transition:all .15s;text-align:center" onmouseover="this.style.borderColor='#fff';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--yellow)';this.style.transform='none'">
+        <div style="font-size:46px;margin-bottom:10px">📽️</div>
+        <div style="font-family:Fredoka;font-size:22px;color:var(--yellow);margin-bottom:8px">Apresentação</div>
+        <div style="font-size:13px;color:var(--mut);line-height:1.4">Exibição interativa e alargada das perguntas e respostas. Sem recolha de equipas nem leaderboard.</div>
+      </div>
+    </div>
+    <div class="btns" style="justify-content:flex-end">
+      <button class="b" onclick="closeModal()">Cancelar</button>
+    </div>
+  `;
+}
+
+async function setLiveMode(mode){
+  if(!S || !S.live) return;
+  await upd({ mode });
+  toast(mode === 'presentation' ? '📽️ Modo Apresentação Ativado' : '🎮 Modo Jogo em Grupos Ativado');
+}
+
+async function playKit(id, mode){
+  const k = id===KID&&K ? K : KITS[id];
+  if(!k || !k.questions.length) return alert('Este quiz não tem perguntas.');
+  const p=kitProblems(k); if(p.length) return alert('Corrige os seguintes pontos antes de ir ao vivo:\n\n'+p.join('\n'));
+  const targetMode = mode || (S && S.mode) || 'game';
+  if(S&&S.live&&S.kitId===id){
+    if(mode && S.mode !== mode) await upd({mode: targetMode});
+    show('game'); return;
+  }
+  if(S&&S.live&&!confirm('Já existe um quiz ao vivo. Substituí-lo por "'+k.title+'" e reiniciar a transmissão?')) return;
   autoRevealTriggered = false;
   await liveRef.update({
-    live:true,kitId:id,kitTitle:k.title,questions:clone(k.questions),phase:'lobby',qIndex:0,picks:{},awarded:{},scores:{},runId:Date.now()
+    live:true,
+    mode:targetMode,
+    kitId:id,
+    kitTitle:k.title,
+    questions:clone(k.questions),
+    phase:'lobby',
+    qIndex:0,
+    picks:{},
+    awarded:{},
+    scores:{},
+    runId:Date.now()
   });
-  show('game'); toast('🔴 AO VIVO! O Projetor / Display está ativo');
+  show('game');
+  toast(targetMode==='presentation' ? '📽️ AO VIVO: Modo Apresentação Ativo' : '🔴 AO VIVO: Jogo em Grupos Ativo');
 }
 
 async function endLive(){
@@ -586,7 +680,7 @@ function renderEditor(){
       <button class="b" onclick="show('library')">← Os meus quizzes</button>
       <input value="${esc(K.title)}" oninput="K.title=this.value;saveKit()" placeholder="Título do Quiz">
       <span id="saveState">Guardado ✔</span>
-      <button class="b r" style="font-size:16px" onclick="playKit(KID)">🔴 ENTRAR EM LIVE</button>
+      <button class="b r" style="font-size:16px" onclick="choosePlayMode(KID)">🔴 ENTRAR EM LIVE</button>
     </div>
     <div class="ed">
       <aside class="slides">
@@ -632,7 +726,7 @@ function canvasHTML(Q){
 }
 
 function propsHTML(Q){
-  const times=[5,10,20,30,60,90,120,0];
+  const times=[5,10,20,30,45,60,90,120,0];
   return `<label style="margin-top:0">Tipo de Pergunta</label>
     <select onchange="setType(this.value)">${Object.entries(TYPES).map(([k,v])=>`<option value="${k}" ${Q.type===k?'selected':''}>${v.label}</option>`).join('')}</select>
     <label>Tempo de Resposta</label>
@@ -730,15 +824,26 @@ function earn(Q){ return Q.pointsMode==='none'?0:(Q.points||0)*(Q.pointsMode==='
 
 function triggerMainAction(){
   if(!S || !S.live) return;
+  const isPres = S.mode === 'presentation';
   const phase = S.phase, n = (S.questions||[]).length, last = S.qIndex >= n - 1;
   if(phase === 'lobby' && n > 0) startQ(0);
   else if(phase === 'question') reveal();
-  else if(phase === 'reveal') setPhase('board');
+  else if(phase === 'reveal'){
+    if(isPres){
+      if(last) setPhase('final');
+      else startQ(S.qIndex + 1);
+    } else {
+      setPhase('board');
+    }
+  }
   else if(phase === 'board'){
     if(last) setPhase('final');
     else startQ(S.qIndex + 1);
   }
-  else if(phase === 'final') setPhase('board');
+  else if(phase === 'final'){
+    if(isPres) setPhase('lobby');
+    else setPhase('board');
+  }
 }
 
 function toggleAutoSetting(key, val){ upd({[key]: val}); }
@@ -826,25 +931,73 @@ function pick(id,i){
 }
 
 function reveal(){
-  const Q=curQ(); if(!Q) return; const pts=earn(Q);
+  const Q=curQ(); if(!Q) return;
+  const isPres = S.mode === 'presentation';
+  if(isPres){
+    upd({phase:'reveal'});
+    return;
+  }
+  const pts=earn(Q);
   const scores={...(S.scores||{})}, awarded={}, picks=S.picks||{};
   (S.teams||[]).forEach(t=>{ if(picks[t.id]===Q.correct&&pts){ awarded[t.id]=pts; scores[t.id]=(scores[t.id]||0)+pts; } });
   upd({phase:'reveal',scores,awarded});
 }
 
 function adj(id,d){ upd({['scores.'+id]:((S.scores||{})[id]||0)+d}); }
-function resetGame(){ if(!confirm('Reiniciar o jogo? Os pontos voltam a 0.')) return; upd({phase:'lobby',qIndex:0,picks:{},awarded:{},scores:{},runId:Date.now()}); }
+function resetGame(){
+  const isPres = S && S.mode === 'presentation';
+  const msg = isPres ? 'Reiniciar a apresentação? Volta ao ecrã inicial.' : 'Reiniciar o jogo? Os pontos voltam a 0.';
+  if(!confirm(msg)) return;
+  upd({phase:'lobby',qIndex:0,picks:{},awarded:{},scores:{},runId:Date.now()});
+}
 
 /* Renderização do Painel Live (Estúdio de Comando Ao Vivo) */
 function renderGame(){
   if(!S) return;
+  const isPres = S.mode === 'presentation';
   $('navLive').style.display = S.live ? '' : 'none';
   if(!S.live){
     if($('liveStepperBar')) $('liveStepperBar').style.display = 'none';
+    if($('liveModeBar')) $('liveModeBar').style.display = 'none';
     $('ctrl').innerHTML = `<h2>Sem Transmissão Ativa</h2>
-      <p class="hint">Abre um quiz na Biblioteca e clica em "🔴 LIVE" para ligar o projetor. Este painel passará a ser o comando do jogo.</p>`;
+      <p class="hint">Abre um quiz na Biblioteca e clica em "🔴 LIVE" para ligar o projetor. Este painel passará a ser o comando da sessão.</p>`;
     $('picks').innerHTML = ''; $('scores').innerHTML = '';
     return;
+  }
+
+  if($('liveModeBar')){
+    $('liveModeBar').style.display = 'flex';
+    $('btnModeGame').classList.toggle('on', !isPres);
+    $('btnModePres').classList.toggle('on', isPres);
+    $('btnModePres').classList.toggle('pres', isPres);
+    $('liveModeBadgeInfo').innerHTML = isPres
+      ? '<span>📽️ <b>Apresentação:</b> Exibição limpa sem recolha de respostas nem leaderboard</span>'
+      : '<span>🎮 <b>Jogo em Grupos:</b> Respostas dos grupos, pontos ao vivo e classificação</span>';
+  }
+
+  // Alternar visibilidade dos blocos de jogo vs apresentação
+  if($('cardPicks')) $('cardPicks').style.display = isPres ? 'none' : '';
+  if($('cardScores')) $('cardScores').style.display = isPres ? 'none' : '';
+  if($('cardPresNotes')) $('cardPresNotes').style.display = isPres ? '' : 'none';
+  if($('wrapAutoAdvance')) $('wrapAutoAdvance').style.display = isPres ? 'none' : 'flex';
+  if($('btnResetGame')) $('btnResetGame').textContent = isPres ? '↺ Reiniciar Apresentação' : '↺ Zerar Pontos';
+
+  // Renderizar atalhos no rodapé
+  if($('liveHotkeysFooter')){
+    $('liveHotkeysFooter').innerHTML = isPres
+      ? `<span>⌨️ <b>Atalhos Apresentação:</b></span>
+         <span><code>Espaço</code> Revelar / Avançar</span>
+         <span><code>Setas ← / →</code> Pergunta Anterior / Seguinte</span>
+         <span><code>P</code> Pausar Tempo</span>
+         <span><code>+</code> / <code>-</code> ± Tempo</span>
+         <span><code>R</code> Reiniciar Tempo</span>`
+      : `<span>⌨️ <b>Atalhos de Jogo:</b></span>
+         <span><code>Espaço</code> Ação Principal</span>
+         <span><code>A</code>/<code>B</code>/<code>C</code>/<code>D</code> ou <code>1</code>..<code>4</code> Resposta do Grupo Ativo</span>
+         <span><code>Setas ↑/↓</code> Mudar Grupo</span>
+         <span><code>P</code> Pausar Tempo</span>
+         <span><code>+</code> / <code>-</code> ± Tempo</span>
+         <span><code>R</code> Reiniciar Tempo</span>`;
   }
 
   const Q = curQ(), n = (S.questions||[]).length, phase = S.phase, last = S.qIndex >= n - 1;
@@ -865,8 +1018,12 @@ function renderGame(){
       </button>`;
     }).join('');
 
-    stepHTML += `<button class="step-pill ${phase==='board'?'active':''}" onclick="setPhase('board')">🏆 Classificação</button>`;
-    stepHTML += `<button class="step-pill ${phase==='final'?'active':''}" onclick="setPhase('final')">🎉 Pódio</button>`;
+    if(!isPres){
+      stepHTML += `<button class="step-pill ${phase==='board'?'active':''}" onclick="setPhase('board')">🏆 Classificação</button>`;
+      stepHTML += `<button class="step-pill ${phase==='final'?'active':''}" onclick="setPhase('final')">🎉 Pódio</button>`;
+    } else {
+      stepHTML += `<button class="step-pill ${phase==='final'?'active':''}" onclick="setPhase('final')">🏁 Fim</button>`;
+    }
     $('liveStepperBar').innerHTML = stepHTML;
   }
 
@@ -874,26 +1031,31 @@ function renderGame(){
   let btnText = '', btnSub = 'Espaço', isReady = false;
   let phaseBadgeText = '', phaseClass = 'phase-' + phase;
   if(phase === 'lobby') {
-    btnText = '▶ INICIAR JOGO (Pergunta 1)';
+    btnText = isPres ? '▶ INICIAR APRESENTAÇÃO (Pergunta 1)' : '▶ INICIAR JOGO (Pergunta 1)';
     phaseBadgeText = 'LOBBY (AGUARDAR INÍCIO)';
   } else if(phase === 'question') {
-    phaseBadgeText = 'PERGUNTA EM JOGO';
-    if(allAnswered){
+    phaseBadgeText = isPres ? 'PERGUNTA EM APRESENTAÇÃO' : 'PERGUNTA EM JOGO';
+    if(!isPres && allAnswered){
       btnText = '✨ TODOS RESPONDERAM! REVELAR AGORA';
       isReady = true;
     } else {
       btnText = '✔ REVELAR RESPOSTA';
     }
   } else if(phase === 'reveal') {
-    btnText = '🏆 VER CLASSIFICAÇÃO';
     phaseBadgeText = 'RESPOSTA REVELADA';
+    if(isPres){
+      if(last) btnText = '🏁 CONCLUIR APRESENTAÇÃO';
+      else btnText = `▶ PERGUNTA SEGUINTE (${S.qIndex + 2} de ${n})`;
+    } else {
+      btnText = '🏆 VER CLASSIFICAÇÃO';
+    }
   } else if(phase === 'board') {
     phaseBadgeText = 'CLASSIFICAÇÃO ATUAL';
     if(last) btnText = '🎉 MOSTRAR VENCEDORES (PÓDIO)';
     else btnText = `▶ PERGUNTA SEGUINTE (${S.qIndex + 2} de ${n})`;
   } else if(phase === 'final') {
-    btnText = '← Voltar à Classificação';
-    phaseBadgeText = 'PÓDIO FINAL';
+    btnText = isPres ? '🏠 Voltar ao Lobby' : '← Voltar à Classificação';
+    phaseBadgeText = isPres ? 'FIM DA APRESENTAÇÃO' : 'PÓDIO FINAL';
   }
 
   // Calcular segundos restantes para o display do admin
@@ -908,8 +1070,8 @@ function renderGame(){
   }
   const displaySec = Math.ceil(leftSec);
 
-  // Auto-revelar resposta quando ativado
-  if(phase === 'question' && allAnswered && S.autoAdvance && !autoRevealTriggered){
+  // Auto-revelar resposta quando ativado (apenas jogo)
+  if(!isPres && phase === 'question' && allAnswered && S.autoAdvance && !autoRevealTriggered){
     autoRevealTriggered = true;
     setTimeout(() => { if(S && S.phase === 'question') reveal(); }, 400);
   }
@@ -918,9 +1080,9 @@ function renderGame(){
   let ctrlHTML = `
     <div class="live-hero-bar">
       <div class="top-info">
-        <span class="badge-live">🔴 TRANSMISSÃO ATIVA</span>
+        <span class="badge-live">${isPres?'📽️ APRESENTAÇÃO ATIVA':'🔴 TRANSMISSÃO ATIVA'}</span>
         <span class="phase-badge ${phaseClass}">${phaseBadgeText}</span>
-        <span class="q-num">${esc(S.kitTitle||'')} · ${phase==='lobby'?'Ecrã Inicial':phase==='board'?'Tabela de Pontos':phase==='final'?'Pódio':`Pergunta ${Math.min(S.qIndex+1, n)} de ${n}`}</span>
+        <span class="q-num">${esc(S.kitTitle||'')} · ${phase==='lobby'?'Ecrã Inicial':phase==='board'?'Tabela de Pontos':phase==='final'?(isPres?'Conclusão':'Pódio'):`Pergunta ${Math.min(S.qIndex+1, n)} de ${n}`}</span>
       </div>
       <button class="main-action-btn ${isReady?'all-ready':''}" onclick="triggerMainAction()">
         <span>${btnText}</span>
@@ -944,21 +1106,23 @@ function renderGame(){
 
   if(Q && (phase === 'question' || phase === 'reveal')){
     const optCounts = [0, 0, 0, 0];
-    teams.forEach(t => { const p = picks[t.id]; if(p !== undefined && p >= 0 && p < 4) optCounts[p]++; });
+    if(!isPres) {
+      teams.forEach(t => { const p = picks[t.id]; if(p !== undefined && p >= 0 && p < 4) optCounts[p]++; });
+    }
     const qImg = thumbOf(Q.image);
 
     ctrlHTML += `
       <div class="live-qpreview-card">
         ${qImg ? `<div class="live-qimg" style="background-image:url('${esc(qImg)}')"></div>` : ''}
         <div class="qprev">${S.qIndex+1}. ${esc(Q.text)}</div>
-        ${Q.pointsMode !== 'standard' ? `<p class="hint" style="margin-bottom:10px">${Q.pointsMode === 'double' ? '⭐ Pontos a Dobrar (2x)' : 'Sem Pontos'} · Valor: ${earn(Q)} pts</p>` : ''}
+        ${(!isPres && Q.pointsMode !== 'standard') ? `<p class="hint" style="margin-bottom:10px">${Q.pointsMode === 'double' ? '⭐ Pontos a Dobrar (2x)' : 'Sem Pontos'} · Valor: ${earn(Q)} pts</p>` : ''}
         <div class="opts">
           ${Q.answers.map((a,i) => {
             const isCorrect = i === Q.correct;
             const cnt = optCounts[i];
-            return `<div class="opt c${i} ${isCorrect ? 'ok' : ''}" onclick="pickForActiveTeam(${i})" title="Atribuir opção ${L[i]} ao grupo ativo">
-              <span><b>${L[i]}</b> ${esc(a)}${isCorrect ? ' <strong style="color:#7ee564">✓</strong>' : ''}</span>
-              <span class="count-badge">${cnt} ${cnt===1?'grupo':'grupos'}</span>
+            return `<div class="opt c${i} ${isCorrect ? 'ok' : ''}" ${!isPres?`onclick="pickForActiveTeam(${i})" title="Atribuir opção ${L[i]} ao grupo ativo"`:''}>
+              <span><b>${L[i]}</b> ${esc(a)}${isCorrect ? ' <strong style="color:#7ee564">✓ (Correta)</strong>' : ''}</span>
+              ${!isPres ? `<span class="count-badge">${cnt} ${cnt===1?'grupo':'grupos'}</span>` : ''}
             </div>`;
           }).join('')}
         </div>
@@ -969,104 +1133,128 @@ function renderGame(){
   if(phase !== 'lobby') {
     ctrlHTML += `<button class="b s" ${S.qIndex <= 0 ? 'disabled' : ''} onclick="startQ(${S.qIndex-1})">⏮ Pergunta Anterior</button>`;
     if(!last) ctrlHTML += `<button class="b s" onclick="startQ(${S.qIndex+1})">Saltar Pergunta ⏭</button>`;
-    ctrlHTML += `<button class="b s p" onclick="setPhase('board')">Ver Classificação</button>`;
+    if(!isPres) ctrlHTML += `<button class="b s p" onclick="setPhase('board')">Ver Classificação</button>`;
     ctrlHTML += `<button class="b s" onclick="setPhase('lobby')">Voltar ao Lobby</button>`;
   }
   ctrlHTML += `</div>`;
 
   $('ctrl').innerHTML = ctrlHTML;
 
-  // Matriz de Respostas dos Grupos (Picks)
-  $('answerCounter').textContent = phase === 'question' ? `(${answeredCount} de ${teams.length} responderam)` : '';
-  if($('btnTogglePicksView')) $('btnTogglePicksView').textContent = picksViewMode === 'rows' ? '⬏ Mudar para Cartões' : '☰ Mudar para Linhas';
-
-  const pct = teams.length > 0 ? Math.round((answeredCount / teams.length) * 100) : 0;
-  if($('picksToolbar')){
-    $('picksToolbar').innerHTML = `
-      <div class="picks-toolbar">
-        <div class="picks-progress-wrap">
-          <div style="font-size:12px;font-weight:700;color:var(--mut)">Progresso das Respostas: <b>${answeredCount}/${teams.length}</b> (${pct}%)</div>
-          <div class="picks-progress-bar"><div class="picks-progress-fill" style="width:${pct}%"></div></div>
-        </div>
-        <div class="batch-btns">
-          <span style="font-size:11px;color:var(--mut);font-weight:800;margin-right:2px">TODOS:</span>
-          ${(Q ? Q.answers : ['A','B','C','D']).map((_, k) => `<button class="batch-btn k${k}" onclick="pickAll(${k})">${L[k]}</button>`).join('')}
-          <button class="batch-btn" style="background:rgba(255,255,255,.12);color:#fff" onclick="clearAllPicks()">✖ Limpar</button>
-        </div>
-      </div>`;
-  }
-
-  if(teams.length === 0){
-    $('picks').innerHTML = '<p class="hint">Nenhum grupo registado. Adiciona grupos no separador "Grupos".</p>';
-  } else {
-    if(activeTeamIndex < 0 || activeTeamIndex >= teams.length) activeTeamIndex = 0;
-    
-    if(picksViewMode === 'rows'){
-      $('picks').innerHTML = teams.map((t, idx) => {
-        const p = picks[t.id];
-        const res = phase === 'reveal' && Q && p !== undefined ? (p === Q.correct ? ' ✅' : ' ❌') : '';
-        const isAnswered = p !== undefined;
-        const isActive = idx === activeTeamIndex;
-
-        return `<div class="trow ${isActive ? 'active-team' : ''}" onclick="setActiveTeam(${idx})">
-          <div class="nm">
-            <span>${idx+1}. ${esc(t.name)} ${res}</span>
-            <span class="status-pill ${isAnswered ? 'done' : 'pending'}">${isAnswered ? 'Opção ' + L[p] : 'Pendente'}</span>
-          </div>
-          <div class="pk-group">
-            ${(Q ? Q.answers : [0,1,2,3]).map((_, k) => `
-              <button class="pk k${k} ${p===k ? 'sel' : ''}"
-                ${phase==='question' || phase==='reveal' ? '' : 'disabled'} 
-                ${phase==='reveal' ? 'disabled' : ''} 
-                onclick="event.stopPropagation(); pick('${t.id}', ${p===k ? 'null' : k}); setActiveTeam(${idx})">
-                ${L[k]}
-              </button>
-            `).join('')}
-          </div>
+  // Se estiver em modo apresentação, preencher as notas e jump list
+  if(isPres){
+    if($('presNotesContent')){
+      const expl = (Q && Q.explanation) ? esc(Q.explanation) : '<i style="color:var(--mut)">Sem explicação definida nesta pergunta.</i>';
+      $('presNotesContent').innerHTML = `
+        <div style="font-weight:800;font-size:16px;margin-bottom:6px;color:var(--yellow)">P${S.qIndex+1}: ${Q ? esc(Q.text) : ''}</div>
+        <div style="color:rgba(255,255,255,.9);font-size:14px">${expl}</div>
+        ${Q ? `<div style="margin-top:10px;font-size:13px;font-weight:800;color:var(--green)">✓ Resposta Correta: Opção ${L[Q.correct]} — ${esc(Q.answers[Q.correct])}</div>` : ''}
+      `;
+    }
+    if($('presJumpList')){
+      $('presJumpList').innerHTML = (S.questions||[]).map((q, idx) => {
+        const isCur = idx === S.qIndex;
+        return `<div class="pres-q-item ${isCur?'active':''}" onclick="startQ(${idx})">
+          <span class="pnum">${idx+1}.</span>
+          <span class="ptxt">${esc(q.text || 'Sem texto')}</span>
+          ${isCur ? '<span style="color:var(--yellow);font-size:11px;font-weight:900">ATUAL</span>' : ''}
         </div>`;
       }).join('');
-    } else {
-      $('picks').innerHTML = `<div class="grid-picks">` + teams.map((t, idx) => {
-        const p = picks[t.id];
-        const res = phase === 'reveal' && Q && p !== undefined ? (p === Q.correct ? ' ✅' : ' ❌') : '';
-        const isAnswered = p !== undefined;
-        const isActive = idx === activeTeamIndex;
-
-        return `<div class="team-card ${isActive ? 'active-team' : ''} ${isAnswered ? 'done' : ''}" onclick="setActiveTeam(${idx})">
-          <div class="hdr">
-            <h4>${esc(t.name)} ${res}</h4>
-            <span class="status-pill ${isAnswered ? 'done' : 'pending'}">${isAnswered ? 'Opção ' + L[p] : 'Pendente'}</span>
-          </div>
-          <div class="card-pk-grid">
-            ${(Q ? Q.answers : []).map((ansText, k) => `
-              <button class="card-pk-btn k${k} ${p===k ? 'sel' : ''}"
-                ${phase==='question' || phase==='reveal' ? '' : 'disabled'} 
-                ${phase==='reveal' ? 'disabled' : ''} 
-                onclick="event.stopPropagation(); pick('${t.id}', ${p===k ? 'null' : k}); setActiveTeam(${idx})">
-                <div><b>${L[k]}</b></div>
-                <div class="sub-text">${esc(ansText)}</div>
-              </button>
-            `).join('')}
-          </div>
-        </div>`;
-      }).join('') + `</div>`;
     }
   }
 
-  // Tabela de Pontuações em Direto (Scores)
-  const sc = S.scores || {}, aw = S.awarded || {};
-  $('scores').innerHTML = [...teams].sort((a,b)=>(sc[b.id]||0)-(sc[a.id]||0)).map((t,i) => {
-    const gain = aw[t.id];
-    return `<div class="trow" style="cursor:default">
-      <div class="nm">
-        <b>${i+1}.</b> ${esc(t.name)}
-        ${phase === 'reveal' && gain > 0 ? `<span style="font-size:12px;font-weight:900;color:#7ee564;background:rgba(56,176,0,.2);padding:2px 8px;border-radius:6px;margin-left:6px">+${gain} pts</span>` : ''}
-      </div>
-      <button class="b s" onclick="adj('${t.id}',-100)">−100</button>
-      <div class="score">${sc[t.id]||0}</div>
-      <button class="b s" onclick="adj('${t.id}',100)">+100</button>
-    </div>`;
-  }).join('') || '<p class="hint">Sem grupos.</p>';
+  // Matriz de Respostas dos Grupos (Picks) - Apenas em modo Jogo
+  if(!isPres){
+    $('answerCounter').textContent = phase === 'question' ? `(${answeredCount} de ${teams.length} responderam)` : '';
+    if($('btnTogglePicksView')) $('btnTogglePicksView').textContent = picksViewMode === 'rows' ? '⬏ Mudar para Cartões' : '☰ Mudar para Linhas';
+
+    const pct = teams.length > 0 ? Math.round((answeredCount / teams.length) * 100) : 0;
+    if($('picksToolbar')){
+      $('picksToolbar').innerHTML = `
+        <div class="picks-toolbar">
+          <div class="picks-progress-wrap">
+            <div style="font-size:12px;font-weight:700;color:var(--mut)">Progresso das Respostas: <b>${answeredCount}/${teams.length}</b> (${pct}%)</div>
+            <div class="picks-progress-bar"><div class="picks-progress-fill" style="width:${pct}%"></div></div>
+          </div>
+          <div class="batch-btns">
+            <span style="font-size:11px;color:var(--mut);font-weight:800;margin-right:2px">TODOS:</span>
+            ${(Q ? Q.answers : ['A','B','C','D']).map((_, k) => `<button class="batch-btn k${k}" onclick="pickAll(${k})">${L[k]}</button>`).join('')}
+            <button class="batch-btn" style="background:rgba(255,255,255,.12);color:#fff" onclick="clearAllPicks()">✖ Limpar</button>
+          </div>
+        </div>`;
+    }
+
+    if(teams.length === 0){
+      $('picks').innerHTML = '<p class="hint">Nenhum grupo registado. Adiciona grupos no separador "Grupos".</p>';
+    } else {
+      if(activeTeamIndex < 0 || activeTeamIndex >= teams.length) activeTeamIndex = 0;
+      
+      if(picksViewMode === 'rows'){
+        $('picks').innerHTML = teams.map((t, idx) => {
+          const p = picks[t.id];
+          const res = phase === 'reveal' && Q && p !== undefined ? (p === Q.correct ? ' ✅' : ' ❌') : '';
+          const isAnswered = p !== undefined;
+          const isActive = idx === activeTeamIndex;
+
+          return `<div class="trow ${isActive ? 'active-team' : ''}" onclick="setActiveTeam(${idx})">
+            <div class="nm">
+              <span>${idx+1}. ${esc(t.name)} ${res}</span>
+              <span class="status-pill ${isAnswered ? 'done' : 'pending'}">${isAnswered ? 'Opção ' + L[p] : 'Pendente'}</span>
+            </div>
+            <div class="pk-group">
+              ${(Q ? Q.answers : [0,1,2,3]).map((_, k) => `
+                <button class="pk k${k} ${p===k ? 'sel' : ''}"
+                  ${phase==='question' || phase==='reveal' ? '' : 'disabled'} 
+                  ${phase==='reveal' ? 'disabled' : ''} 
+                  onclick="event.stopPropagation(); pick('${t.id}', ${p===k ? 'null' : k}); setActiveTeam(${idx})">
+                  ${L[k]}
+                </button>
+              `).join('')}
+            </div>
+          </div>`;
+        }).join('');
+      } else {
+        $('picks').innerHTML = `<div class="grid-picks">` + teams.map((t, idx) => {
+          const p = picks[t.id];
+          const res = phase === 'reveal' && Q && p !== undefined ? (p === Q.correct ? ' ✅' : ' ❌') : '';
+          const isAnswered = p !== undefined;
+          const isActive = idx === activeTeamIndex;
+
+          return `<div class="team-card ${isActive ? 'active-team' : ''} ${isAnswered ? 'done' : ''}" onclick="setActiveTeam(${idx})">
+            <div class="hdr">
+              <h4>${esc(t.name)} ${res}</h4>
+              <span class="status-pill ${isAnswered ? 'done' : 'pending'}">${isAnswered ? 'Opção ' + L[p] : 'Pendente'}</span>
+            </div>
+            <div class="card-pk-grid">
+              ${(Q ? Q.answers : []).map((ansText, k) => `
+                <button class="card-pk-btn k${k} ${p===k ? 'sel' : ''}"
+                  ${phase==='question' || phase==='reveal' ? '' : 'disabled'} 
+                  ${phase==='reveal' ? 'disabled' : ''} 
+                  onclick="event.stopPropagation(); pick('${t.id}', ${p===k ? 'null' : k}); setActiveTeam(${idx})">
+                  <div><b>${L[k]}</b></div>
+                  <div class="sub-text">${esc(ansText)}</div>
+                </button>
+              `).join('')}
+            </div>
+          </div>`;
+        }).join('') + `</div>`;
+      }
+    }
+
+    // Tabela de Pontuações em Direto (Scores)
+    const sc = S.scores || {}, aw = S.awarded || {};
+    $('scores').innerHTML = [...teams].sort((a,b)=>(sc[b.id]||0)-(sc[a.id]||0)).map((t,i) => {
+      const gain = aw[t.id];
+      return `<div class="trow" style="cursor:default">
+        <div class="nm">
+          <b>${i+1}.</b> ${esc(t.name)}
+          ${phase === 'reveal' && gain > 0 ? `<span style="font-size:12px;font-weight:900;color:#7ee564;background:rgba(56,176,0,.2);padding:2px 8px;border-radius:6px;margin-left:6px">+${gain} pts</span>` : ''}
+        </div>
+        <button class="b s" onclick="adj('${t.id}',-100)">−100</button>
+        <div class="score">${sc[t.id]||0}</div>
+        <button class="b s" onclick="adj('${t.id}',100)">+100</button>
+      </div>`;
+    }).join('') || '<p class="hint">Sem grupos.</p>';
+  }
 }
 
 const upd = d => liveRef.update(d);

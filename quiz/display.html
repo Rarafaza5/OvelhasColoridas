@@ -166,6 +166,63 @@
   .rest .rk-tag{background:rgba(255,255,255,.12);color:var(--yellow);font:700 18px 'Fredoka';padding:2px 10px;border-radius:12px}
   .rest .nm-txt{font-size:22px;font-weight:800;color:#fff}
   .rest .sc-txt{font:700 20px 'Fredoka';color:var(--lilac);margin-left:4px}
+
+  /* Modo Apresentação: Sem Leaderboard nem Validação */
+  .presentation-mode #panel { display: none !important; }
+  .presentation-mode .ans .chips { display: none !important; }
+  
+  .presentation-mode #center {
+    left: 80px;
+    width: 1760px;
+    top: 220px;
+    height: 420px;
+  }
+  .presentation-mode #expl {
+    left: 80px;
+    width: 1760px;
+    top: 540px;
+  }
+  .presentation-mode .ans {
+    width: 860px;
+  }
+  .presentation-mode .ans[data-i="0"] { left: 80px; top: 670px; }
+  .presentation-mode .ans[data-i="1"] { left: 980px; top: 670px; }
+  .presentation-mode .ans[data-i="2"] { left: 80px; top: 860px; }
+  .presentation-mode .ans[data-i="3"] { left: 980px; top: 860px; }
+  .presentation-mode .ans[data-n="2"] { width: 860px; height: 340px; }
+  .presentation-mode .ans[data-n="3"][data-i="2"] { width: 1760px; left: 80px; }
+
+  /* Ecrã de Fim da Apresentação */
+  .pres-final-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+  .pres-final-wrap h2 {
+    font: 700 90px 'Fredoka';
+    background: linear-gradient(135deg, #ffe27a 0%, #fdb913 50%, #ff9f1c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 6px 12px rgba(0,0,0,.6));
+    animation: pop .6s backwards;
+    margin-bottom: 6px;
+  }
+  .pres-final-wrap .after {
+    font: 800 26px 'Nunito';
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--lilac);
+    margin-bottom: 30px;
+  }
+  .pres-badge-title {
+    background: rgba(255,255,255,.12);
+    border: 2px solid rgba(255,255,255,.3);
+    backdrop-filter: blur(10px);
+    padding: 14px 40px;
+    border-radius: 40px;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--yellow);
+    box-shadow: 0 10px 30px rgba(0,0,0,.4);
+    animation: pop .6s .3s backwards;
+  }
 </style>
 </head>
 <body>
@@ -293,18 +350,30 @@ function hero(extra=''){
 
 function render(){
   if(!S){ setView('loading', hero()); return; }
+  const isPres = S.mode === 'presentation';
+  stage.classList.toggle('presentation-mode', isPres);
+
   if(!S.live){ stopTimer(); setView('standby', hero()); return; }
   const q=(S.questions||[])[S.qIndex], phase=S.phase;
 
   if(phase==='lobby' || (!q && (phase==='question'||phase==='reveal'))){
     stopTimer();
-    const teams=(S.teams||[]).map((t,i)=>`<div style="animation-delay:${.1+i*.08}s">${esc(t.name)}</div>`).join('');
-    setView('lobby|'+(S.runId)+'|'+JSON.stringify(S.teams), hero(teams?`<div class="chips-row">${teams}</div>`:''));
+    if(isPres){
+      const titleChip = `<div class="chips-row"><div class="pres-badge-title">📽️ ${esc(S.kitTitle || 'Apresentação Interativa')}</div></div>`;
+      setView('lobby|'+(S.runId)+'|pres|'+(S.kitTitle||''), hero(titleChip));
+    } else {
+      const teams=(S.teams||[]).map((t,i)=>`<div style="animation-delay:${.1+i*.08}s">${esc(t.name)}</div>`).join('');
+      setView('lobby|'+(S.runId)+'|'+JSON.stringify(S.teams), hero(teams?`<div class="chips-row">${teams}</div>`:''));
+    }
     return;
   }
 
   if(phase==='board'){
     stopTimer();
+    if(isPres){
+      setView('board|pres|'+(S.qIndex), `<div class="page"><h2 style="font-size:80px">Apresentação</h2><div class="after" style="margin-top:16px">Pergunta ${S.qIndex+1} concluída</div></div>`);
+      return;
+    }
     const r=ranking(), rowH=Math.min(100, Math.floor(640/Math.max(r.length,1)));
     if(setView('board', `<div class="page"><h2>Classificação</h2><div class="after">Após a pergunta ${S.qIndex+1}</div><div class="list big" id="bl"></div></div>`)){
       requestAnimationFrame(()=>syncBoard($('bl'),ranking(),rowH,14,true));
@@ -313,7 +382,18 @@ function render(){
   }
 
   if(phase==='final'){
-    stopTimer(); const r=ranking();
+    stopTimer();
+    if(isPres){
+      const key='final|pres|'+(S.runId||'')+'|'+(S.kitTitle||'');
+      if(setView(key, `<div class="page pres-final-wrap">
+        <img class="mascot" src="${MASCOT}" alt="Ovelha Arco-Íris" style="height:320px;filter:drop-shadow(0 20px 30px rgba(0,0,0,.5));animation:float 4s ease-in-out infinite;margin-bottom:24px">
+        <h2>Fim da Apresentação</h2>
+        <div class="after">Obrigado pela vossa atenção e participação!</div>
+        <div class="pres-badge-title">✨ ${esc(S.kitTitle || 'Ovelhas Coloridas')}</div>
+      </div>`)) confetti();
+      return;
+    }
+    const r=ranking();
     const key='final|'+JSON.stringify(r.map(t=>[t.name,t.score]));
     const labels=['1.º LUGAR','2.º LUGAR','3.º LUGAR'];
     const pod=(i,pos,cls)=>r[i]?`<div class="pod ${cls}">
@@ -333,12 +413,13 @@ function render(){
   }
 
   // Pergunta / Revelação
-  const key=`q|${S.qIndex}|${S.runId}|${JSON.stringify([q.text,q.answers,S.questions.length])}`;
+  const key=`q|${isPres?'pres|':''}${S.qIndex}|${S.runId}|${JSON.stringify([q.text,q.answers,S.questions.length])}`;
   const built = setView(key, buildQuestion(q));
   updateQuestion(q, phase==='reveal', built);
 }
 
 function buildQuestion(q){
+  const isPres = S && S.mode === 'presentation';
   const n=S.questions.length, i=S.qIndex+1, len=q.text.length, cls=len>90?'vlong':len>55?'long':'';
   const ans=(q.answers||[]).slice(0,4), mult=q.pointsMode==='double'?2:1;
   return `<div id="qroot">
@@ -348,7 +429,7 @@ function buildQuestion(q){
       <div class="prog" id="qprog"><i id="qbar" style="width:100%"></i></div>
     </div>
     <div id="timer-num" style="display:${q.time>0?'block':'none'}">${q.time}</div>
-    ${mult===2?'<div id="badge">✦ Pontos a dobrar</div>':''}
+    ${(!isPres && mult===2)?'<div id="badge">✦ Pontos a dobrar</div>':''}
     <div id="center"></div>
     <div id="expl"></div>
     ${ans.map((a,k)=>`<div class="ans outline ${a.length>22&&ans.length>2?'small':''}" data-i="${k}" data-n="${ans.length}">
@@ -357,6 +438,7 @@ function buildQuestion(q){
 }
 
 function updateQuestion(q, reveal, built){
+  const isPres = S && S.mode === 'presentation';
   const root=$('qroot'); root.classList.toggle('reveal',reveal);
   const picks=S.picks||{}, byId={}; (S.teams||[]).forEach(t=>byId[t.id]=t);
 
@@ -378,12 +460,17 @@ function updateQuestion(q, reveal, built){
     const i=+el.dataset.i;
     el.classList.toggle('correct',reveal&&i===q.correct);
     el.classList.toggle('dim',reveal&&i!==q.correct);
-    const ch=el.querySelector('.chips'), names=reveal?Object.keys(picks).filter(id=>picks[id]===i&&byId[id]).map(id=>byId[id].name):[];
-    const sig=names.join('|'); if(ch.dataset.sig!==sig){ ch.dataset.sig=sig; ch.innerHTML=names.map(n=>`<div class="chip">${esc(n)}</div>`).join(''); }
+    const ch=el.querySelector('.chips');
+    if(ch){
+      const names=(reveal && !isPres)?Object.keys(picks).filter(id=>picks[id]===i&&byId[id]).map(id=>byId[id].name):[];
+      const sig=names.join('|'); if(ch.dataset.sig!==sig){ ch.dataset.sig=sig; ch.innerHTML=names.map(n=>`<div class="chip">${esc(n)}</div>`).join(''); }
+    }
   });
 
-  // Classificação Lateral
-  const r=ranking(); syncBoard($('pl'), r, Math.min(68, Math.floor(700/Math.max(r.length,1))), 8, reveal);
+  // Classificação Lateral (apenas se em jogo em grupos)
+  if(!isPres){
+    const r=ranking(); syncBoard($('pl'), r, Math.min(68, Math.floor(700/Math.max(r.length,1))), 8, reveal);
+  }
 
   // Cronómetro Sincronizado
   const tm=$('timer-num'), bar=$('qbar'), prog=$('qprog');
