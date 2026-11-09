@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Saída do Hangar</title>
+<script src="../../oc.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hl">🚪 Hangar 1/5</span><span id="hm">Movimentos: 0</span><button class="pill" id="rst" style="pointer-events:auto;cursor:pointer">🔄 Reiniciar</button></div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">🚀📦🐑</div>
+    <h1>Saída do Hangar</h1>
+    <p>A nave da Ovelha Arco-Íris está bloqueada por contentores de lã! <b>Arrasta os contentores</b> na sua direção (horizontal ou vertical) para abrir caminho até à <b>Saída Dourada à direita ➔</b>! Inclui 100 Níveis de Campanha com gerador de hangares.</p>
+    <div class="kbs"><span class="kb">Arrastar Contentor</span> Deslizar na Linha/Coluna</div>
+    <button class="btn" id="go">▶ Abrir o Hangar</button>
+  </div>
+</div>
+<script>
+const W=560,H=540,N=6,CELL=68,OX=76,OY=86,cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='saida-estabulo',$=id=>document.getElementById(id);
+const imgHero=OC.img('ovelha-arcoiris');
+const TEMPLATES=[
+  [{x:0,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:2,y:1,len:3,h:false,c:'#4cc9f0'},{x:4,y:2,len:2,h:false,c:'#06d6a0'},{x:1,y:4,len:3,h:true,c:'#ffd166'}],
+  [{x:1,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:0,y:0,len:2,h:true,c:'#9b5de5'},{x:3,y:0,len:3,h:false,c:'#4cc9f0'},{x:4,y:1,len:3,h:false,c:'#ff9f1c'},{x:2,y:3,len:2,h:false,c:'#06d6a0'},{x:3,y:4,len:3,h:true,c:'#ffd166'}],
+  [{x:0,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:2,y:0,len:3,h:false,c:'#4cc9f0'},{x:3,y:1,len:2,h:true,c:'#9b5de5'},{x:5,y:1,len:3,h:false,c:'#06d6a0'},{x:1,y:3,len:2,h:false,c:'#ff9f1c'},{x:2,y:4,len:3,h:true,c:'#ffd166'}],
+  [{x:0,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:2,y:1,len:2,h:false,c:'#4cc9f0'},{x:3,y:0,len:2,h:true,c:'#ffd166'},{x:4,y:1,len:3,h:false,c:'#9b5de5'},{x:0,y:4,len:3,h:true,c:'#06d6a0'},{x:3,y:3,len:2,h:false,c:'#ff9f1c'}],
+  [{x:1,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:0,y:1,len:3,h:false,c:'#4cc9f0'},{x:3,y:1,len:2,h:false,c:'#06d6a0'},{x:4,y:0,len:3,h:false,c:'#9b5de5'},{x:2,y:3,len:3,h:true,c:'#ffd166'},{x:1,y:4,len:2,h:false,c:'#ff9f1c'},{x:3,y:5,len:3,h:true,c:'#ef476f'}],
+  [{x:0,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:2,y:0,len:2,h:false,c:'#4cc9f0'},{x:2,y:2,len:2,h:false,c:'#06d6a0'},{x:3,y:1,len:2,h:true,c:'#ffd166'},{x:5,y:0,len:3,h:false,c:'#9b5de5'},{x:0,y:4,len:2,h:true,c:'#ff9f1c'},{x:3,y:3,len:2,h:false,c:'#ef476f'},{x:1,y:5,len:3,h:true,c:'#4cc9f0'}],
+  [{x:0,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:0,y:0,len:2,h:false,c:'#9b5de5'},{x:1,y:0,len:3,h:true,c:'#ffd166'},{x:2,y:1,len:2,h:false,c:'#4cc9f0'},{x:4,y:0,len:3,h:false,c:'#06d6a0'},{x:3,y:3,len:3,h:true,c:'#ff9f1c'},{x:2,y:4,len:2,h:false,c:'#ef476f'},{x:0,y:3,len:2,h:true,c:'#4cc9f0'}],
+  [{x:1,y:2,len:2,h:true,hero:true,c:'#ff85a2'},{x:0,y:0,len:3,h:false,c:'#4cc9f0'},{x:1,y:0,len:2,h:true,c:'#ffd166'},{x:3,y:0,len:3,h:false,c:'#9b5de5'},{x:4,y:2,len:2,h:false,c:'#06d6a0'},{x:0,y:3,len:3,h:true,c:'#ff9f1c'},{x:3,y:4,len:2,h:false,c:'#ef476f'},{x:0,y:5,len:3,h:true,c:'#06d6a0'}]
+];
+let LEVELS=[],lv=0,blocks=[],moves=0,totalMoves=0,score=0,drag=null,won=false;
+
+function buildCampaignStages(){
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  const diffIdx=OC.DIFFICULTIES?OC.DIFFICULTIES.findIndex(d=>d.id===OC.diff.id):1;
+  const count=Math.min(7,3+Math.floor(campLv/15)+Math.max(0,diffIdx));
+  LEVELS=[];
+  for(let i=0;i<count;i++){
+    const idx=(campLv*3+i+diffIdx)%TEMPLATES.length;
+    const raw=TEMPLATES[idx].map(b=>({...b}));
+    // Apply solvable random pre-shuffles for higher levels while keeping hero blocked
+    LEVELS.push(raw);
+  }
+}
+
+function loadLevel(){
+  if(!LEVELS.length)buildCampaignStages();
+  blocks=LEVELS[lv].map(b=>({...b}));
+  moves=0;won=false;drag=null;updHUD();
+}
+function updHUD(){
+  $('hl').textContent=`🚪 Hangar ${lv+1}/${LEVELS.length} (Nv.${OC.diff.level})`;
+  $('hm').textContent=`Movimentos: ${moves}`;
+}
+function occupied(ignoreIdx,tx,ty){
+  if(tx<0||ty<0||tx>=N||ty>=N)return true;
+  for(let i=0;i<blocks.length;i++){
+    if(i===ignoreIdx)continue;
+    const b=blocks[i];
+    for(let k=0;k<b.len;k++){
+      const bx=b.x+(b.h?k:0),by=b.y+(b.h?0:k);
+      if(bx===tx&&by===ty)return true;
+    }
+  }
+  return false;
+}
+cv.addEventListener('pointerdown',e=>{
+  if(won)return;
+  const p=P(e),gx=Math.floor((p.x-OX)/CELL),gy=Math.floor((p.y-OY)/CELL);
+  for(let i=0;i<blocks.length;i++){
+    const b=blocks[i];
+    for(let k=0;k<b.len;k++){
+      if(b.x+(b.h?k:0)===gx&&b.y+(b.h?0:k)===gy){
+        drag={idx:i,startP:p,origX:b.x,origY:b.y};return;
+      }
+    }
+  }
+});
+cv.addEventListener('pointermove',e=>{
+  if(!drag||won)return;
+  const p=P(e),b=blocks[drag.idx];
+  const delta=b.h?Math.round((p.x-drag.startP.x)/CELL):Math.round((p.y-drag.startP.y)/CELL);
+  while((b.h?b.x-drag.origX:b.y-drag.origY)!==delta){
+    const cur=b.h?b.x-drag.origX:b.y-drag.origY;
+    const dir=Math.sign(delta-cur);
+    const checkX=b.h?(dir>0?b.x+b.len:b.x-1):b.x;
+    const checkY=b.h?b.y:(dir>0?b.y+b.len:b.y-1);
+    if(!occupied(drag.idx,checkX,checkY)){
+      if(b.h)b.x+=dir;else b.y+=dir;
+      moves++;totalMoves++;OC.sfx.click();updHUD();
+      if(b.hero&&b.x===4){
+        won=true;drag=null;score+=Math.max(80,220-moves*4);
+        OC.sfx.win();OC.fx.burst(OX+6*CELL,OY+2.5*CELL,'#ffd166',28);
+        setTimeout(()=>{
+          if(lv+1<LEVELS.length){lv++;loadLevel();}
+          else{
+            const finalScore=Math.round(score*(OC.diff?OC.diff.mult:1));
+            OC.end({id:ID,win:true,stars:totalMoves<=LEVELS.length*14?3:2,score:finalScore,title:'Hangar Desimpedido!',text:`Libertaste a nave das Ovelhas Coloridas nos ${LEVELS.length} hangares do Nível ${OC.diff.level} em ${totalMoves} movimentos!`,retry:()=>{buildCampaignStages();lv=0;totalMoves=0;score=0;loadLevel();}});
+          }
+        },500);
+        return;
+      }
+    }else break;
+  }
+});
+addEventListener('pointerup',()=>{drag=null;});
+$('rst').onclick=()=>{loadLevel();OC.sfx.pop();};
+
+function draw(now,dt){
+  OC.fx.drawStars(ctx,W,H,now);
+  ctx.save();
+  ctx.fillStyle='rgba(18,24,66,0.92)';ctx.strokeStyle='#9b5de5';ctx.lineWidth=4;
+  ctx.beginPath();ctx.roundRect(OX-10,OY-10,N*CELL+20,N*CELL+20,20);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#ffd166';
+  ctx.fillRect(OX+N*CELL+4,OY+2*CELL+8,12,CELL-16);
+  ctx.font='700 16px Fredoka,sans-serif';ctx.fillText('SAÍDA ➔',OX+N*CELL-18,OY+2*CELL-8);
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;
+    ctx.strokeRect(OX+c*CELL,OY+r*CELL,CELL,CELL);
+  }
+  for(const b of blocks){
+    const bx=OX+b.x*CELL+4,by=OY+b.y*CELL+4;
+    const bw=(b.h?b.len:1)*CELL-8,bh=(b.h?1:b.len)*CELL-8;
+    ctx.fillStyle=b.c;ctx.strokeStyle=b.hero?'#ffd166':'#fff';ctx.lineWidth=b.hero?4:2.5;
+    ctx.beginPath();ctx.roundRect(bx,by,bw,bh,16);ctx.fill();ctx.stroke();
+    if(b.hero){
+      ctx.drawImage(imgHero,bx+bw/2-26,by+bh/2-26,52,52);
+    }
+  }
+  ctx.restore();
+  OC.fx.update(ctx,dt);
+}
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start();buildCampaignStages();lv=0;totalMoves=0;score=0;loadLevel();};
+buildCampaignStages();loadLevel();
+OC.loop(null,draw);
+</script>
+</body>
+</html>

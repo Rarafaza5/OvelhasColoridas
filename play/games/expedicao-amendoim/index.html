@@ -14,7 +14,7 @@
 <body>
 <canvas id="c"></canvas>
 <div class="hud">
-  <div class="pill">💎 Cristais: <span id="cr">0</span></div>
+  <div class="pill">🗺️ Nv.<span id="clv">1</span> · 💎 Cristais: <span id="cr">0</span></div>
   <div class="pill">🐑 Tripulação: <span id="crw">1</span>/6</div>
   <div class="pill">🛡️ Escudo: <span id="sh">100</span>%</div>
   <div class="pill">🪐 Setor: <span id="sec">1</span>/4</div>
@@ -60,6 +60,7 @@ function init(){
 
 function cost(lv,base){return base*lv;}
 function updateUI(){
+  const clvEl=document.getElementById('clv');if(clvEl)clvEl.textContent=OC.diff.level;
   document.getElementById('cr').textContent=crystals;
   document.getElementById('crw').textContent=ship.crew;
   document.getElementById('sh').textContent=Math.max(0,Math.round(ship.hp/ship.maxHp*100));
@@ -164,8 +165,9 @@ function loop(now){
 
     // Spawn Boss in Sector 4
     if(sector===4 && !boss){
-      boss={x:W/2,y:110,vx:90,hp:650,maxHp:650,shootT:1.5};
-      OC.toast('⚠️ Guardião da Nebulosa detetado!');
+      const bhp=Math.round((550+OC.diff.level*35)*OC.diff.mult);
+      boss={x:W/2,y:110,vx:90+OC.diff.level,hp:bhp,maxHp:bhp,shootT:1.5};
+      OC.toast(`⚠️ Guardião da Nebulosa Nv.${OC.diff.level} detetado!`);
     }
 
     // Find nearest target for mining laser

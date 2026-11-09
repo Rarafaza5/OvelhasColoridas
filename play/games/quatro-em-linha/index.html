@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Constelação em Linha</title>
+<script src="../../oc.js"></script>
+<style>
+#topOpts{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:6;flex-wrap:wrap;justify-content:center;width:min(96vw,640px)}
+.mbtn{pointer-events:auto;padding:6px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.24);background:rgba(15,21,56,.88);color:#fff;font:700 .78rem Fredoka,sans-serif;cursor:pointer;transition:.15s}
+.mbtn.on{background:#ffd166;color:#1a0a00;border-color:#ffd166}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <span id="p1s">🔵 Ovelha Azul: 0</span>
+  <span id="turn">Vez da Ovelha Azul</span>
+  <span id="p2s">🌸 Ovelha Rosa: 0</span>
+</div>
+<div id="topOpts">
+  <button class="mbtn" id="mCpu1">🌱 Cordeirinho</button>
+  <button class="mbtn on" id="mCpu2">🐑 Pastor</button>
+  <button class="mbtn" id="mCpu3">🚀 Comandante</button>
+  <button class="mbtn" id="mCpu4">🌌 Grande Mestre</button>
+  <button class="mbtn" id="m2p">👫 2 Jogadores</button>
+  <button class="mbtn" id="mUndo">↩ Desfazer</button>
+</div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">🌟🔵🌸</div>
+    <h1>Constelação em Linha</h1>
+    <p>Larga discos estelares na grelha gravitacional 7×6! O primeiro a alinhar <b>4 estrelas da sua cor</b> na horizontal, vertical ou diagonal vence a partida. Inclui <b>4 inteligências artificiais</b> e Modo 2 Jogadores!</p>
+    <div class="kbs"><span class="kb">Toque / Clique</span> Largar na Coluna <span class="kb">1-7</span> Atalho de Coluna</div>
+    <button class="btn" id="go">▶ Começar Partida</button>
+  </div>
+</div>
+<script>
+const W=680,H=540,COLS=7,ROWS=6,cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='quatro-em-linha',$=id=>document.getElementById(id);
+const img1=OC.img('ovelha-azul'),img2=OC.img('ovelha-rosa');
+let grid,turn=1,mode='cpu2',scores=[0,0],winLine=null,animDrop=null,history=[],hoverCol=3,over=false;
+
+function syncModeFromDiff(){
+  const dId=(OC.diff&&OC.diff.id)||'normal';
+  if(dId==='easy')setMode('cpu1',true);
+  else if(dId==='normal')setMode('cpu2',true);
+  else if(dId==='hard')setMode('cpu3',true);
+  else setMode('cpu4',true);
+}
+
+function resetBoard(){
+  grid=Array.from({length:ROWS},()=>Array(COLS).fill(0));
+  turn=1;winLine=null;animDrop=null;history=[];over=false;
+  updHUD();
+}
+function updHUD(){
+  $('p1s').textContent=`🔵 Azul: ${scores[0]}`;
+  $('p2s').textContent=`🌸 ${mode==='2p'?'Rosa':'Robô'}: ${scores[1]}`;
+  $('turn').textContent=over?'Partida Concluída':(turn===1?`🔵 Vez da Ovelha Azul (Nv.${OC.diff.level})`:(mode==='2p'?'🌸 Vez da Ovelha Rosa':'🤖 Robô a pensar...'));
+}
+function setMode(m,keepScore){
+  mode=m;
+  ['mCpu1','mCpu2','mCpu3','mCpu4','m2p'].forEach(k=>{
+    const match=(m==='cpu1'&&k==='mCpu1')||(m==='cpu2'&&k==='mCpu2')||(m==='cpu3'&&k==='mCpu3')||(m==='cpu4'&&k==='mCpu4')||(m==='2p'&&k==='m2p');
+    $(k).classList.toggle('on',match);
+  });
+  if(!keepScore)scores=[0,0];
+  resetBoard();
+}
+$('mCpu1').onclick=()=>{setMode('cpu1');OC.sfx.click();};
+$('mCpu2').onclick=()=>{setMode('cpu2');OC.sfx.click();};
+$('mCpu3').onclick=()=>{setMode('cpu3');OC.sfx.click();};
+$('mCpu4').onclick=()=>{setMode('cpu4');OC.sfx.click();};
+$('m2p').onclick=()=>{setMode('2p');OC.sfx.click();};
+$('mUndo').onclick=()=>{
+  if(animDrop||over||!history.length)return;
+  const steps=(mode!=='2p'&&turn===1&&history.length>=2)?2:1;
+  for(let i=0;i<steps&&history.length;i++){
+    const last=history.pop();
+    grid[last.r][last.c]=0;turn=last.p;
+  }
+  OC.sfx.click();updHUD();
+};
+
+function findRow(c){for(let r=ROWS-1;r>=0;r--)if(grid[r][c]===0)return r;return -1;}
+function findRowOn(b,c){for(let r=ROWS-1;r>=0;r--)if(b[r][c]===0)return r;return -1;}
+
+function checkWin(b){
+  const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const p=b[r][c];if(!p)continue;
+    for(const [dr,dc] of dirs){
+      if(r+dr*3>=0&&r+dr*3<ROWS&&c+dc*3>=0&&c+dc*3<COLS){
+        if(b[r+dr][c+dc]===p&&b[r+dr*2][c+dc*2]===p&&b[r+dr*3][c+dc*3]===p)
+          return {p,cells:[[r,c],[r+dr,c+dc],[r+dr*2,c+dc*2],[r+dr*3,c+dc*3]]};
+      }
+    }
+  }
+  return null;
+}
+function isFull(b){return b[0].every(v=>v!==0);}
+
+function scoreWindow(w,p){
+  const opp=p===1?2:1;
+  let pc=0,oc=0,ec=0;
+  for(const v of w){if(v===p)pc++;else if(v===opp)oc++;else ec++;}
+  if(pc===4)return 1000;
+  if(pc===3&&ec===1)return 14;
+  if(pc===2&&ec===2)return 4;
+  if(oc===3&&ec===1)return -18;
+  return 0;
+}
+function scoreBoard(b,p){
+  const w=checkWin(b);
+  if(w)return w.p===p?10000:-10000;
+  let s=0;
+  for(let r=0;r<ROWS;r++)if(b[r][3]===p)s+=5;
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS-3;c++)s+=scoreWindow([b[r][c],b[r][c+1],b[r][c+2],b[r][c+3]],p);
+  for(let r=0;r<ROWS-3;r++)for(let c=0;c<COLS;c++)s+=scoreWindow([b[r][c],b[r+1][c],b[r+2][c],b[r+3][c]],p);
+  return s;
+}
+function minimax(b,depth,alpha,beta,maxP){
+  const w=checkWin(b);
+  if(w)return {score:w.p===2?10000+depth:-10000-depth};
+  if(depth===0||isFull(b))return {score:scoreBoard(b,2)};
+  const order=[3,2,4,1,5,0,6].filter(c=>b[0][c]===0);
+  if(maxP){
+    let best={score:-1e9,col:order[0]};
+    for(const c of order){
+      const r=findRowOn(b,c);b[r][c]=2;
+      const res=minimax(b,depth-1,alpha,beta,false);
+      b[r][c]=0;
+      if(res.score>best.score)best={score:res.score,col:c};
+      alpha=Math.max(alpha,best.score);if(alpha>=beta)break;
+    }
+    return best;
+  }else{
+    let best={score:1e9,col:order[0]};
+    for(const c of order){
+      const r=findRowOn(b,c);b[r][c]=1;
+      const res=minimax(b,depth-1,alpha,beta,true);
+      b[r][c]=0;
+      if(res.score<best.score)best={score:res.score,col:c};
+      beta=Math.min(beta,best.score);if(alpha>=beta)break;
+    }
+    return best;
+  }
+}
+
+function cpuPlay(){
+  if(over||turn!==2||mode==='2p')return;
+  const valid=[0,1,2,3,4,5,6].filter(c=>grid[0][c]===0);
+  if(!valid.length)return;
+  let col=valid[0];
+  const depthMap={cpu1:2,cpu2:3,cpu3:5,cpu4:6};
+  const randMap={cpu1:0.42,cpu2:0.18,cpu3:0.04,cpu4:0};
+  const depth=depthMap[mode]||4;
+  if(Math.random()<(randMap[mode]||0)){
+    col=valid[Math.floor(Math.random()*valid.length)];
+  }else{
+    const res=minimax(grid.map(r=>[...r]),depth,-1e9,1e9,true);
+    col=res.col!==undefined?res.col:valid[0];
+  }
+  dropIn(col);
+}
+
+function dropIn(c){
+  if(over||animDrop||c<0||c>=COLS)return;
+  const r=findRow(c);if(r<0){OC.sfx.bad();return;}
+  OC.sfx.jump();
+  animDrop={c,r,p:turn,y:58,vy:0,targetY:95+r*64+32};
+}
+
+function finishDrop(){
+  const {c,r,p,targetY}=animDrop;animDrop=null;
+  grid[r][c]=p;history.push({r,c,p});
+  const cx=116+c*64+32;
+  OC.sfx.pop();
+  OC.fx.burst(cx,targetY,p===1?'#4cc9f0':'#ff85a2',12);
+  const w=checkWin(grid);
+  if(w){
+    over=true;winLine=w.cells;scores[w.p-1]++;updHUD();
+    const p1Won=w.p===1;
+    const bonus={cpu1:100,cpu2:180,cpu3:280,cpu4:420,'2p':150}[mode]||150;
+    const pts=Math.round((scores[0]*150+bonus)*(OC.diff?OC.diff.mult:1));
+    setTimeout(()=>OC.end({
+      id:ID,win:p1Won||mode==='2p',stars:p1Won?3:(mode==='2p'?3:1),score:pts,
+      title:mode==='2p'?`Vitória da Ovelha ${w.p===1?'Azul':'Rosa'}!`:(p1Won?'Constelação Vencedora!':'O Robô Alinhou 4!'),
+      text:`Placar da série: Azul ${scores[0]} — ${scores[1]} ${mode==='2p'?'Rosa':'Robô'} (Nv.${OC.diff.level}).`,
+      retry:resetBoard
+    }),650);
+    return;
+  }
+  if(isFull(grid)){
+    over=true;updHUD();
+    setTimeout(()=>OC.end({id:ID,win:true,stars:2,score:160,title:'Empate Cósmico!',text:'A grelha ficou cheia sem vencedor!',retry:resetBoard}),500);
+    return;
+  }
+  turn=turn===1?2:1;updHUD();
+  if(turn===2&&mode!=='2p')setTimeout(cpuPlay,340);
+}
+
+cv.addEventListener('pointermove',e=>{
+  const p=P(e);
+  const c=Math.floor((p.x-116)/64);
+  if(c>=0&&c<COLS)hoverCol=c;
+});
+cv.addEventListener('pointerdown',e=>{
+  if(over||animDrop||(turn===2&&mode!=='2p'))return;
+  const p=P(e);
+  const c=Math.floor((p.x-116)/64);
+  if(c>=0&&c<COLS){hoverCol=c;dropIn(c);}
+});
+addEventListener('keydown',e=>{
+  if(over||animDrop||(turn===2&&mode!=='2p'))return;
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=7)dropIn(n-1);
+});
+
+function update(dt){
+  if(animDrop){
+    animDrop.vy+=1750*dt;
+    animDrop.y+=animDrop.vy*dt;
+    if(animDrop.y>=animDrop.targetY){
+      animDrop.y=animDrop.targetY;
+      finishDrop();
+    }
+  }
+}
+function drawPiece(x,y,p,hi){
+  ctx.save();
+  const col=p===1?'#4cc9f0':'#ff85a2';
+  ctx.fillStyle=col;ctx.strokeStyle=hi?'#ffd166':'#fff';ctx.lineWidth=hi?4:2.5;
+  ctx.beginPath();ctx.arc(x,y,25,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.drawImage(p===1?img1:img2,x-20,y-20,40,40);
+  ctx.restore();
+}
+function draw(now,dt){
+  OC.fx.drawStars(ctx,W,H,now);
+  const ox=116,oy=95,cell=64;
+  if(!over&&!animDrop&&(mode==='2p'||turn===1)){
+    drawPiece(ox+hoverCol*cell+32,62,turn,false);
+  }
+  if(animDrop){
+    drawPiece(ox+animDrop.c*cell+32,animDrop.y,animDrop.p,false);
+  }
+  ctx.save();
+  ctx.fillStyle='rgba(21,28,74,0.92)';ctx.strokeStyle='#9b5de5';ctx.lineWidth=4;
+  ctx.beginPath();ctx.roundRect(ox-10,oy-10,COLS*cell+20,ROWS*cell+20,22);ctx.fill();ctx.stroke();
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const cx=ox+c*cell+32,cy=oy+r*cell+32,v=grid[r][c];
+    ctx.fillStyle='#090d26';ctx.strokeStyle='rgba(255,255,255,0.16)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(cx,cy,26,0,Math.PI*2);ctx.fill();ctx.stroke();
+    if(v){
+      const hi=winLine&&winLine.some(([wr,wc])=>wr===r&&wc===c);
+      drawPiece(cx,cy,v,hi);
+    }
+  }
+  if(winLine){
+    const [r0,c0]=winLine[0],[r1,c1]=winLine[3];
+    ctx.strokeStyle='#ffd166';ctx.lineWidth=6;
+    ctx.beginPath();ctx.moveTo(ox+c0*cell+32,oy+r0*cell+32);ctx.lineTo(ox+c1*cell+32,oy+r1*cell+32);ctx.stroke();
+  }
+  ctx.restore();
+  OC.fx.update(ctx,dt);
+}
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start();syncModeFromDiff();resetBoard();};
+syncModeFromDiff();resetBoard();
+OC.loop(update,draw);
+</script>
+</body>
+</html>

@@ -3,10 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ovelhas Play 🎮 32 Jogos Grátis das Ovelhas Coloridas</title>
-<meta name="description" content="Ovelhas Play: o portal estilo Poki/Friv com 32 jogos gratuitos e originais das Ovelhas Coloridas. Mundos persistentes, mascotes, álbum de cromos, missões diárias e 0 anúncios!">
+<meta name="child-directed-treatment" content="true">
+<!-- Google Consent Mode v2 — RGPD -->
+<script>
+window.__oc_consent_default_set = true;
+window.dataLayer = window.dataLayer || [];
+function gtag() { dataLayer.push(arguments); }
+gtag('consent', 'default', {
+  analytics_storage: 'denied',
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  wait_for_update: 500
+});
+try {
+  var _c = JSON.parse(localStorage.getItem('oc_cookie_consent') || 'null');
+  if (_c) {
+    var _m = typeof _c.marketing !== 'undefined' ? _c.marketing : !!_c.analytics;
+    gtag('consent', 'update', {
+      analytics_storage: _c.analytics ? 'granted' : 'denied',
+      ad_storage: _m ? 'granted' : 'denied',
+      ad_user_data: _m ? 'granted' : 'denied',
+      ad_personalization: _m ? 'granted' : 'denied'
+    });
+  }
+} catch (e) {}
+window.adsbygoogle = window.adsbygoogle || [];
+window.adsbygoogle.requestNonPersonalizedAds = 1;
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8653418731294447"
+     crossorigin="anonymous"></script>
+<title>Ovelhas Play 🎮 42 Jogos Grátis das Ovelhas Coloridas</title>
+<meta name="description" content="Ovelhas Play: o portal com 42 jogos gratuitos e originais das Ovelhas Coloridas. Mundos persistentes, mascotes, álbum de cromos e missões diárias!">
 <link rel="icon" type="image/png" href="../assets/personagens/ovelha-arcoiris.png">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<link rel="manifest" href="../manifest.json">
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../cookie-consent.css">
 <style>
 :root{--bg:#0a0e27;--card:#151c4a;--gold:#ffd166;--pink:#ff85a2;--cyan:#00f5d4;--purple:#9b5de5;--muted:#c9c6e8}
 *{box-sizing:border-box;margin:0;padding:0}
@@ -47,8 +79,13 @@ h2.sec{font:700 1.45rem Fredoka,sans-serif;margin:24px 0 12px;display:flex;align
 .tile.big .emo{font-size:4.2rem}
 .tile img{position:absolute;left:50%;bottom:10%;width:62%;height:62%;object-fit:contain;transform:translateX(-50%);filter:drop-shadow(0 6px 10px #0007);transition:.3s}
 .tile:hover img{transform:translateX(-50%) scale(1.13) rotate(5deg)}
-.tile .nm{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 9px;text-align:center;font:700 1rem Fredoka,sans-serif;background:linear-gradient(transparent,#000d); transition:.25s}
-.tile.big .nm{font-size:1.55rem;padding-bottom:14px}
+.tile .nm{position:absolute;left:0;right:0;bottom:0;padding:26px 10px 13px;text-align:center;font:700 1rem Fredoka,sans-serif;background:linear-gradient(transparent,#000d); transition:.25s}
+.tile.big .nm{font-size:1.55rem;padding-bottom:16px}
+.tile .pbar{position:absolute;left:12px;right:12px;bottom:5px;height:4px;border-radius:99px;background:rgba(255,255,255,.18);overflow:hidden;z-index:3}
+.tile .pbar i{display:block;height:100%;background:linear-gradient(90deg,#00f5d4,#ffd166)}
+.sort-bar{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+.sbtn{padding:5px 12px;border-radius:99px;border:1px solid #ffffff26;background:#151c4a;color:var(--muted);font:800 .78rem Nunito,sans-serif;cursor:pointer;transition:.15s}
+.sbtn.on,.sbtn:hover{border-color:var(--gold);color:#1a0a00;background:var(--gold)}
 .tag{position:absolute;left:8px;top:8px;padding:3px 10px;border-radius:99px;background:var(--gold);color:#1a0a00;font-weight:900;font-size:.72rem;z-index:2;box-shadow:0 2px 8px #0005}
 .tag.new{background:#00f5d4;color:#042a25}
 .tag.epic{background:linear-gradient(135deg,#ffd166,#ff85a2);color:#1a0a00}
@@ -79,6 +116,16 @@ footer a{color:var(--gold)}
 .ccard.got{background:linear-gradient(145deg,rgba(255,209,102,.18),rgba(255,133,162,.18));border-color:#ffd166}
 .ccard img{width:54px;height:54px;object-fit:contain;filter:grayscale(1) opacity(.35)}
 .ccard.got img{filter:drop-shadow(0 4px 10px #0008)}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:12px}
+.tcard{padding:12px;border-radius:18px;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.12);display:flex;gap:10px;align-items:center}
+.tcard.done{background:linear-gradient(145deg,rgba(6,214,160,.16),rgba(255,209,102,.14));border-color:#06d6a0}
+.tcard .ti{font-size:1.8rem}
+.av-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px}
+.av-btn{width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);padding:4px;cursor:pointer;transition:.15s}
+.av-btn.on{border-color:#ffd166;background:rgba(255,209,102,.25);transform:scale(1.1)}
+.av-btn img{width:100%;height:100%;object-fit:contain}
+.ad-slot{margin:24px auto;padding:12px 16px;border-radius:18px;background:rgba(15,21,56,.6);border:1px solid rgba(255,255,255,.12);text-align:center;max-width:970px;min-height:110px}
+.ad-label{font:800 .68rem Nunito,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);opacity:.75;margin-bottom:6px}
 @media(max-width:860px){
   .layout{flex-direction:column}
   nav.side{position:static;width:100%;height:auto;flex-direction:row;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid #ffffff12}
@@ -90,9 +137,11 @@ footer a{color:var(--gold)}
 <body>
 <header>
   <a class="logo" href="index.html"><img src="../assets/personagens/ovelha-arcoiris.png" alt="">Ovelhas Play</a>
-  <div class="search"><input id="q" type="search" placeholder="🔍 Procurar entre 32 jogos..."></div>
+  <div class="search"><input id="q" type="search" placeholder="🔍 Procurar entre 42 jogos..."></div>
   <button class="hbtn gold" id="btnDaily">🎁 Baú Diário</button>
-  <button class="hbtn" id="btnAlbum">🃏 Álbum (<span id="albumCnt">0</span>/18)</button>
+  <button class="hbtn" id="btnShop" style="background:linear-gradient(135deg,#9b5de5,#f15bb5)">🛍️ Personalizar</button>
+  <button class="hbtn" id="btnAlbum">🃏 Álbum (<span id="albumCnt">0</span>/24)</button>
+  <button class="hbtn" id="btnProfile" style="background:linear-gradient(135deg,#06d6a0,#118ab2)">🏆 Troféus (<span id="trophyCnt">0</span>/16)</button>
   <button class="rnd" id="rnd">🎲 Jogo Surpresa</button>
   <span class="me" id="me"></span>
   <a class="back" href="../index.html">← Site</a>
@@ -103,9 +152,25 @@ footer a{color:var(--gold)}
     <div id="heroWrap" class="hero"></div>
     <div id="missionsBar" class="missions"></div>
     <div id="rowFav"></div><div id="rowRec"></div>
-    <h2 class="sec"><span id="allTitle">🎮 Todos os jogos</span><span class="cnt" id="cnt"></span></h2>
+    <h2 class="sec" style="flex-wrap:wrap">
+      <span id="allTitle">🎮 Todos os jogos</span><span class="cnt" id="cnt"></span>
+      <span class="sort-bar" id="sortBar">
+        <button class="sbtn on" data-s="feat">🌟 Destaques</button>
+        <button class="sbtn" data-s="prog">🗺️ Em Progresso</button>
+        <button class="sbtn" data-s="az">🔤 A–Z</button>
+      </span>
+    </h2>
     <div class="grid" id="grid"></div>
     <p class="empty" id="none" hidden>Nenhum jogo encontrado 🐑</p>
+    <aside class="ad-slot" aria-label="Publicidade">
+      <div class="ad-label">Publicidade</div>
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-8653418731294447"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </aside>
   </main>
 </div>
 
@@ -115,7 +180,7 @@ footer a{color:var(--gold)}
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
       <div>
         <h2 style="font:700 1.65rem Fredoka,sans-serif;color:#ffd166">🃏 Álbum de Cromos Galáctico</h2>
-        <p style="font-size:.9rem;color:#d8d5f0;font-weight:700">Ganha cromos a jogar qualquer jogo, nos Presentes Flutuantes 🎁 ou troca Estrelas por um Pacote Surpresa!</p>
+        <p style="font-size:.9rem;color:#d8d5f0;font-weight:700">Ganha cromos no final das partidas, no Baú Diário ou troca Estrelas por um Pacote Surpresa!</p>
       </div>
       <div style="display:flex;gap:8px">
         <button class="hbtn gold" id="buyPack">✨ Abrir Pacote (20⭐)</button>
@@ -126,13 +191,54 @@ footer a{color:var(--gold)}
   </div>
 </div>
 
-<footer>🐑 <b>Ovelhas Play</b> · 32 jogos originais, mundos guardados, gratuitos e sem anúncios · <a href="../index.html">Ovelhas Coloridas: Uma Aventura no Espaço</a></footer>
+<!-- Modal de Troféus, Perfil & Backup de Progresso -->
+<div class="modal" id="profileModal" hidden>
+  <div class="mbox" style="max-width:760px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+      <div>
+        <h2 style="font:700 1.65rem Fredoka,sans-serif;color:#ffd166">🏆 Sala de Troféus & Perfil de Astronauta</h2>
+        <p style="font-size:.9rem;color:#d8d5f0;font-weight:700">Escolhe o teu Guardião favorito, reclama Estrelas de Troféus e faz backup do teu progresso!</p>
+      </div>
+      <button class="back" id="closeProfile" style="background:none;color:#fff;cursor:pointer">✖ Fechar</button>
+    </div>
+    <h3 style="font:700 1.1rem Fredoka,sans-serif;color:#00f5d4;margin-top:14px">🐑 Escolhe o teu Avatar Cósmico</h3>
+    <div class="av-row" id="avRow"></div>
+    <h3 style="font:700 1.1rem Fredoka,sans-serif;color:#ffd166;margin-top:8px">🏅 Conquistas Galácticas (16 Troféus)</h3>
+    <div class="tgrid" id="trophyGrid"></div>
+    <div style="margin-top:18px;padding:14px;border-radius:18px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.15)">
+      <h3 style="font:700 1.05rem Fredoka,sans-serif;color:#ff85a2;margin-bottom:6px">💾 Guardar / Transferir Progresso entre Dispositivos</h3>
+      <p style="font-size:.82rem;color:#d8d5f0;margin-bottom:10px">Copia o teu código de segurança para guardar ou transferir todas as tuas Estrelas, Níveis, Talentos e Cromos para outro computador ou telemóvel.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="hbtn gold" id="btnExportSave">📋 Copiar Código de Progresso</button>
+        <button class="hbtn" id="btnImportSave">📥 Restaurar com Código</button>
+        <button class="hbtn" id="btnDownloadCert" style="background:linear-gradient(135deg,#06d6a0,#118ab2)">🎓 Descarregar Diploma (PNG)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal da Loja Galáctica de Cosméticos & Efeitos -->
+<div class="modal" id="shopModal" hidden>
+  <div class="mbox" style="max-width:740px">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <div>
+        <h2 style="font:700 1.65rem Fredoka,sans-serif;color:#ffd166">🛍️ Personalização de Efeitos &amp; Temas</h2>
+        <p style="font-size:.88rem;color:#d8d5f0;font-weight:700">Personaliza o trilho de estrelas do cursor/toque, a nebulosa de fundo e o estilo musical em todos os 42 jogos! Saldo: <b style="color:#ffd166" id="shopStars">0 ⭐</b></p>
+      </div>
+      <button class="back" id="closeShop" style="background:none;color:#fff;cursor:pointer">✖ Fechar</button>
+    </div>
+    <div id="shopBody"></div>
+  </div>
+</div>
+
+<footer>🐑 <b>Ovelhas Play</b> · 42 jogos originais e mundos guardados · <a href="../index.html">Ovelhas Coloridas: Uma Aventura no Espaço</a> · <a href="../politica-privacidade.html">Privacidade</a> · <a href="../politica-cookies.html">Cookies</a></footer>
 <script src="games.js"></script>
 <script>
 const G=OP_GAMES,$=id=>document.getElementById(id);
-const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
-const set=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
-let cat='todos',query='';
+const memStore={};
+const get=(k,d)=>{try{const raw=localStorage.getItem(k);if(raw===null)return memStore[k]??d;return JSON.parse(raw)??d}catch(e){return memStore[k]??d}};
+const set=(k,v)=>{memStore[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+let cat='todos',query='',sortBy='feat';
 const favs=()=>get('op_favs',[]),recent=()=>get('op_recent',[]);
 
 const CARDS=[
@@ -153,7 +259,13 @@ const CARDS=[
   { id:'c15', name:'Batuta da Aurora Cósmica', rarity:'Épico', emo:'🎻', img:'ovelha-rosa' },
   { id:'c16', name:'Relógio do Tempo Solar', rarity:'Raro', emo:'⚙️', img:'ovelha-laranja' },
   { id:'c17', name:'Árvore de Cristal', rarity:'Épico', emo:'🌳', img:'ovelha-verde' },
-  { id:'c18', name:'Coroa do Rei da Colina', rarity:'Lendário', emo:'👑', img:'ovelha-arcoiris' }
+  { id:'c18', name:'Coroa do Rei da Colina', rarity:'Lendário', emo:'👑', img:'ovelha-arcoiris' },
+  { id:'c19', name:'Taco Lunar de Ouro', rarity:'Raro', emo:'⛳', img:'ovelha-verde' },
+  { id:'c20', name:'Maestro do Coro Estelar', rarity:'Épico', emo:'🎤', img:'ovelha-arcoiris' },
+  { id:'c21', name:'Bússola das Constelações', rarity:'Raro', emo:'🌟', img:'ovelha-azul-kwai' },
+  { id:'c22', name:'Trator da Horta Lunar', rarity:'Épico', emo:'🚜', img:'elefante-amendoim' },
+  { id:'c23', name:'Dicionário da Nebulosa', rarity:'Comum', emo:'🔤', img:'ovelha-roxa' },
+  { id:'c24', name:'Trono do Universo Arco-Íris', rarity:'Mítico', emo:'🌌', img:'ovelha-arcoiris' }
 ];
 
 function checkDaily(){
@@ -168,15 +280,25 @@ function checkDaily(){
   return st;
 }
 
+function dailyGameObj(){
+  const s=new Date().toISOString().slice(0,10).replace(/-/g,'');
+  const n=parseInt(s,10)||20261108;
+  return G[(n*17)%G.length]||G[0];
+}
+
 function tile(g,big){
   const fv=favs().includes(g.id);
-  const tagTxt=g.tag==='Hit'?'🔥 Hit':g.tag==='Épico'?'👑 Mundo Guardado':'🆕 Novo';
-  const tagCls=g.tag==='Novo'?'new':g.tag==='Épico'?'epic':'';
+  const camp=get('op_camp_'+g.id,null);
+  const unl=(camp&&camp.unlocked)||1;
+  const isDaily=dailyGameObj().id===g.id;
+  const tagTxt=isDaily?'⚡ 2x ⭐ HOJE':unl>1?`🗺️ Nv.${unl}/100`:(g.tag==='Hit'?'🔥 Hit':g.tag==='Épico'?'👑 100 Níveis':'🆕 100 Níveis');
+  const tagCls=isDaily?'epic':unl>1?'epic':(g.tag==='Novo'?'new':g.tag==='Épico'?'epic':'');
   return `<a class="tile${big?' big':''}" href="jogo.html?g=${g.id}" style="--c1:${g.bg[0]};--c2:${g.bg[1]}">
-   ${g.tag?`<span class="tag ${tagCls}">${tagTxt}</span>`:''}
+   <span class="tag ${tagCls}">${tagTxt}</span>
    <span class="emo">${g.emoji}</span><img src="${OP_SPRITE(g.sheep)}" alt="" loading="lazy">
    <button class="fav${fv?' on':''}" data-id="${g.id}" aria-label="Favorito">${fv?'♥':'♡'}</button>
-   <div class="nm">${g.name}</div></a>`}
+   <div class="nm">${g.name}</div>
+   <div class="pbar" title="Campanha Nível ${unl}/100"><i style="width:${Math.min(100,unl)}%"></i></div></a>`}
 function row(title,ids,el){
   const l=ids.map(i=>G.find(g=>g.id===i)).filter(Boolean);
   $(el).innerHTML=l.length?`<h2 class="sec">${title}</h2><div class="grid">${l.map(g=>tile(g)).join('')}</div>`:'';
@@ -185,17 +307,35 @@ function renderMissions(){
   const d=checkDaily();
   const owned=get('op_cards',{});
   const gotCnt=Object.keys(owned).length;
+  let totalUnlocked=0,totalPlaySec=0;
+  for(const g of G){
+    const c=get('op_camp_'+g.id,null);
+    totalUnlocked+=(c&&c.unlocked)?c.unlocked:1;
+    totalPlaySec+=(c&&c.timeSec)?c.timeSec:0;
+  }
+  const playMin=Math.floor(totalPlaySec/60);
   $('albumCnt').textContent=gotCnt;
+  if($('trophyCnt'))$('trophyCnt').textContent=countUnlockedTrophies();
   $('btnDaily').textContent=d.claimed?`🔥 ${d.streak} Dias Seguidos`:`🎁 Abrir Baú Diário (🔥${d.streak})`;
+  const dg=dailyGameObj();
   $('missionsBar').innerHTML=`
-    <div class="mcard"><span class="mi">🔥</span><div><b>Assiduidade: ${d.streak} Dia(s) Seguido(s)</b><small>${d.claimed?'✔ Baú de hoje já aberto!':'Toca em 🎁 Baú Diário no topo para receber +15⭐ e 1 Cromo!'}</small></div></div>
-    <div class="mcard"><span class="mi">🎮</span><div><b>Explorador do Dia (${(d.gamesPlayed||[]).length}/3)</b><small>Experimenta 3 jogos diferentes hoje (+10⭐)</small></div></div>
-    <div class="mcard"><span class="mi">🃏</span><div><b>Colecionador (${gotCnt}/18 Cromos)</b><small>Apanha Presentes 🎁 durante os jogos para completar o Álbum!</small></div></div>
+    <div class="mcard"><span class="mi">🗺️</span><div><b>Campanha Galáctica: ${totalUnlocked}/4200 Níveis</b><small>5 Dificuldades, 100 Níveis e Árvore de Talentos em cada jogo (${playMin} min jogados)</small></div></div>
+    <a class="mcard" href="jogo.html?g=${dg.id}" style="border-color:#ffd16688;background:linear-gradient(135deg,rgba(255,209,102,.16),rgba(255,133,162,.14))"><span class="mi">${dg.emoji}</span><div><b>⚡ Desafio do Dia (2x ⭐): ${dg.name}</b><small>Joga hoje este mundo para receber o DOBRO das Estrelas em todas as rondas!</small></div></a>
+    <div class="mcard"><span class="mi">🔥</span><div><b>Assiduidade: ${d.streak} Dia(s) · ${gotCnt}/24 Cromos</b><small>${d.claimed?'✔ Baú Diário de hoje aberto! Continua a avançar nas Campanhas!':'Toca em 🎁 Baú Diário no topo para receber +15⭐ e 1 Cromo!'}</small></div></div>
   `;
 }
 function render(){
-  const l=G.filter(g=>(cat==='todos'||g.cat===cat)&&(g.name+' '+g.desc+' '+g.cat).toLowerCase().includes(query));
-  const home=cat==='todos'&&!query;
+  let l=G.filter(g=>(cat==='todos'||g.cat===cat)&&(g.name+' '+g.desc+' '+g.cat).toLowerCase().includes(query));
+  if(sortBy==='az'){
+    l=[...l].sort((a,b)=>a.name.localeCompare(b.name,'pt'));
+  }else if(sortBy==='prog'){
+    l=[...l].sort((a,b)=>{
+      const ua=(get('op_camp_'+a.id,null)?.unlocked)||1;
+      const ub=(get('op_camp_'+b.id,null)?.unlocked)||1;
+      return ub-ua;
+    });
+  }
+  const home=cat==='todos'&&!query&&sortBy==='feat';
   $('grid').innerHTML=l.map(g=>tile(g,home&&g.big)).join('');
   $('cnt').textContent=l.length;
   $('none').hidden=l.length>0;
@@ -204,7 +344,7 @@ function render(){
   row('♥ Os meus favoritos',home?favs():[],'rowFav');
   row('🕑 Continua a jogar',home?recent().slice(0,6):[],'rowRec');
   const catObj=OP_CATS.find(c=>c[0]===cat);
-  $('allTitle').textContent=query?'🔎 Resultados':cat==='todos'?'🎮 Todos os 32 jogos':`${catObj[1]} Jogos de ${catObj[2]}`;
+  $('allTitle').textContent=query?'🔎 Resultados':cat==='todos'?'🎮 Todos os '+G.length+' jogos':`${catObj[1]} Jogos de ${catObj[2]}`;
   $('me').textContent='⭐ '+get('op_stars',0)+' · '+rank();
   renderMissions();
 }
@@ -249,13 +389,234 @@ $('buyPack').onclick=()=>{
   render();renderAlbum();
 };
 
+const AVATARS=['ovelha-arcoiris','ovelha-azul','ovelha-rosa','ovelha-verde','ovelha-roxa','ovelha-laranja','ovelha-melancia','elefante-amendoim','pato'];
+const TROPHIES=[
+  {id:'t1',emo:'🚀',name:'Primeira Descolagem',desc:'Joga o teu 1.º jogo no Ovelhas Play',reward:5,chk:s=>s.rec>=1},
+  {id:'t2',emo:'🧭',name:'Explorador Curioso',desc:'Experimenta 5 jogos diferentes',reward:10,chk:s=>s.rec>=5},
+  {id:'t3',emo:'🎮',name:'Mestre do Portal',desc:'Experimenta 12 jogos diferentes',reward:25,chk:s=>s.rec>=12},
+  {id:'t4',emo:'⭐',name:'Colecionador de Luz',desc:'Acumula 50 Estrelas',reward:15,chk:s=>s.stars>=50},
+  {id:'t5',emo:'🌟',name:'Guardião Dourado',desc:'Acumula 200 Estrelas',reward:30,chk:s=>s.stars>=200},
+  {id:'t6',emo:'👑',name:'Lenda Astral',desc:'Acumula 500 Estrelas',reward:60,chk:s=>s.stars>=500},
+  {id:'t7',emo:'🗺️',name:'Passo na Nebulosa',desc:'Alcança 55 Níveis desbloqueados',reward:15,chk:s=>s.unl>=55},
+  {id:'t8',emo:'🪐',name:'Conquistador de Mundos',desc:'Alcança 120 Níveis desbloqueados',reward:35,chk:s=>s.unl>=120},
+  {id:'t9',emo:'🌌',name:'Veterano Galáctico',desc:'Alcança 300 Níveis desbloqueados',reward:75,chk:s=>s.unl>=300},
+  {id:'t10',emo:'🃏',name:'Início do Álbum',desc:'Coleciona 5 Cromos diferentes',reward:15,chk:s=>s.cards>=5},
+  {id:'t11',emo:'📘',name:'Mestre Colecionador',desc:'Coleciona 15 Cromos diferentes',reward:35,chk:s=>s.cards>=15},
+  {id:'t12',emo:'🏆',name:'Álbum Completo',desc:'Coleciona todos os 24 Cromos!',reward:100,chk:s=>s.cards>=24},
+  {id:'t13',emo:'🎁',name:'Amigo Fiel',desc:'Abre o Baú Diário',reward:10,chk:s=>s.claimed},
+  {id:'t14',emo:'🔥',name:'Chama Estelar',desc:'3 dias seguidos de Assiduidade',reward:25,chk:s=>s.streak>=3},
+  {id:'t15',emo:'💖',name:'Coração de Lã',desc:'Guarda 3 jogos nos Favoritos ♥',reward:10,chk:s=>s.favs>=3},
+  {id:'t16',emo:'⏱️',name:'Maratonista Cósmico',desc:'Joga 30 minutos nas Campanhas',reward:40,chk:s=>s.min>=30}
+];
+function getStatsSummary(){
+  const d=checkDaily();
+  const owned=get('op_cards',{});
+  let unl=0,sec=0;
+  for(const g of G){
+    const c=get('op_camp_'+g.id,null);
+    unl+=(c&&c.unlocked)?c.unlocked:1;
+    sec+=(c&&c.timeSec)?c.timeSec:0;
+  }
+  return {
+    stars:get('op_stars',0),
+    rec:recent().length,
+    favs:favs().length,
+    cards:Object.keys(owned).length,
+    unl,
+    min:Math.floor(sec/60),
+    claimed:!!d.claimed,
+    streak:d.streak||1
+  };
+}
+function countUnlockedTrophies(){
+  const st=getStatsSummary();
+  return TROPHIES.filter(t=>t.chk(st)).length;
+}
+function renderProfile(){
+  const curAv=get('op_avatar','ovelha-arcoiris');
+  $('avRow').innerHTML=AVATARS.map(a=>`<button class="av-btn ${a===curAv?'on':''}" data-av="${a}"><img src="../assets/personagens/${a}.png" alt=""></button>`).join('');
+  const st=getStatsSummary();
+  const claimedT=get('op_trophies',{});
+  $('trophyGrid').innerHTML=TROPHIES.map(t=>{
+    const ok=t.chk(st);
+    const got=!!claimedT[t.id];
+    return `<div class="tcard ${ok?'done':''}">
+      <div class="ti">${t.emo}</div>
+      <div style="flex:1">
+        <div style="font:700 .9rem Fredoka,sans-serif;color:${ok?'#ffd166':'#fff'}">${t.name}</div>
+        <div style="font-size:.76rem;color:#d8d5f0">${t.desc}</div>
+        ${ok && !got ? `<button class="hbtn gold" data-claim="${t.id}" style="margin-top:6px;padding:4px 10px;font-size:.75rem">Reclamar +${t.reward}⭐</button>` : `<small style="color:${got?'#06d6a0':'#9b97c2'};font-weight:900">${got?'✔ Reclamado (+'+t.reward+'⭐)':'🔒 Recompensa: +'+t.reward+'⭐'}</small>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+$('avRow').onclick=e=>{
+  const b=e.target.closest('.av-btn');if(!b)return;
+  set('op_avatar',b.dataset.av);
+  document.querySelector('header .logo img').src='../assets/personagens/'+b.dataset.av+'.png';
+  renderProfile();
+};
+$('trophyGrid').onclick=e=>{
+  const b=e.target.closest('[data-claim]');if(!b)return;
+  const id=b.dataset.claim;
+  const t=TROPHIES.find(x=>x.id===id);if(!t)return;
+  const claimedT=get('op_trophies',{});
+  if(claimedT[id])return;
+  claimedT[id]=true;set('op_trophies',claimedT);
+  set('op_stars',get('op_stars',0)+t.reward);
+  render();renderProfile();
+};
+$('btnProfile').onclick=()=>{renderProfile();$('profileModal').hidden=false;};
+$('closeProfile').onclick=()=>{$('profileModal').hidden=true;};
+$('btnExportSave').onclick=()=>{
+  const dump={};
+  for(let i=0;i<localStorage.length;i++){
+    const k=localStorage.key(i);
+    if(k && k.startsWith('op_'))dump[k]=localStorage.getItem(k);
+  }
+  const code=btoa(unescape(encodeURIComponent(JSON.stringify(dump))));
+  if(navigator.clipboard)navigator.clipboard.writeText(code);
+  prompt('📋 Copia este Código de Progresso para o guardares em segurança:',code);
+};
+$('btnImportSave').onclick=()=>{
+  const code=prompt('📥 Cola aqui o teu Código de Progresso para restaurar Estrelas, Níveis e Cromos:');
+  if(!code)return;
+  try{
+    const dump=JSON.parse(decodeURIComponent(escape(atob(code.trim()))));
+    Object.keys(dump).forEach(k=>{if(k.startsWith('op_'))localStorage.setItem(k,dump[k]);});
+    render();renderProfile();
+    alert('✅ Progresso restaurado com sucesso!');
+  }catch(err){
+    alert('⚠️ Código inválido. Verifica se copiaste o código completo.');
+  }
+};
+const savedAv=get('op_avatar','ovelha-arcoiris');
+if(savedAv)document.querySelector('header .logo img').src='../assets/personagens/'+savedAv+'.png';
+
 $('side').innerHTML=OP_CATS.map(c=>{
   const n=c[0]==='todos'?G.length:G.filter(g=>g.cat===c[0]).length;
   return `<button class="cat${c[0]==='todos'?' on':''}" data-c="${c[0]}"><span>${c[1]}</span>${c[2]}<small>${n}</small></button>`;
 }).join('');
 $('side').onclick=e=>{const b=e.target.closest('.cat');if(!b)return;cat=b.dataset.c;document.querySelectorAll('.cat').forEach(x=>x.classList.toggle('on',x===b));render()};
+$('sortBar').onclick=e=>{const b=e.target.closest('.sbtn');if(!b)return;sortBy=b.dataset.s;document.querySelectorAll('.sbtn').forEach(x=>x.classList.toggle('on',x===b));render()};
+$('btnDownloadCert').onclick=()=>{
+  const st=getStatsSummary();
+  const name=prompt('🎓 Escreve o teu nome de Astronauta para o Diploma Oficial:','Comandante Estelar');
+  if(!name)return;
+  const cv=document.createElement('canvas');cv.width=800;cv.height=520;
+  const ctx=cv.getContext('2d');
+  const gr=ctx.createLinearGradient(0,0,800,520);
+  gr.addColorStop(0,'#0d133a');gr.addColorStop(0.5,'#25165c');gr.addColorStop(1,'#0f294d');
+  ctx.fillStyle=gr;ctx.fillRect(0,0,800,520);
+  ctx.strokeStyle='#ffd166';ctx.lineWidth=6;ctx.strokeRect(18,18,764,484);
+  ctx.strokeStyle='#00f5d4';ctx.lineWidth=2;ctx.strokeRect(28,28,744,464);
+  ctx.textAlign='center';
+  ctx.fillStyle='#00f5d4';ctx.font='bold 16px Nunito,sans-serif';
+  ctx.fillText('✨ PORTAL OFICIAL OVELHAS PLAY · 42 JOGOS ✨',400,72);
+  ctx.fillStyle='#ffd166';ctx.font='bold 34px Fredoka,sans-serif';
+  ctx.fillText('DIPLOMA DE MAESTRIA GALÁCTICA',400,116);
+  ctx.fillStyle='#d8d5f0';ctx.font='700 18px Nunito,sans-serif';
+  ctx.fillText('Certificamos que o(a) Astronauta Oficial do Rebanho',400,162);
+  ctx.fillStyle='#ffffff';ctx.font='bold 42px Fredoka,sans-serif';
+  ctx.fillText(name.trim(),400,215);
+  ctx.fillStyle='#ffd166';ctx.font='bold 22px Fredoka,sans-serif';
+  ctx.fillText(`Patente Alcançada: ${rank()}`,400,265);
+  ctx.fillStyle='#f0edff';ctx.font='700 18px Nunito,sans-serif';
+  ctx.fillText(`⭐ ${st.stars} Estrelas  ·  🗺️ ${st.unl}/4200 Níveis  ·  🃏 ${st.cards}/24 Cromos`,400,310);
+  ctx.fillStyle='#c9c6e8';ctx.font='700 14px Nunito,sans-serif';
+  ctx.fillText('Ovelhas Coloridas: Uma Aventura no Espaço · ' + new Date().toLocaleDateString('pt-PT'),400,465);
+  const av=get('op_avatar','ovelha-arcoiris');
+  const im=new Image();
+  im.onload=()=>{
+    ctx.drawImage(im,345,330,110,110);
+    const a=document.createElement('a');
+    a.download='Diploma_Ovelhas_Play.png';
+    a.href=cv.toDataURL('image/png');
+    a.click();
+  };
+  im.src='../assets/personagens/'+av+'.png';
+};
 $('q').oninput=e=>{query=e.target.value.toLowerCase().trim();render()};
 $('rnd').onclick=()=>{const g=G[Math.floor(Math.random()*G.length)];location.href='jogo.html?g='+g.id};
+
+/* ── Personalização Galáctica de Cosméticos & Efeitos ── */
+const SHOP_SECTIONS=[
+  {
+    key:'trail', prop:'trail', title:'✨ Trilho Mágico de Estrelas (Toque / Cursor nos 42 Jogos)',
+    items:[
+      {id:'trail_rainbow',val:'rainbow',emo:'🌈',name:'Arco-Íris Clássico',cost:0},
+      {id:'trail_gold',val:'gold',emo:'🪙',name:'Poeira de Ouro',cost:45},
+      {id:'trail_ice',val:'ice',emo:'❄️',name:'Cristais de Gelo',cost:60},
+      {id:'trail_fire',val:'fire',emo:'🔥',name:'Chama Solar',cost:75},
+      {id:'trail_neon',val:'neon',emo:'⚡',name:'Galáxia Néon',cost:100}
+    ]
+  },
+  {
+    key:'nebula', prop:'nebula', title:'🌌 Tema da Nebulosa Espacial nos Jogos',
+    items:[
+      {id:'nebula_royal',val:'royal',emo:'👑',name:'Nebulosa Real',cost:0},
+      {id:'nebula_emerald',val:'emerald',emo:'💚',name:'Aurora Esmeralda',cost:50},
+      {id:'nebula_ocean',val:'ocean',emo:'🌊',name:'Oceano Astral',cost:65},
+      {id:'nebula_sunset',val:'sunset',emo:'🥜',name:'Pôr-do-Sol Amendoim',cost:85},
+      {id:'nebula_gold',val:'gold',emo:'🌟',name:'Supernova Dourada',cost:120}
+    ]
+  },
+  {
+    key:'bgm', prop:'bgmStyle', title:'🎵 Estilo da Banda Sonora nos Jogos',
+    items:[
+      {id:'bgm_space',val:'space',emo:'🚀',name:'Clássico Espacial',cost:0},
+      {id:'bgm_lullaby',val:'lullaby',emo:'🎠',name:'Caixinha de Música',cost:40},
+      {id:'bgm_retro',val:'retro',emo:'👾',name:'Retro 8-Bit Arcade',cost:55},
+      {id:'bgm_harp',val:'harp',emo:'🎵',name:'Harpa das Estrelas',cost:70}
+    ]
+  }
+];
+function getCos(){
+  return get('op_cosmetics',{trail:'rainbow',nebula:'royal',bgmStyle:'space',owned:['trail_rainbow','nebula_royal','bgm_space']});
+}
+function renderShop(){
+  const cos=getCos(),stars=get('op_stars',0);
+  $('shopStars').textContent=stars+' ⭐';
+  $('shopBody').innerHTML=SHOP_SECTIONS.map(sec=>`
+    <h3 style="font:700 1.05rem Fredoka,sans-serif;color:#00f5d4;margin:14px 0 8px">${sec.title}</h3>
+    <div class="tgrid">
+      ${sec.items.map(it=>{
+        const has=cos.owned.includes(it.id)||it.cost===0;
+        const eq=cos[sec.prop]===it.val;
+        return `<div class="tcard ${eq?'done':''}">
+          <div class="ti">${it.emo}</div>
+          <div style="flex:1">
+            <div style="font:700 .92rem Fredoka,sans-serif;color:${eq?'#ffd166':'#fff'}">${it.name}</div>
+            ${eq?`<small style="color:#06d6a0;font-weight:900">✔ Equipado</small>`:has?`<button class="hbtn" data-sec="${sec.prop}" data-id="${it.id}" data-val="${it.val}" style="margin-top:5px;padding:4px 12px;font-size:.76rem">Equipar</button>`:`<button class="hbtn gold" data-sec="${sec.prop}" data-id="${it.id}" data-val="${it.val}" data-cost="${it.cost}" style="margin-top:5px;padding:4px 12px;font-size:.76rem">Desbloquear (${it.cost}⭐)</button>`}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+$('shopBody').onclick=e=>{
+  const b=e.target.closest('button[data-id]');if(!b)return;
+  const cos=getCos(),id=b.dataset.id,prop=b.dataset.sec,val=b.dataset.val,cost=Number(b.dataset.cost||0);
+  if(!cos.owned.includes(id) && cost>0){
+    const s=get('op_stars',0);
+    if(s<cost){alert(`Precisas de ${cost} ⭐ Estrelas para desbloquear este efeito!`);return;}
+    set('op_stars',s-cost);
+    cos.owned.push(id);
+  }
+  cos[prop]=val;
+  set('op_cosmetics',cos);
+  render();renderShop();
+};
+$('btnShop').onclick=()=>{renderShop();$('shopModal').hidden=false;};
+$('closeShop').onclick=()=>{$('shopModal').hidden=true;};
+
+// Fechar qualquer modal ao clicar no fundo ou premir Escape
+document.querySelectorAll('.modal').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.hidden=true;});
+});
+addEventListener('keydown',e=>{
+  if(e.key==='Escape')document.querySelectorAll('.modal').forEach(m=>{m.hidden=true;});
+});
 document.addEventListener('click',e=>{const b=e.target.closest('.fav');if(!b)return;e.preventDefault();e.stopPropagation();
   let f=favs();f=f.includes(b.dataset.id)?f.filter(x=>x!==b.dataset.id):[...f,b.dataset.id];localStorage.setItem('op_favs',JSON.stringify(f));render()},true);
 const feat=G[0];
@@ -266,5 +627,6 @@ $('heroWrap').innerHTML=`<div class="feat" style="--c1:${feat.bg[0]};--c2:${feat
  <div class="book"><img src="../assets/capa-livro.png" alt="Capa do livro"><div><h3>📖 Já conheces o livro?</h3><p>Estas ovelhas vivem uma aventura no espaço! Descobre a história que deu origem aos jogos.</p><a href="../index.html#sobre">Descobrir o livro</a></div></div>`;
 render();
 </script>
+<script src="../cookie-consent.js"></script>
 </body>
 </html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Sopa de Letras Estelar</title>
+<script src="../../oc.js"></script>
+<style>
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 10px 12px;gap:8px}
+.words{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:580px}
+.wtag{padding:4px 11px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);font:700 .84rem Fredoka,sans-serif;color:#ffd166}
+.wtag.got{background:#06d6a0;color:#05261c;border-color:#06d6a0;text-decoration:line-through}
+.grid{display:grid;grid-template-columns:repeat(var(--n,9),1fr);gap:4px;width:min(92vw,410px);background:rgba(15,21,56,.9);padding:10px;border-radius:22px;border:2px solid rgba(255,255,255,.2);touch-action:none}
+.lt{aspect-ratio:1;border-radius:9px;background:#1c255e;display:flex;align-items:center;justify-content:center;font:700 1.05rem Fredoka,sans-serif;color:#fff;cursor:pointer;transition:.1s}
+.lt.sel{background:#ffd166;color:#1a0a00;transform:scale(1.06)}
+.lt.ok{background:#9b5de5;color:#fff;border:1px solid #00f5d4}
+</style>
+</head>
+<body>
+<div class="hud">
+  <span id="ht">🔤 Tema: Espaço</span>
+  <span id="hf">Encontradas: 0/6</span>
+  <button class="pill" id="hintBtn" style="pointer-events:auto;cursor:pointer">💡 Dica</button>
+</div>
+<div class="words" id="words"></div>
+<div class="grid" id="grid"></div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">🔤🔭🐑</div>
+    <h1>Sopa de Letras Estelar</h1>
+    <p>Encontra as palavras escondidas das Ovelhas Coloridas em <b>12 temas galácticos</b> e grelhas até 10×10! <b>Arrasta o dedo ou o rato</b> na horizontal, vertical ou diagonal para selecionar cada palavra.</p>
+    <div class="kbs"><span class="kb">Arrastar</span> Selecionar Palavra <span class="kb">💡 Dica</span> Iluminar 1.ª Letra</div>
+    <button class="btn" id="go">▶ Procurar Palavras</button>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id),ID='sopa-letras';
+const THEMES=[
+  {name:'Espaço',words:['OVELHA','COMETA','LUA','SOL','NAVE','ORBITA','GALAXIA']},
+  {name:'Natureza',words:['NUVEM','ARCO','FLOR','VERDE','VENTO','BOSQUE','CHUVA']},
+  {name:'Aventura',words:['AMIGO','PATO','ROSA','AZUL','FESTA','TESOURO','MAPA']},
+  {name:'Planetas',words:['MARTE','VENUS','SATURNO','TERRA','PLUTAO','ANEIS','CRATERA']},
+  {name:'Música',words:['MELODIA','RITMO','HARPA','CORO','PIANO','FLAUTA','NOTA']},
+  {name:'Cores',words:['LARANJA','VIOLETA','DOURADO','TURQUESA','CARMIM','ANIL','PRATA']},
+  {name:'Oceano',words:['CORAL','PEROLA','ONDA','DELFIM','FAROL','BALEIA','CONCHA']},
+  {name:'Quinta',words:['REBANho'.toUpperCase(),'PRADO','CELEIRO','TRIGO','PASTOR','LA','MOINHO']},
+  {name:'Ciência',words:['ATOMO','LASER','PRISMA','ENERGIA','CRISTAL','MAGNETO','QUASAR']},
+  {name:'Doces',words:['MELANCIA','MORANGO','AMENDOIM','CACAU','BAUNILHA','CANELA','MEL']},
+  {name:'Magia',words:['ESTRELA','PORTAL','AURORA','COMETA','ECLIPSE','COROA','SONHO']},
+  {name:'Velocidade',words:['FOGUETE','TURBO','COMETA',' VENTO'.trim(),'SALTO','META','TROFEU']}
+];
+let N=9,themeIdx=0,round=0,roundsGoal=2,board=[],placed=[],found=new Set(),startCell=null,selCells=[],score=0;
+
+function makePuzzle(){
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  const diffIdx=OC.DIFFICULTIES?OC.DIFFICULTIES.findIndex(d=>d.id===OC.diff.id):1;
+  N=diffIdx>=3||campLv>=25?10:(diffIdx===0&&campLv<5?8:9);
+  roundsGoal=Math.min(4,2+Math.floor(campLv/20));
+  $('grid').style.setProperty('--n',N);
+  const th=THEMES[(themeIdx+campLv-1)%THEMES.length];
+  $('ht').textContent=`🔤 ${th.name} (${round+1}/${roundsGoal})`;
+  board=Array.from({length:N},()=>Array(N).fill(''));
+  placed=[];found=new Set();selCells=[];
+  const allowDiag=(diffIdx>=2||campLv>=10);
+  const dirs=allowDiag?[[0,1],[1,0],[1,1]]:[[0,1],[1,0]];
+  const wordsPool=th.words.filter(w=>w.length<=N).slice(0,Math.min(7,5+Math.floor(campLv/15)));
+  for(const w of wordsPool){
+    for(let tries=0;tries<100;tries++){
+      const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)];
+      const maxR=dr?N-w.length:N-1,maxC=dc?N-w.length:N-1;
+      const r=Math.floor(Math.random()*(maxR+1)),c=Math.floor(Math.random()*(maxC+1));
+      let ok=true;
+      for(let i=0;i<w.length;i++){
+        const rr=r+dr*i,cc=c+dc*i;
+        if(board[rr][cc]&&board[rr][cc]!==w[i]){ok=false;break;}
+      }
+      if(ok){
+        const cells=[];
+        for(let i=0;i<w.length;i++){
+          const rr=r+dr*i,cc=c+dc*i;
+          board[rr][cc]=w[i];cells.push([rr,cc]);
+        }
+        placed.push({w,cells});break;
+      }
+    }
+  }
+  const ABC='ABCDEFGHIJLMNOPQRSTUVXZ';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!board[r][c])board[r][c]=ABC[Math.floor(Math.random()*ABC.length)];
+  render();
+}
+function isFoundCell(r,c){
+  for(const p of placed)if(found.has(p.w)&&p.cells.some(([rr,cc])=>rr===r&&cc===c))return true;
+  return false;
+}
+function render(){
+  $('hf').textContent=`Encontradas: ${found.size}/${placed.length} | ⭐ ${score}`;
+  $('words').innerHTML=placed.map(p=>`<span class="wtag ${found.has(p.w)?'got':''}">${p.w}</span>`).join('');
+  let h='';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const sel=selCells.some(([rr,cc])=>rr===r&&cc===c);
+    const ok=isFoundCell(r,c);
+    h+=`<div class="lt ${sel?'sel':''} ${ok?'ok':''}" data-r="${r}" data-c="${c}">${board[r][c]}</div>`;
+  }
+  $('grid').innerHTML=h;
+}
+function lineCells(r0,c0,r1,c1){
+  const dr=r1-r0,dc=c1-c0;
+  if(dr!==0&&dc!==0&&Math.abs(dr)!==Math.abs(dc))return [[r0,c0]];
+  const sr=Math.sign(dr),sc=Math.sign(dc),len=Math.max(Math.abs(dr),Math.abs(dc));
+  const out=[];
+  for(let i=0;i<=len;i++)out.push([r0+sr*i,c0+sc*i]);
+  return out;
+}
+function cellFromEvent(e){
+  const el=document.elementFromPoint(e.clientX,e.clientY);
+  const lt=el&&el.closest('.lt');
+  return lt?[+lt.dataset.r,+lt.dataset.c]:null;
+}
+$('grid').addEventListener('pointerdown',e=>{
+  const c=cellFromEvent(e);if(!c)return;
+  startCell=c;selCells=[c];OC.sfx.click();render();
+});
+addEventListener('pointermove',e=>{
+  if(!startCell)return;
+  const c=cellFromEvent(e);if(!c)return;
+  selCells=lineCells(startCell[0],startCell[1],c[0],c[1]);render();
+});
+addEventListener('pointerup',()=>{
+  if(!startCell)return;
+  const str=selCells.map(([r,c])=>board[r][c]).join('');
+  const rev=str.split('').reverse().join('');
+  const hit=placed.find(p=>!found.has(p.w)&&(p.w===str||p.w===rev));
+  startCell=null;selCells=[];
+  if(hit){
+    found.add(hit.w);score+=Math.round(70*(OC.diff?OC.diff.mult:1));OC.sfx.good();
+    if(found.size===placed.length){
+      setTimeout(()=>{
+        themeIdx++;round++;
+        if(round<roundsGoal){
+          OC.sfx.levelUp();makePuzzle();
+        }else{
+          round=0;
+          OC.end({id:ID,win:true,stars:3,score,title:'Explorador de Palavras!',text:`Descobriste todas as palavras dos ${roundsGoal} quadros estelares no Nível ${OC.diff.level}!`,retry:()=>{round=0;score=0;makePuzzle();}});
+        }
+      },350);
+    }
+  }
+  render();
+});
+$('hintBtn').onclick=()=>{
+  const rem=placed.find(p=>!found.has(p.w));if(!rem)return;
+  selCells=[rem.cells[0]];OC.sfx.pop();render();
+};
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start();round=0;score=0;makePuzzle();};
+makePuzzle();
+</script>
+</body>
+</html>

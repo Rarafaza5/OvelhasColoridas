@@ -14,7 +14,7 @@ let ang,vang,pos,vel,falls,parts,pops,score,time,spawnT,keyL=0,keyR=0,targetA=nu
 for(let i=0;i<60;i++)stars.push([Math.random()*W,Math.random()*H,Math.random()*1.5+.3]);
 $('hb').textContent='🏆 '+best;
 function init(){ang=0;vang=0;pos=0;vel=0;falls=[];parts=[];pops=[];score=0;time=0;spawnT=.8;over=false;falling=false;targetA=null;upd()}
-function upd(){$('hs').textContent='⭐ '+score;$('ht').textContent=`⏱ ${Math.floor(time)}s`;$('hb').textContent='🏆 '+Math.max(best,score)}
+function upd(){$('hs').textContent=`⭐ ${score} (Nv.${OC.diff.level})`;$('ht').textContent=`⏱ ${Math.floor(time)}s`;$('hb').textContent='🏆 '+Math.max(best,score)}
 function update(dt){
  if(!running||over)return;
  time+=dt;

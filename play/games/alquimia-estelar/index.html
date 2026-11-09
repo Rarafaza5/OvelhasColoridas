@@ -8,7 +8,7 @@
 <body>
 <canvas id="c"></canvas>
 <div class="hud">
-  <div class="pill">📅 Dia <span id="dy">1</span> · 🪙 <span id="sc">0</span></div>
+  <div class="pill">🗺️ Campanha Nv.<span id="clv">1</span> · 📅 Dia <span id="dy">1</span> · 🪙 <span id="sc">0</span></div>
   <div class="pill">☕ Clientes Hoje: <span id="sv">0</span>/<span id="tg">6</span></div>
   <div class="pill">🔥 Combo: <span id="cb">x1</span></div>
 </div>
@@ -42,7 +42,7 @@ let st='wait',served=0,combo=1;
 let tray={items:[],cooked:false};
 let clients=[],spawnT=0;
 
-function targetForDay(){return 5+Math.min(10,SAVE.day);}
+function targetForDay(){return 5+Math.min(12,Math.max(SAVE.day,Math.ceil(OC.diff.level/4)));}
 
 function init(){
   served=0;combo=1;
@@ -53,6 +53,7 @@ function init(){
 }
 
 function updHUD(){
+  const clvEl=document.getElementById('clv');if(clvEl)clvEl.textContent=OC.diff.level;
   document.getElementById('dy').textContent=SAVE.day;
   document.getElementById('sc').textContent=SAVE.coins;
   document.getElementById('sv').textContent=served;

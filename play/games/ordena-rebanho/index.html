@@ -1,64 +1,153 @@
-<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Comboio das Cores</title><script src="../../oc.js"></script>
-<style>
-body{background:radial-gradient(circle at 50% 0,#2d1c63,#0a0e27);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:48px 10px 10px}
-#msg{font:700 1.25rem Fredoka,sans-serif;color:#ffd166;min-height:28px;text-align:center}
-.station{display:flex;flex-direction:column;gap:14px;width:min(95vw,600px);background:#121842;padding:18px;border-radius:26px;border:2px solid #ffffff24}
-.track{display:flex;align-items:center;gap:10px;background:#1c255e;padding:10px 14px;border-radius:18px}
-.gate{width:54px;height:54px;border-radius:16px;background:var(--c);display:flex;align-items:center;justify-content:center;font:700 1.4rem Fredoka,sans-serif;border:3px solid #fff}
-.cars{display:flex;gap:10px;flex:1;justify-content:space-around}
-.car{width:76px;height:66px;border-radius:18px;background:var(--c);border:3px solid #fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:.18s;box-shadow:0 6px 14px #0006}
-.car img{width:54px;height:54px;object-fit:contain;pointer-events:none}
-.car.sel{outline:4px solid #ffd166;transform:scale(1.1)}
-</style></head><body>
-<div class="hud"><span id="hl">🚂 Estação 1</span><span id="hm">Trocas: 0</span></div>
-<div id="msg">Alinha cada carruagem com a cor da sua linha!</div>
-<div class="station" id="st"></div>
-<button class="btn" id="rs" style="padding:8px 18px;font-size:.95rem;background:#ffffff22;color:#fff;box-shadow:none">🔄 Nova Estação</button>
-<div class="ov" id="ov"><h2>🚂 Comboio das Cores</h2>
-<p>As carruagens das ovelhas saíram da linha! Toca em duas carruagens para as <b>trocar de linha</b> até cada faixa ter apenas as ovelhas da cor da sua locomotiva!</p>
-<button class="btn" id="go">▶ Organizar Estação</button></div>
-<script>
-const $=id=>document.getElementById(id);
-let lv=1,rows,sel=null,moves=0;
-function makeStation(){
- const R=Math.min(5,3+Math.floor(lv/2)),C=4;
- rows=Array.from({length:R},(_,r)=>Array(C).fill(r));
- // baralhar
- for(let k=0;k<40;k++){
-  const r1=Math.floor(Math.random()*R),c1=Math.floor(Math.random()*C);
-  const r2=Math.floor(Math.random()*R),c2=Math.floor(Math.random()*C);
-  const t=rows[r1][c1];rows[r1][c1]=rows[r2][c2];rows[r2][c2]=t;
- }
- if(solved())return makeStation();
- sel=null;moves=0;render();
-}
-function solved(){return rows.every((r,i)=>r.every(v=>v===i))}
-function render(){
- $('hl').textContent='🚂 Estação '+lv;$('hm').textContent='Trocas: '+moves;
- $('st').innerHTML=rows.map((r,ri)=>{
-  const gc=OC.COLORS[OC.SHEEP[ri]];
-  return `<div class="track"><div class="gate" style="--c:${gc}">🚂</div><div class="cars">`+
-   r.map((v,ci)=>`<div class="car ${sel&&sel[0]===ri&&sel[1]===ci?'sel':''}" data-r="${ri}" data-c="${ci}" style="--c:${OC.COLORS[OC.SHEEP[v]]}"><img src="${OC.A}ovelha-${OC.SHEEP[v]}.png"></div>`).join('')+
-   `</div></div>`;
- }).join('');
-}
-$('st').onclick=e=>{
- const el=e.target.closest('.car');if(!el)return;
- const r=+el.dataset.r,c=+el.dataset.c;
- if(!sel){sel=[r,c];OC.sfx.pop();render();return}
- const [r0,c0]=sel;sel=null;
- if(r0===r&&c0===c){render();return}
- const t=rows[r0][c0];rows[r0][c0]=rows[r][c];rows[r][c]=t;moves++;
- OC.sfx.pop();render();
- if(solved()){
-  OC.sfx.win();$('msg').textContent='🎉 Comboios prontos a partir!';
-  setTimeout(()=>{
-   if(lv%3===0){OC.best('ordena-rebanho',lv);OC.end({id:'ordena-rebanho',title:`Estação ${lv} Pronta!`,text:`Despachaste os comboios em ${moves} trocas!`,stars:4,retry:()=>{lv++;makeStation()}})}
-   else{lv++;makeStation()}
-  },600);
- }
-};
-$('rs').onclick=()=>{makeStation();OC.sfx.pop()};
-makeStation();$('go').onclick=()=>$('ov').style.display='none';
-</script></body></html>
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Comboio das Cores</title>
+  <script src="../../oc.js"></script>
+  <style>
+    body {
+      background: radial-gradient(circle at 50% 0, #2d1c63, #0a0e27);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 48px 10px 10px
+    }
+
+    #msg {
+      font: 700 1.25rem Fredoka, sans-serif;
+      color: #ffd166;
+      min-height: 28px;
+      text-align: center
+    }
+
+    .station {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: min(95vw, 600px);
+      background: #121842;
+      padding: 18px;
+      border-radius: 26px;
+      border: 2px solid #ffffff24
+    }
+
+    .track {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #1c255e;
+      padding: 10px 14px;
+      border-radius: 18px
+    }
+
+    .gate {
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: var(--c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 700 1.4rem Fredoka, sans-serif;
+      border: 3px solid #fff
+    }
+
+    .cars {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      justify-content: space-around
+    }
+
+    .car {
+      width: 76px;
+      height: 66px;
+      border-radius: 18px;
+      background: var(--c);
+      border: 3px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: .18s;
+      box-shadow: 0 6px 14px #0006
+    }
+
+    .car img {
+      width: 54px;
+      height: 54px;
+      object-fit: contain;
+      pointer-events: none
+    }
+
+    .car.sel {
+      outline: 4px solid #ffd166;
+      transform: scale(1.1)
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hud"><span id="hl">🚂 Estação 1</span><span id="hm">Trocas: 0</span></div>
+  <div id="msg">Alinha cada carruagem com a cor da sua linha!</div>
+  <div class="station" id="st"></div>
+  <button class="btn" id="rs"
+    style="padding:8px 18px;font-size:.95rem;background:#ffffff22;color:#fff;box-shadow:none">🔄 Nova Estação</button>
+  <div class="ov" id="ov">
+    <h2>🚂 Comboio das Cores</h2>
+    <p>As carruagens das ovelhas saíram da linha! Toca em duas carruagens para as <b>trocar de linha</b> até cada faixa
+      ter apenas as ovelhas da cor da sua locomotiva!</p>
+    <button class="btn" id="go">▶ Organizar Estação</button>
+  </div>
+  <script>
+    const $ = id => document.getElementById(id);
+    let lv = 1, rows, sel = null, moves = 0;
+    function makeStation() {
+      const campLv = (OC.diff && OC.diff.level) || 1;
+      const R = Math.min(6, 3 + Math.floor((lv + campLv - 1) / 2)), C = Math.min(5, 4 + Math.floor(campLv / 15));
+      rows = Array.from({ length: R }, (_, r) => Array(C).fill(r));
+      // baralhar
+      for (let k = 0; k < 45 + campLv * 3; k++) {
+        const r1 = Math.floor(Math.random() * R), c1 = Math.floor(Math.random() * C);
+        const r2 = Math.floor(Math.random() * R), c2 = Math.floor(Math.random() * C);
+        const t = rows[r1][c1]; rows[r1][c1] = rows[r2][c2]; rows[r2][c2] = t;
+      }
+      if (solved()) return makeStation();
+      sel = null; moves = 0; render();
+    }
+    function solved() { return rows.every((r, i) => r.every(v => v === i)) }
+    function render() {
+      $('hl').textContent = `🚂 Estação ${lv} (Nv.${OC.diff.level})`; $('hm').textContent = 'Trocas: ' + moves;
+      $('st').innerHTML = rows.map((r, ri) => {
+        const gc = OC.COLORS[OC.SHEEP[ri]];
+        return `<div class="track"><div class="gate" style="--c:${gc}">🚂</div><div class="cars">` +
+          r.map((v, ci) => `<div class="car ${sel && sel[0] === ri && sel[1] === ci ? 'sel' : ''}" data-r="${ri}" data-c="${ci}" style="--c:${OC.COLORS[OC.SHEEP[v]]}"><img src="${OC.A}ovelha-${OC.SHEEP[v]}.png"></div>`).join('') +
+          `</div></div>`;
+      }).join('');
+    }
+    $('st').onclick = e => {
+      const el = e.target.closest('.car'); if (!el) return;
+      const r = +el.dataset.r, c = +el.dataset.c;
+      if (!sel) { sel = [r, c]; OC.sfx.pop(); render(); return }
+      const [r0, c0] = sel; sel = null;
+      if (r0 === r && c0 === c) { render(); return }
+      const t = rows[r0][c0]; rows[r0][c0] = rows[r][c]; rows[r][c] = t; moves++;
+      OC.sfx.pop(); render();
+      if (solved()) {
+        OC.sfx.win(); $('msg').textContent = '🎉 Comboios prontos a partir!';
+        setTimeout(() => {
+          if (lv % 3 === 0) { OC.best('ordena-rebanho', lv); OC.end({ id: 'ordena-rebanho', title: `Estação ${lv} Pronta!`, text: `Despachaste os comboios em ${moves} trocas!`, stars: 4, retry: () => { lv++; makeStation() } }) }
+          else { lv++; makeStation() }
+        }, 600);
+      }
+    };
+    $('rs').onclick = () => { makeStation(); OC.sfx.pop() };
+    makeStation(); $('go').onclick = () => $('ov').style.display = 'none';
+  </script>
+</body>
+
+</html>

@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Moinho de Lã</title>
-<link rel="stylesheet" href="../../oc.css">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -36,9 +35,13 @@ let st='wait',sc=0,moves=22,target=600;
 let grid=[],rotAnim=null,hoverKnob=-1;
 
 function init(){
-  sc=0;moves=22;rotAnim=null;
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  sc=0;moves=22+Math.min(10,Math.floor(campLv/6));
+  target=600+campLv*60;
+  rotAnim=null;
   document.getElementById('sc').textContent='0';
   document.getElementById('mv').textContent=moves;
+  document.getElementById('tg').textContent=`${target} (Nv.${campLv})`;
   grid=[];
   for(let r=0;r<N;r++){
     grid[r]=[];

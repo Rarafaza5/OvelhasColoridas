@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>Pares Cósmicos</title>
+  <script src="../../oc.js"></script>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 52px 12px 16px;
+      gap: 10px
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(var(--cols, 4), 1fr);
+      gap: 8px;
+      width: min(95vw, 600px)
+    }
+
+    .mcard {
+      aspect-ratio: 1;
+      perspective: 700px;
+      cursor: pointer
+    }
+
+    .inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform .32s cubic-bezier(.34, 1.56, .64, 1);
+      transform-style: preserve-3d
+    }
+
+    .mcard.flip .inner,
+    .mcard.done .inner {
+      transform: rotateY(180deg)
+    }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      border-radius: 16px;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid rgba(255, 255, 255, .28);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .45)
+    }
+
+    .front {
+      background: linear-gradient(135deg, #251b63, #131946);
+      font: 700 1.8rem Fredoka, sans-serif;
+      color: #ffd166
+    }
+
+    .back {
+      background: linear-gradient(135deg, var(--c), #181d4e);
+      transform: rotateY(180deg)
+    }
+
+    .back img {
+      width: 60%;
+      height: 60%;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px #0008)
+    }
+
+    .back small {
+      font: 700 .68rem Fredoka, sans-serif;
+      color: #fff;
+      margin-top: 2px
+    }
+
+    .mcard.done .back {
+      border-color: #00f5d4;
+      box-shadow: 0 0 18px rgba(0, 245, 212, .45)
+    }
+  </style>
+</head>
+
+<body>
+  <div class="hud">
+    <span id="hl">🌌 Ronda 1/5</span>
+    <span id="hm">🔍 Jogadas: 0</span>
+    <span id="hc">🔥 Combo x1</span>
+    <button class="pill" id="peekBtn" style="pointer-events:auto;cursor:pointer">👁️ Espreitar (2)</button>
+  </div>
+  <div class="board" id="board"></div>
+  <div class="ov" id="ov">
+    <div class="card">
+      <div style="font-size:3rem">🃏🐑✨</div>
+      <h1>Pares Cósmicos</h1>
+      <p>Memoriza a posição das Ovelhas Coloridas e dos seus amigos espaciais! Vira as cartas duas a duas para encontrar
+        todos os pares, usa o poder <b>👁️ Espreitar</b> e encadeia acertos para multiplicar a pontuação ao longo das 5
+        Rondas de cada Nível!</p>
+      <div class="kbs"><span class="kb">Toque / Clique</span> Virar Carta <span class="kb">👁️ Espreitar</span> Revelar
+        Cartas</div>
+      <button class="btn" id="go">▶ Descobrir Pares</button>
+    </div>
+  </div>
+  <script>
+    const $ = id => document.getElementById(id), ID = 'pares-cosmicos';
+    const DECK = [
+      { id: 'arc', n: 'Arco-Íris', c: '#ff85a2', img: 'ovelha-arcoiris' },
+      { id: 'azu', n: 'Azul', c: '#4cc9f0', img: 'ovelha-azul' },
+      { id: 'ros', n: 'Rosa', c: '#ff9ecd', img: 'ovelha-rosa' },
+      { id: 'ver', n: 'Verde', c: '#06d6a0', img: 'ovelha-verde' },
+      { id: 'rox', n: 'Roxa', c: '#9b5de5', img: 'ovelha-roxa' },
+      { id: 'lar', n: 'Laranja', c: '#ff9f1c', img: 'ovelha-laranja' },
+      { id: 'mel', n: 'Melancia', c: '#ef476f', img: 'ovelha-melancia' },
+      { id: 'ele', n: 'Amendoim', c: '#ffd166', img: 'elefante-amendoim' },
+      { id: 'pat', n: 'Pato', c: '#00f5d4', img: 'pato' },
+      { id: 'kwa', n: 'Astrónoma', c: '#3a86ff', img: 'ovelha-azul-kwai' },
+      { id: 'rei', n: 'Coroa', c: '#ffbe0b', img: 'ovelha-arcoiris' },
+      { id: 'neb', n: 'Nebulosa', c: '#7209b7', img: 'ovelha-roxa' }
+    ];
+    let LEVELS = [], lv = 0, cards = [], open = [], moves = 0, matched = 0, combo = 1, score = 0, peeks = 2, lock = false;
+
+    function buildLevels() {
+      const campLv = (OC.diff && OC.diff.level) || 1;
+      const diffIdx = OC.DIFFICULTIES ? OC.DIFFICULTIES.findIndex(d => d.id === OC.diff.id) : 1;
+      const bonus = Math.min(4, Math.floor(campLv / 8) + Math.max(0, diffIdx));
+      LEVELS = [
+        { cols: 4, pairs: Math.min(12, 4 + bonus) },
+        { cols: 4, pairs: Math.min(12, 6 + bonus) },
+        { cols: 5, pairs: Math.min(12, 8 + bonus) },
+        { cols: 5, pairs: Math.min(12, 10 + Math.min(2, bonus)) },
+        { cols: 6, pairs: Math.min(12, 10 + Math.min(2, bonus)) }
+      ];
+      peeks = 2 + Math.floor((OC.getTalent('luck') || 0) / 2);
+    }
+
+    function startLevel() {
+      if (!LEVELS.length) buildLevels();
+      const cfg = LEVELS[lv];
+      $('board').style.setProperty('--cols', cfg.cols);
+      const pick = DECK.slice(0, cfg.pairs);
+      cards = [...pick, ...pick].map((d, i) => ({ ...d, uid: i, done: false }));
+      for (let i = cards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[cards[i], cards[j]] = [cards[j], cards[i]]; }
+      open = []; matched = 0; lock = false;
+      render(); updHUD();
+    }
+    function updHUD() {
+      $('hl').textContent = `🌌 Ronda ${lv + 1}/${LEVELS.length} (Nv.${OC.diff.level})`;
+      $('hm').textContent = `🔍 Jogadas: ${moves}`;
+      $('hc').textContent = `⭐ ${score} (x${combo})`;
+      $('peekBtn').textContent = `👁️ Espreitar (${peeks})`;
+    }
+    function render() {
+      $('board').innerHTML = cards.map((c, i) => `
+    <div class="mcard ${c.done ? 'done' : ''}" data-i="${i}" style="--c:${c.c}">
+      <div class="inner">
+        <div class="face front">✦</div>
+        <div class="face back"><img src="${OC.A}${c.img}.png" alt=""><small>${c.n}</small></div>
+      </div>
+    </div>`).join('');
+    }
+    $('peekBtn').onclick = () => {
+      if (lock || peeks <= 0) return;
+      peeks--; lock = true; OC.sfx.combo(2); updHUD();
+      document.querySelectorAll('.mcard:not(.done)').forEach(x => x.classList.add('flip'));
+      setTimeout(() => {
+        document.querySelectorAll('.mcard:not(.done)').forEach((x) => {
+          if (!open.includes(+x.dataset.i)) x.classList.remove('flip');
+        });
+        lock = false;
+      }, 1100);
+    };
+    $('board').onclick = e => {
+      if (lock || OC.paused) return;
+      const el = e.target.closest('.mcard'); if (!el) return;
+      const i = +el.dataset.i, c = cards[i];
+      if (c.done || open.includes(i)) return;
+      OC.sfx.pop();
+      el.classList.add('flip');
+      open.push(i);
+      if (open.length === 2) {
+        moves++; lock = true;
+        const [a, b] = open;
+        if (cards[a].id === cards[b].id) {
+          cards[a].done = cards[b].done = true;
+          matched++; score += Math.round(55 * combo * (OC.diff ? OC.diff.mult : 1)); combo = Math.min(8, combo + 1);
+          OC.sfx.good(); open = []; lock = false; render(); updHUD();
+          if (matched === LEVELS[lv].pairs) {
+            setTimeout(() => {
+              if (lv + 1 < LEVELS.length) {
+                lv++; OC.sfx.levelUp(); startLevel();
+              } else {
+                OC.end({ id: ID, win: true, stars: moves <= 52 ? 3 : 2, score, title: 'Memória Galáctica!', text: `Encontraste todos os pares das ${LEVELS.length} rondas no Nível ${OC.diff.level} com ${score} pontos!`, retry: () => { buildLevels(); lv = 0; moves = 0; score = 0; combo = 1; startLevel(); } });
+              }
+            }, 450);
+          }
+        } else {
+          combo = 1; updHUD();
+          setTimeout(() => {
+            document.querySelectorAll('.mcard.flip:not(.done)').forEach(x => x.classList.remove('flip'));
+            open = []; lock = false;
+          }, 650);
+        }
+      }
+    };
+    $('go').onclick = () => { $('ov').classList.add('hide'); OC.music.start(); buildLevels(); lv = 0; moves = 0; score = 0; combo = 1; startLevel(); };
+    buildLevels(); startLevel();
+  </script>
+</body>
+
+</html>

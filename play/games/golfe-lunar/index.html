@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Golfe Lunar</title>
+<script src="../../oc.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hh">⛳ Buraco 1/9</span><span id="hs">Tacadas: 0 (Par 3)</span><span id="htot">Total: 0</span></div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">⛳🧶🌙</div>
+    <h1>Golfe Lunar</h1>
+    <p>Completa torneios galácticos com mais de <b>100 circuitos lunares</b>, bunkers de areia estelar, placas de gelo, portais gémeos, poços gravitacionais e barreiras móveis! <b>Arrasta a partir da bola para trás</b> para apontar e escolher a força.</p>
+    <div class="kbs"><span class="kb">Arrastar na Bola</span> Apontar e Força <span class="kb">R</span> Repor tacada</div>
+    <button class="btn" id="go">▶ Começar Torneio</button>
+  </div>
+</div>
+<script>
+const W=680,H=480,cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='golfe-lunar',$=id=>document.getElementById(id);
+const img=OC.img('ovelha-verde');
+const BASE_HOLES=[
+  {s:[120,240],h:[560,240],par:2,walls:[[310,150,24,180]]},
+  {s:[110,360],h:[560,120],par:3,walls:[[240,70,24,220],[410,200,24,210]]},
+  {s:[110,120],h:[560,360],par:3,walls:[[220,210,240,24]],sand:[[320,290,110,90]]},
+  {s:[110,240],h:[570,240],par:3,walls:[[320,70,24,120],[320,290,24,120]],grav:[340,240]},
+  {s:[110,370],h:[120,110],par:4,walls:[[70,220,390,24],[460,120,24,240]],ice:[[480,140,110,200]]},
+  {s:[100,240],h:[580,240],par:4,walls:[[230,110,24,260],[430,70,24,130],[430,280,24,130]],sand:[[280,180,110,120]],portal:[[170,130],[350,350]]},
+  {s:[110,120],h:[570,120],par:4,walls:[[220,65,24,250],[430,180,24,255]],grav:[335,250],ice:[[250,320,170,80]]},
+  {s:[110,360],h:[570,360],par:4,walls:[[320,150,24,290]],portal:[[220,140],[450,140]],sand:[[450,230,120,90]]},
+  {s:[105,240],h:[575,240],par:5,walls:[[210,70,22,130],[210,280,22,140],[350,145,22,190],[475,70,22,130],[475,280,22,140]],grav:[280,240],ice:[[380,180,85,120]]}
+];
+
+function makeCourseHoles(){
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  const diffIdx=OC.DIFFICULTIES?OC.DIFFICULTIES.findIndex(d=>d.id===OC.diff.id):1;
+  const numHoles=Math.min(9,5+Math.floor(campLv/8)+Math.max(0,diffIdx));
+  const list=[];
+  for(let i=0;i<numHoles;i++){
+    const seed=campLv*31+i*17+diffIdx*7;
+    if(campLv===1&&i<BASE_HOLES.length){
+      list.push(JSON.parse(JSON.stringify(BASE_HOLES[i])));
+      continue;
+    }
+    const base=JSON.parse(JSON.stringify(BASE_HOLES[(seed)%BASE_HOLES.length]));
+    // Flip or mutate based on campaign level so each of the 100 levels feels unique
+    if(seed%2===1){
+      base.s[1]=H-base.s[1]+25;
+      base.h[1]=H-base.h[1]+25;
+      base.walls=base.walls.map(([x,y,w,h])=>[x,Math.max(70,Math.min(H-45-h,H-y-h+25)),w,h]);
+    }
+    if(campLv>=3&&(seed%3===0)&&!base.grav){
+      base.grav=[290+(seed%120),170+(seed%140)];
+    }
+    if(campLv>=4&&(seed%4===0)&&!base.portal){
+      base.portal=[[180,130+(seed%180)],[440,350-(seed%180)]];
+    }
+    base.mover=(campLv>=2||diffIdx>=2)?{x:330+(seed%90),y:180,w:22,h:95,vy:85+campLv*2+diffIdx*20}:null;
+    list.push(base);
+  }
+  return list;
+}
+
+let HOLES=[],holeIdx=0,strokes=0,total=0,totalPar=0,ball={x:120,y:240,vx:0,vy:0,r:13},lastPos={x:120,y:240},aim=null,sunk=false,portalCd=0,starPickup=null,starsGot=0;
+
+function startTournament(){
+  HOLES=makeCourseHoles();
+  holeIdx=0;total=0;totalPar=0;starsGot=0;
+  loadHole();
+}
+function loadHole(){
+  const L=HOLES[holeIdx];
+  ball={x:L.s[0],y:L.s[1],vx:0,vy:0,r:13};
+  lastPos={x:L.s[0],y:L.s[1]};
+  starPickup={x:340,y:120+((holeIdx*73)%220),got:false};
+  strokes=0;sunk=false;aim=null;portalCd=0;updHUD();
+}
+function updHUD(){
+  const L=HOLES[holeIdx]||BASE_HOLES[0];
+  $('hh').textContent=`⛳ Buraco ${holeIdx+1}/${HOLES.length} (Nv.${OC.diff.level})`;
+  $('hs').textContent=`Tacadas: ${strokes} (Par ${L.par||3})`;
+  $('htot').textContent=`Total: ${total} | ⭐ ${starsGot}`;
+}
+cv.addEventListener('pointerdown',e=>{
+  if(sunk||Math.hypot(ball.vx,ball.vy)>6)return;
+  const p=P(e);aim={x:p.x,y:p.y};
+});
+cv.addEventListener('pointermove',e=>{if(aim)aim=P(e);});
+addEventListener('pointerup',()=>{
+  if(!aim)return;
+  const dx=ball.x-aim.x,dy=ball.y-aim.y,d=Math.min(185,Math.hypot(dx,dy));
+  aim=null;
+  if(d<12)return;
+  lastPos={x:ball.x,y:ball.y};
+  const a=Math.atan2(dy,dx);
+  ball.vx=Math.cos(a)*d*4.3;ball.vy=Math.sin(a)*d*4.3;
+  strokes++;total++;OC.sfx.jump();updHUD();
+});
+addEventListener('keydown',e=>{
+  if(e.code==='KeyR'&&!sunk){
+    ball.x=lastPos.x;ball.y=lastPos.y;ball.vx=0;ball.vy=0;OC.sfx.click();
+  }
+});
+
+function update(dt){
+  if(sunk||!HOLES.length)return;
+  const L=HOLES[holeIdx];
+  if(portalCd>0)portalCd-=dt;
+  if(L.mover){
+    L.mover.y+=L.mover.vy*dt;
+    if(L.mover.y<72){L.mover.y=72;L.mover.vy=Math.abs(L.mover.vy);}
+    if(L.mover.y+L.mover.h>H-45){L.mover.y=H-45-L.mover.h;L.mover.vy=-Math.abs(L.mover.vy);}
+  }
+  if(L.grav&&Math.hypot(ball.vx,ball.vy)>2){
+    const gx=L.grav[0]-ball.x,gy=L.grav[1]-ball.y,gd=Math.max(35,Math.hypot(gx,gy));
+    if(gd<145){ball.vx+=(gx/gd)*280*dt;ball.vy+=(gy/gd)*280*dt;}
+  }
+  ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
+  let drag=0.985;
+  if(L.sand){
+    for(const [sx,sy,sw,sh] of L.sand)
+      if(ball.x>sx&&ball.x<sx+sw&&ball.y>sy&&ball.y<sy+sh)drag=0.925;
+  }
+  if(L.ice){
+    for(const [ix,iy,iw,ih] of L.ice)
+      if(ball.x>ix&&ball.x<ix+iw&&ball.y>iy&&ball.y<iy+ih)drag=0.997;
+  }
+  ball.vx*=Math.pow(drag,dt*60);ball.vy*=Math.pow(drag,dt*60);
+  if(Math.hypot(ball.vx,ball.vy)<8){ball.vx=0;ball.vy=0;}
+
+  if(L.portal&&portalCd<=0){
+    const [pA,pB]=L.portal;
+    if(Math.hypot(ball.x-pA[0],ball.y-pA[1])<20){
+      ball.x=pB[0];ball.y=pB[1];portalCd=0.55;OC.sfx.combo(3);OC.fx.burst(pB[0],pB[1],'#00f5d4',14);
+    }else if(Math.hypot(ball.x-pB[0],ball.y-pB[1])<20){
+      ball.x=pA[0];ball.y=pA[1];portalCd=0.55;OC.sfx.combo(3);OC.fx.burst(pA[0],pA[1],'#00f5d4',14);
+    }
+  }
+  if(starPickup&&!starPickup.got&&Math.hypot(ball.x-starPickup.x,ball.y-starPickup.y)<24){
+    starPickup.got=true;starsGot++;OC.sfx.coin();OC.fx.burst(starPickup.x,starPickup.y,'#ffd166',14);
+    OC.fx.floatText(starPickup.x,starPickup.y-14,'+BÓNUS ⭐','#ffd166');updHUD();
+  }
+
+  const x0=60,y0=65,x1=W-60,y1=H-40;
+  if(ball.x-ball.r<x0){ball.x=x0+ball.r;ball.vx=Math.abs(ball.vx)*0.85;OC.sfx.click();}
+  if(ball.x+ball.r>x1){ball.x=x1-ball.r;ball.vx=-Math.abs(ball.vx)*0.85;OC.sfx.click();}
+  if(ball.y-ball.r<y0){ball.y=y0+ball.r;ball.vy=Math.abs(ball.vy)*0.85;OC.sfx.click();}
+  if(ball.y+ball.r>y1){ball.y=y1-ball.r;ball.vy=-Math.abs(ball.vy)*0.85;OC.sfx.click();}
+
+  const allWalls=L.mover?[...L.walls,[L.mover.x,L.mover.y,L.mover.w,L.mover.h]]:L.walls;
+  for(const [wx,wy,ww,wh] of allWalls){
+    const cx=Math.max(wx,Math.min(wx+ww,ball.x)),cy=Math.max(wy,Math.min(wy+wh,ball.y));
+    const dx=ball.x-cx,dy=ball.y-cy,dist=Math.hypot(dx,dy);
+    if(dist<ball.r){
+      if(Math.abs(dx)>Math.abs(dy)){ball.x+=Math.sign(dx||1)*(ball.r-dist);ball.vx*=-0.86;}
+      else{ball.y+=Math.sign(dy||1)*(ball.r-dist);ball.vy*=-0.86;}
+      OC.sfx.click();
+    }
+  }
+  const hd=Math.hypot(ball.x-L.h[0],ball.y-L.h[1]);
+  if(hd<20&&Math.hypot(ball.vx,ball.vy)<440){
+    sunk=true;ball.vx=0;ball.vy=0;totalPar+=(L.par||3);
+    OC.sfx.win();OC.fx.burst(L.h[0],L.h[1],'#ffd166',24);
+    const diff=strokes-(L.par||3);
+    const call=strokes===1?'🌟 BURACO EM 1!':diff<=-1?'🦅 BIRDIE!':diff===0?'⛳ PAR!':'⛳ NO BURACO!';
+    OC.fx.floatText(L.h[0],L.h[1]-20,call,'#00f5d4');
+    setTimeout(()=>{
+      if(holeIdx+1<HOLES.length){holeIdx++;loadHole();}
+      else{
+        const score=Math.max(150,Math.round((HOLES.length*280-total*42+starsGot*95)*(OC.diff?OC.diff.mult:1)));
+        const stars=total<=totalPar?3:total<=totalPar+4?2:1;
+        OC.end({id:ID,win:true,stars,score,title:'Campeão do Golfe Lunar!',text:`Completaste os ${HOLES.length} buracos lunares do Nível ${OC.diff.level} em ${total} tacadas (Par ${totalPar}) com ${starsGot} estrelas bónus!`,retry:startTournament});
+      }
+    },750);
+  }
+}
+function draw(now,dt){
+  OC.fx.drawStars(ctx,W,H,now);
+  if(!HOLES.length)return;
+  const L=HOLES[holeIdx];
+  ctx.save();
+  ctx.fillStyle='rgba(6,214,160,0.16)';ctx.strokeStyle='#06d6a0';ctx.lineWidth=4;
+  ctx.beginPath();ctx.roundRect(60,65,W-120,H-105,22);ctx.fill();ctx.stroke();
+  if(L.ice){
+    ctx.fillStyle='rgba(76,201,240,0.28)';
+    for(const [ix,iy,iw,ih] of L.ice){ctx.beginPath();ctx.roundRect(ix,iy,iw,ih,14);ctx.fill();}
+  }
+  if(L.sand){
+    ctx.fillStyle='rgba(255,209,102,0.32)';
+    for(const [sx,sy,sw,sh] of L.sand){ctx.beginPath();ctx.roundRect(sx,sy,sw,sh,14);ctx.fill();}
+  }
+  if(L.grav){
+    ctx.strokeStyle='rgba(155,93,229,0.6)';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(L.grav[0],L.grav[1],55+Math.sin(now*0.005)*6,0,Math.PI*2);ctx.stroke();
+  }
+  if(L.portal){
+    for(const [px,py] of L.portal){
+      ctx.fillStyle='rgba(0,245,212,0.25)';ctx.strokeStyle='#00f5d4';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(px,py,17+Math.sin(now*0.008)*3,0,Math.PI*2);ctx.fill();ctx.stroke();
+    }
+  }
+  if(starPickup&&!starPickup.got){
+    ctx.font='22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('⭐',starPickup.x,starPickup.y+Math.sin(now*0.006)*4);
+  }
+  ctx.fillStyle='#9b5de5';ctx.strokeStyle='#fff';ctx.lineWidth=2;
+  for(const [wx,wy,ww,wh] of L.walls){ctx.beginPath();ctx.roundRect(wx,wy,ww,wh,8);ctx.fill();ctx.stroke();}
+  if(L.mover){
+    ctx.fillStyle='#ff9f1c';ctx.strokeStyle='#ffd166';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.roundRect(L.mover.x,L.mover.y,L.mover.w,L.mover.h,8);ctx.fill();ctx.stroke();
+  }
+  ctx.fillStyle='#080a20';ctx.strokeStyle='#ffd166';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(L.h[0],L.h[1],18,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.drawImage(img,L.h[0]-4,L.h[1]-48,38,38);
+  if(aim){
+    const dx=ball.x-aim.x,dy=ball.y-aim.y,d=Math.min(185,Math.hypot(dx,dy)),a=Math.atan2(dy,dx);
+    ctx.strokeStyle='#ffd166';ctx.lineWidth=3;ctx.setLineDash([6,6]);
+    ctx.beginPath();ctx.moveTo(ball.x,ball.y);ctx.lineTo(ball.x+Math.cos(a)*d,ball.y+Math.sin(a)*d);ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if(!sunk){
+    ctx.fillStyle='#ff85a2';ctx.strokeStyle='#fff';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.stroke();
+  }
+  ctx.restore();
+  OC.fx.update(ctx,dt);
+}
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start();startTournament();};
+startTournament();
+OC.loop(update,draw);
+</script>
+</body>
+</html>

@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Roda das Cores</title>
-<link rel="stylesheet" href="../../oc.css">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -117,14 +116,19 @@ function loop(now){
         if(rel<0)rel+=Math.PI*2;
         const segIdx=Math.floor(rel/(Math.PI*2/6))%6;
         if(cm.rainbow || segIdx===cm.idx){
-          const pts=10*combo;
+          const pts=Math.round(10*combo*(OC.diff?OC.diff.mult:1));
           sc+=pts;
-          combo=Math.min(8,combo+1);
-          document.getElementById('sc').textContent=sc;
+          combo=Math.min(10,combo+1);
+          const goalScore=160+((OC.diff&&OC.diff.level)||1)*35;
+          document.getElementById('sc').textContent=`${sc}/${goalScore} (Nv.${OC.diff.level})`;
           document.getElementById('cb').textContent='x'+combo;
           OC.sfx.coin();
           OC.fx.burst(cm.x,cm.y,cm.rainbow?'#FFD93D':SEGS[cm.idx].col,18);
           OC.fx.floatText(cm.x,cm.y,`+${pts}`,'#FFD93D');
+          if(sc>=goalScore){
+            st='end';
+            OC.end({win:true,stars:hp===3?3:2,score:sc,title:'Planeta Cromático Completo!',msg:`Atingiste a meta de ${goalScore} pontos do Nível ${OC.diff.level}!`,onRetry:()=>{init();st='play';}});
+          }
         }else{
           combo=1;
           hp--;

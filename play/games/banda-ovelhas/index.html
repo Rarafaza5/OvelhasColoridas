@@ -62,7 +62,9 @@ $('seq').onclick=e=>{
 function checkChallenge(){
  if(!target)return;
  if(TRACKS.every((_,r)=>grid[r].every((v,c)=>v===target[r][c]))){
-  target=null;stars+=3;OC.addStars(3);$('hs').textContent='⭐ '+stars;$('hm').textContent='🎉 Desafio completo! +3 ⭐';OC.sfx.win();build();
+  target=null;stars+=3;$('hs').textContent='⭐ '+stars;$('hm').textContent='🎉 Desafio completo! +3 ⭐';OC.best('banda-ovelhas',stars);
+  OC.end({id:'banda-ovelhas',win:true,stars:3,score:stars,title:'Concerto Galáctico!',text:'Reproduziste o ritmo espacial na perfeição!',retry:()=>{}});
+  build();
  }
 }
 setInterval(()=>{
@@ -79,9 +81,11 @@ $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'⏸ A Toc
 $('pre').onclick=()=>{target=null;presetIdx=(presetIdx+1)%PRESETS.length;grid=PRESETS[presetIdx].map(r=>[...r]);$('hm').textContent='🎵 Estúdio Espacial';build()};
 $('clr').onclick=()=>{target=null;grid=TRACKS.map(()=>Array(8).fill(0));build()};
 $('ch').onclick=()=>{
- target=TRACKS.map(()=>Array.from({length:8},()=>Math.random()<.35?1:0));
+ const campLv=(OC.diff&&OC.diff.level)||1;
+ const dens=Math.min(0.55,0.28+campLv*0.005);
+ target=TRACKS.map(()=>Array.from({length:8},()=>Math.random()<dens?1:0));
  grid=TRACKS.map(()=>Array(8).fill(0));
- $('hm').textContent='🎯 Toca nos quadrados tracejados!';OC.sfx.pop();build();
+ $('hm').textContent=`🎯 Desafio Nv.${campLv}: Toca nos tracejados!`;OC.sfx.pop();build();
 };
 build();$('go').onclick=()=>$('ov').style.display='none';
 </script></body></html>

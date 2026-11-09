@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Salto Cósmico</title>
+<script src="../../oc.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hs">🚀 0 m</span><span id="hc">⭐ 0</span><span id="hb">🎯 Meta: 300 m</span></div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">🚀🐑🌈</div>
+    <h1>Salto Cósmico</h1>
+    <p>Salta de nuvem em nuvem até às estrelas! Apanha <b>molas douradas 🌟</b>, <b>Foguetões Jetpack 🚀</b> e <b>Ímanes Estelares 🧲</b>! Cuidado com as nuvens frágeis nas altitudes mais elevadas.</p>
+    <div class="kbs"><span class="kb">◀ ▶ / A D</span> Mover <span class="kb">Toque / Rato</span> Guiar Ovelha</div>
+    <button class="btn" id="go">▶ Saltar para o Espaço!</button>
+  </div>
+</div>
+<script>
+const W=480,H=640,cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='salto-cosmico',$=id=>document.getElementById(id);
+const img=OC.img('ovelha-arcoiris');
+let sh,plats=[],stars=[],height=0,goalM=300,coins=0,keyL=0,keyR=0,targetX=null,running=false;
+
+function init(){
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  goalM=250+campLv*35;
+  height=0;coins=0;targetX=null;
+  sh={x:W/2,y:H-120,vx:0,vy:-580,jet:0};
+  plats=[{x:W/2-55,y:H-60,w:110,type:'norm',vx:0,broken:false}];
+  stars=[];
+  for(let y=H-140;y>-80;y-=70)spawnPlat(y);
+  updHUD();
+}
+function spawnPlat(y){
+  const w=86,x=20+Math.random()*(W-w-40);
+  const r=Math.random();
+  const type=r<0.16?'spring':r<0.34?'move':r<0.46?'cloud':'norm';
+  plats.push({x,y,w,type,vx:type==='move'?(Math.random()<0.5?105:-105):0,broken:false});
+  if(Math.random()<0.5){
+    const isJet=Math.random()<0.14;
+    stars.push({x:x+w/2,y:y-28,got:false,kind:isJet?'jet':'star'});
+  }
+}
+function updHUD(){
+  const m=Math.floor(height/10);
+  $('hs').textContent=`🚀 ${m}/${goalM} m`;
+  $('hc').textContent=`⭐ ${coins}`;
+  $('hb').textContent=`Nv.${OC.diff.level}`;
+}
+addEventListener('keydown',e=>{if(e.code==='ArrowLeft'||e.code==='KeyA'){keyL=1;targetX=null;}if(e.code==='ArrowRight'||e.code==='KeyD'){keyR=1;targetX=null;}});
+addEventListener('keyup',e=>{if(e.code==='ArrowLeft'||e.code==='KeyA')keyL=0;if(e.code==='ArrowRight'||e.code==='KeyD')keyR=0;});
+cv.addEventListener('pointerdown',e=>{targetX=P(e).x;});
+cv.addEventListener('pointermove',e=>{if(e.buttons||targetX!==null)targetX=P(e).x;});
+
+function update(dt){
+  if(!running)return;
+  if(keyL||keyR)sh.vx=(keyR-keyL)*330;
+  else if(targetX!==null)sh.vx=(targetX-sh.x)*7.2;
+  else sh.vx*=0.85;
+  sh.x+=sh.vx*dt;
+  if(sh.x<-20)sh.x=W+20;if(sh.x>W+20)sh.x=-20;
+
+  if(sh.jet>0){sh.jet-=dt;sh.vy=-820;OC.fx.burst(sh.x,sh.y+24,'#ff9f1c',2);}
+  else sh.vy+=1150*dt;
+  sh.y+=sh.vy*dt;
+
+  for(const p of plats){
+    if(p.broken)continue;
+    p.x+=p.vx*dt;
+    if(p.x<12||p.x+p.w>W-12)p.vx*=-1;
+    if(sh.vy>0&&sh.x>p.x-18&&sh.x<p.x+p.w+18&&sh.y+26>=p.y&&sh.y+26<=p.y+22){
+      if(p.type==='spring'){
+        sh.vy=-940;OC.sfx.win();OC.fx.burst(sh.x,p.y,'#ffd166',18);
+      }else if(p.type==='cloud'){
+        sh.vy=-610;p.broken=true;OC.sfx.pop();OC.fx.burst(sh.x,p.y,'#fff',10);
+      }else{
+        sh.vy=-620;OC.sfx.jump();OC.fx.burst(sh.x,p.y,'#00f5d4',8);
+      }
+    }
+  }
+  const magRange=34*OC.magnetRadiusMultiplier();
+  for(const s of stars){
+    if(!s.got&&Math.hypot(s.x-sh.x,s.y-sh.y)<magRange){
+      s.got=true;
+      if(s.kind==='jet'){
+        sh.jet=1.6;coins+=3;OC.sfx.combo(4);OC.fx.floatText(s.x,s.y,'🚀 JETPACK!','#ffd166');
+      }else{
+        coins++;OC.sfx.coin();OC.fx.burst(s.x,s.y,'#ffd166',12);
+      }
+    }
+  }
+  if(sh.y<H*0.42){
+    const dy=H*0.42-sh.y;
+    sh.y=H*0.42;height+=dy;
+    plats.forEach(p=>p.y+=dy);
+    stars.forEach(s=>s.y+=dy);
+    while(plats.length&&plats[0].y>H+40)plats.shift();
+    while(plats[plats.length-1].y>40)spawnPlat(plats[plats.length-1].y-70);
+    updHUD();
+  }
+  if(sh.y>H+60){
+    running=false;
+    const m=Math.floor(height/10);
+    const sc=Math.round((m+coins*18)*(OC.diff?OC.diff.mult:1));
+    const won=m>=Math.round(goalM*0.6);
+    OC.end({id:ID,win:won,stars:m>=goalM?3:m>=goalM*0.75?2:1,score:sc,title:m>=goalM?'Meta de Altitude Atingida!':'Voo Espacial Concluído!',text:`Subiste ${m} metros (Meta: ${goalM}m) e apanhaste ${coins} estrelas!`,retry:()=>{init();running=true;}});
+  }
+}
+function draw(now,dt){
+  OC.fx.drawStars(ctx,W,H,now);
+  for(const p of plats){
+    if(p.broken)continue;
+    ctx.fillStyle=p.type==='spring'?'#ffd166':p.type==='move'?'#4cc9f0':p.type==='cloud'?'rgba(255,255,255,0.65)':'#9b5de5';
+    ctx.strokeStyle='#fff';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.roundRect(p.x,p.y,p.w,16,8);ctx.fill();ctx.stroke();
+    if(p.type==='spring'){
+      ctx.fillStyle='#ff85a2';ctx.beginPath();ctx.arc(p.x+p.w/2,p.y-4,8,0,Math.PI*2);ctx.fill();
+    }
+  }
+  ctx.font='22px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(const s of stars)if(!s.got)ctx.fillText(s.kind==='jet'?'🚀':'⭐',s.x,s.y);
+  ctx.drawImage(img,sh.x-30,sh.y-30,60,60);
+  OC.fx.update(ctx,dt);
+}
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start();init();running=true;};
+init();
+OC.loop(update,draw);
+</script>
+</body>
+</html>

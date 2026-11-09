@@ -16,7 +16,7 @@
 <body>
 <canvas id="c"></canvas>
 <div class="hud">
-  <div class="pill">⚔️ Nv.<span id="lv">1</span> (<span id="xp">0</span>/<span id="mxp">10</span>💎)</div>
+  <div class="pill">🗺️ Campanha Nv.<span id="clv">1</span> · ⚔️ Nv.<span id="lv">1</span> (<span id="xp">0</span>/<span id="mxp">10</span>💎)</div>
   <div class="pill">🪙 Ouro Guardado: <span id="gd">0</span></div>
   <div class="pill">❤️ <span id="hp">100</span></div>
 </div>
@@ -67,6 +67,7 @@ function init(){
 }
 
 function updUI(){
+  const clvEl=document.getElementById('clv');if(clvEl)clvEl.textContent=OC.diff.level;
   document.getElementById('lv').textContent=hero.lv;
   document.getElementById('xp').textContent=hero.xp;
   document.getElementById('mxp').textContent=hero.nextXp;
@@ -145,12 +146,13 @@ function loop(now){
     spawnT-=dt;
     if(spawnT<=0){
       const a=Math.random()*Math.PI*2,R=Math.hypot(W,H)*0.55;
-      const boss=hero.lv>=4 && Math.random()<0.12;
+      const boss=hero.lv>=3 && Math.random()<(0.12+OC.diff.level*0.002);
+      const scale=1+(OC.diff.level-1)*0.035;
       foes.push({
         x:W/2+Math.cos(a)*R,y:H/2+Math.sin(a)*R,
-        hp:(boss?120:22)+hero.lv*8,r:boss?32:18,boss,hitCd:0
+        hp:((boss?120:22)+hero.lv*8)*scale,r:boss?32:18,boss,hitCd:0
       });
-      spawnT=Math.max(0.35,0.95-hero.lv*0.05);
+      spawnT=Math.max(0.28,0.95-hero.lv*0.05-(OC.diff.level-1)*0.004);
     }
 
     // Auto Zap

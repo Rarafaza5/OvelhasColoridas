@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Pastor de Estrelas</title>
+<script src="../../oc.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hw">🌊 Vaga 1/3</span><span id="hs">🐑 No Portal: 0/10</span><span id="ht">⏱ 60s</span><span id="hb">⭐ 0</span></div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">🦆🐑🌈</div>
+    <h1>Pastor de Estrelas</h1>
+    <p>Ajuda o Pato Pastor a conduzir as ovelhas e as <b>Ovelhas Douradas 🌟</b> até ao <b>Portal Dourado</b> através de múltiplas vagas! Usa o <b>Assobio Magnético [Espaço]</b> para reunir o rebanho e evita os redemoinhos nebulosos!</p>
+    <div class="kbs"><span class="kb">Rato / Toque / WASD</span> Mover <span class="kb">Espaço</span> Assobio do Pastor</div>
+    <button class="btn" id="go">▶ Guiar o Rebanho!</button>
+  </div>
+</div>
+<script>
+const W=680,H=500,cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='pastor-estrelas',$=id=>document.getElementById(id);
+const imgDuck=OC.img('pato'),IMGS=OC.SHEEP.map(s=>OC.img('ovelha-'+s));
+let dog={x:120,y:250,tx:120,ty:250},flock=[],hazards=[],wave=1,maxWaves=3,saved=0,waveGoal=8,score=0,tl=65,whistleCd=0,running=false,keys={};
+
+function spawnWave(){
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  waveGoal=7+wave*2+Math.min(8,Math.floor(campLv/6));
+  saved=0;
+  flock=[];
+  for(let i=0;i<waveGoal;i++){
+    const a=(i/waveGoal)*Math.PI*2,r=155+Math.random()*55;
+    flock.push({
+      x:W/2+Math.cos(a)*r,y:H/2+Math.sin(a)*r,
+      vx:(Math.random()-0.5)*36,vy:(Math.random()-0.5)*36,
+      img:IMGS[i%IMGS.length],gold:i%5===0,done:false
+    });
+  }
+  hazards=[];
+  const hCount=Math.min(4,Math.floor((campLv+wave)/4));
+  for(let i=0;i<hCount;i++){
+    hazards.push({x:140+(i%2)*400,y:130+Math.floor(i/2)*240,r:28});
+  }
+  updHUD();
+}
+function init(){
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  maxWaves=Math.min(5,2+Math.ceil(campLv/15));
+  wave=1;score=0;tl=55+maxWaves*12;whistleCd=0;
+  dog={x:110,y:250,tx:110,ty:250};
+  spawnWave();
+}
+function updHUD(){
+  $('hw').textContent=`🌊 Vaga ${wave}/${maxWaves} (Nv.${OC.diff.level})`;
+  $('hs').textContent=`🐑 ${saved}/${waveGoal}`;
+  $('ht').textContent=`⏱ ${Math.ceil(tl)}s`;
+  $('hb').textContent=`⭐ ${score}`;
+}
+cv.addEventListener('pointerdown',e=>{const p=P(e);dog.tx=p.x;dog.ty=p.y;});
+cv.addEventListener('pointermove',e=>{const p=P(e);dog.tx=p.x;dog.ty=p.y;});
+addEventListener('keydown',e=>{
+  keys[e.code]=1;
+  if(e.code==='Space'&&running&&whistleCd<=0){
+    whistleCd=4;OC.sfx.combo(3);
+    OC.fx.burst(dog.x,dog.y,'#00f5d4',20);
+    OC.fx.floatText(dog.x,dog.y-24,'🎶 ASSOBIO DO PASTOR!','#00f5d4');
+    for(const s of flock){
+      if(s.done)continue;
+      const dx=W/2-s.x,dy=H/2-s.y,d=Math.max(1,Math.hypot(dx,dy));
+      s.vx+=(dx/d)*120;s.vy+=(dy/d)*120;
+    }
+  }
+});
+addEventListener('keyup',e=>keys[e.code]=0);
+
+function update(dt){
+  if(!running)return;
+  if(whistleCd>0)whistleCd-=dt;
+  tl-=dt;
+  if(tl<=0){
+    running=false;
+    OC.end({id:ID,win:wave>1||saved>=Math.ceil(waveGoal*0.6),stars:wave>=maxWaves?3:2,score,title:'Tempo Esgotado!',text:`Guiaste o rebanho até à Vaga ${wave}/${maxWaves} com ${score} pontos!`,retry:()=>{init();running=true;}});
+    return;
+  }
+  const kx=(keys.ArrowRight||keys.KeyD||0)-(keys.ArrowLeft||keys.KeyA||0);
+  const ky=(keys.ArrowDown||keys.KeyS||0)-(keys.ArrowUp||keys.KeyW||0);
+  if(kx||ky){dog.tx=dog.x+kx*130;dog.ty=dog.y+ky*130;}
+  dog.x+=(dog.tx-dog.x)*Math.min(1,dt*8.5);
+  dog.y+=(dog.ty-dog.y)*Math.min(1,dt*8.5);
+
+  for(const s of flock){
+    if(s.done)continue;
+    const dx=s.x-dog.x,dy=s.y-dog.y,d=Math.hypot(dx,dy);
+    if(d<140&&d>1){
+      const push=(140-d)*2.3;
+      s.vx+=(dx/d)*push*dt*4;
+      s.vy+=(dy/d)*push*dt*4;
+    }
+    for(const h of hazards){
+      const hx=s.x-h.x,hy=s.y-h.y,hd=Math.hypot(hx,hy);
+      if(hd<h.r+30&&hd>1){
+        s.vx+=(hx/hd)*160*dt;s.vy+=(hy/hd)*160*dt;
+      }
+    }
+    s.vx*=0.96;s.vy*=0.96;
+    s.x+=s.vx*dt;s.y+=s.vy*dt;
+    if(s.x<42){s.x=42;s.vx=Math.abs(s.vx);}
+    if(s.x>W-42){s.x=W-42;s.vx=-Math.abs(s.vx);}
+    if(s.y<55){s.y=55;s.vy=Math.abs(s.vy);}
+    if(s.y>H-42){s.y=H-42;s.vy=-Math.abs(s.vy);}
+
+    if(Math.hypot(s.x-W/2,s.y-H/2)<54){
+      s.done=true;saved++;
+      const pts=Math.round((s.gold?160:85)*(OC.diff?OC.diff.mult:1));
+      score+=pts;
+      OC.sfx.good();OC.fx.burst(W/2,H/2,'#ffd166',18);
+      OC.fx.floatText(W/2,H/2-20,s.gold?`🌟 DOURADA +${pts}!`:`+${pts} NO PORTAL!`,'#00f5d4');
+      updHUD();
+      if(saved>=waveGoal){
+        if(wave<maxWaves){
+          wave++;tl+=18;OC.sfx.levelUp();
+          OC.fx.floatText(W/2,H/2-45,`🌊 VAGA ${wave}! +18s`,'#ffd166');
+          spawnWave();
+        }else{
+          running=false;
+          score+=Math.round(tl*22);
+          OC.end({id:ID,win:true,stars:3,score,title:'Mestre Pastor das Estrelas!',text:`Guiaste todas as ${maxWaves} vagas do Nível ${OC.diff.level} com ${Math.ceil(tl)}s de sobra (${score} pts)!`,retry:()=>{init();running=true;}});
+          return;
+        }
+      }
+    }
+  }
+  updHUD();
+}
+function draw(now,dt){
+  OC.fx.drawStars(ctx,W,H,now);
+  ctx.save();
+  for(const h of hazards){
+    ctx.fillStyle='rgba(155,93,229,0.28)';ctx.strokeStyle='#9b5de5';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(h.x,h.y,h.r+Math.sin(now*0.006)*3,0,Math.PI*2);ctx.fill();ctx.stroke();
+  }
+  ctx.fillStyle='rgba(255,209,102,0.22)';ctx.strokeStyle='#ffd166';ctx.lineWidth=4;
+  ctx.beginPath();ctx.arc(W/2,H/2,52+Math.sin(now*0.005)*4,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#ffd166';ctx.font='700 14px Fredoka,sans-serif';ctx.textAlign='center';
+  ctx.fillText('PORTAL',W/2,H/2+5);
+  for(const s of flock){
+    if(s.done)continue;
+    if(s.gold){
+      ctx.strokeStyle='#ffd166';ctx.lineWidth=3;
+      ctx.beginPath();ctx.arc(s.x,s.y,26,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.drawImage(s.img,s.x-24,s.y-24,48,48);
+  }
+  ctx.strokeStyle='#00f5d4';ctx.lineWidth=3;
+  ctx.beginPath();ctx.arc(dog.x,dog.y,28,0,Math.PI*2);ctx.stroke();
+  ctx.drawImage(imgDuck,dog.x-24,dog.y-24,48,48);
+  ctx.restore();
+  OC.fx.update(ctx,dt);
+}
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start();init();running=true;};
+init();
+OC.loop(update,draw);
+</script>
+</body>
+</html>

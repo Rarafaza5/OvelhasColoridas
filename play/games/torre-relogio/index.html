@@ -30,23 +30,28 @@ let gears=[],dragGear=null,winT=0;
 
 function loadLevel(){
   const W=c.width,H=c.height;
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  const seed=lv+campLv-1;
   winT=0;dragGear=null;
   gears=[
-    {x:W*0.2,y:H*0.5,r:48,type:'motor',ang:0,spd:2.2,dir:1},
-    {x:W*0.8,y:H*0.36,r:46,type:'target',ang:0,spd:0,dir:0},
-    {x:W*0.8,y:H*0.66,r:46,type:'target',ang:0,spd:0,dir:0}
+    {x:W*(0.18+(seed%3)*0.03),y:H*(0.42+(seed%2)*0.12),r:48,type:'motor',ang:0,spd:2.2,dir:1},
+    {x:W*0.8,y:H*(0.30+(seed%3)*0.05),r:46,type:'target',ang:0,spd:0,dir:0},
+    {x:W*0.8,y:H*(0.64+(seed%2)*0.05),r:46,type:'target',ang:0,spd:0,dir:0}
   ];
-  if(lv>=3){
+  if(lv>=2||campLv>=3){
     gears.push({x:W*0.5,y:H*0.24,r:44,type:'target',ang:0,spd:0,dir:0});
   }
-  const freeCount=3+(lv>=3?1:0);
+  if(lv>=5||campLv>=10){
+    gears.push({x:W*0.5,y:H*0.66,r:42,type:'target',ang:0,spd:0,dir:0});
+  }
+  const freeCount=4+(lv>=3?1:0)+(campLv>=10?1:0);
   for(let i=0;i<freeCount;i++){
     gears.push({
-      x:W*(0.32+i*0.12),y:H*0.82,
-      r:i%2===0?42:36,type:'free',ang:0,spd:0,dir:0
+      x:W*(0.24+i*0.11),y:H*0.84,
+      r:i%2===0?42:38,type:'free',ang:0,spd:0,dir:0
     });
   }
-  document.getElementById('lv').textContent=lv;
+  document.getElementById('lv').textContent=`${lv}/6 (Nv.${campLv})`;
   document.getElementById('gr').textContent=freeCount;
 }
 

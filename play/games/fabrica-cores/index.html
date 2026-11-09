@@ -69,10 +69,11 @@ function addDrop(i,delta=1){
 $('pots').onclick=e=>{const p=e.target.closest('.pot');if(p)addDrop(+p.dataset.i,1)};
 $('clr').onclick=()=>{if(!running)return;d=[0,0,0];OC.sfx.pop();pots()};
 function next(){
- if(n>=6)return finish();
+ const goalOrders=6+Math.min(6,Math.floor(((OC.diff&&OC.diff.level)||1)/8));
+ if(n>=goalOrders)return finish();
  do tgt=[0,0,0].map(()=>Math.floor(Math.random()*6)); while(tgt.reduce((a,b)=>a+b)<2);
- d=[0,0,0];n++;tl=30;
- $('o').textContent=`🎨 Pedido ${n}/6`;$('sw').style.background=rgb(tgt);
+ d=[0,0,0];n++;tl=Math.max(18,32-Math.floor(((OC.diff&&OC.diff.level)||1)/6));
+ $('o').textContent=`🎨 Pedido ${n}/${goalOrders} (Nv.${OC.diff.level})`;$('sw').style.background=rgb(tgt);
  const s=OC.SHEEP[Math.floor(Math.random()*OC.SHEEP.length)];$('sh').src=OC.A+'ovelha-'+s+'.png';
  $('info').textContent='Mistura gotas de luz mágica 🪄';pots();clearInterval(timer);
  timer=setInterval(()=>{tl--;$('tm').textContent='⏱ '+tl+'s';if(tl<=0){clearInterval(timer);judge()}},1000);

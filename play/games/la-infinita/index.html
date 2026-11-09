@@ -26,7 +26,8 @@ body{background:radial-gradient(circle at 30% 10%,#2e1b63,#080b20 75%);display:f
 .up img{width:42px;height:42px;object-fit:contain}.up .t{flex:1}.up b{font:700 1rem Fredoka,sans-serif}.up small{display:block;color:#c9c6e8;font-weight:700}
 .up .n{font:700 1.45rem Fredoka,sans-serif;color:#ffd166}.up .c{font-weight:900;color:#ffd166}
 </style></head><body>
-<div class="hud"><span id="hm">🏭 Império da Lã</span><span id="fz"></span><span id="hs">⭐ 0</span></div>
+<div class="hud"><span id="hm">🏭 Atelier de Lã</span><span id="fz"></span><span id="hs">⭐ 0</span></div>
+<div class="ov" id="ov"><div class="card"><div style="font-size:3rem">🧶🐑</div><h1>Atelier de Lã</h1><p>Tosquia lã cósmica, contrata ovelhas artesãs e constrói o maior atelier galáctico de camisolas arco-íris! O teu progresso fica sempre guardado.</p><button class="btn" id="go">▶ Entrar no Atelier</button></div></div>
 <div class="left" id="left">
  <div class="wool" id="w">🧶 0</div>
  <div class="ps" id="ps">0 lã/seg</div>
@@ -64,6 +65,7 @@ function flock(){
  $('flock').innerHTML=h;
 }
 function hud(){
+ $('hm').textContent=`🏭 Atelier (Nv.${OC.diff.level})`;
  $('w').textContent='🧶 '+fmt(S.w);
  $('ps').textContent=fmt(cps())+' lã/seg'+(frenzy>0?' (🔥2x!)':'');
  $('fz').textContent=frenzy>0?`🔥 Frenesim 2x (${Math.ceil(frenzy)}s)`:'';
@@ -100,13 +102,15 @@ setInterval(()=>{
 },22000);
 const M=[100,1e3,1e4,1e5,1e6,1e7];
 function miles(){
+ OC.best('la-infinita',Math.floor(S.tot));
  M.forEach((m,i)=>{
   if(S.tot>=m&&!(S.ms>>i&1)){
-   S.ms|=1<<i;OC.addStars(2+i);OC.confetti();
-   OC.toast(`🏅 Marco: ${fmt(m)} de lã! +${2+i} ⭐`);
+   S.ms|=1<<i;
+   OC.end({id:'la-infinita',win:true,stars:2+i,score:Math.floor(S.tot),title:`Marco do Atelier: ${fmt(m)}!`,text:`Já teceste ${fmt(S.tot)} unidades de lã cósmica!`,retry:()=>{}});
   }
  });
 }
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start()};
 let last=Date.now();
 setInterval(()=>{
  const n=Date.now(),dt=(n-last)/1000;last=n;

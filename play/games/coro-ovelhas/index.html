@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Coro das Ovelhas</title>
+<script src="../../oc.js"></script>
+<style>
+#songBar{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:6;flex-wrap:wrap;justify-content:center;width:min(96vw,660px)}
+.sbtn{pointer-events:auto;padding:6px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.26);background:rgba(15,21,56,.9);color:#fff;font:700 .78rem Fredoka,sans-serif;cursor:pointer}
+.sbtn.on{background:#ffd166;color:#1a0a00;border-color:#ffd166}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud"><span id="hm">🎶 Melodia: Estrelinha</span><span id="hp">Progresso: 0/14</span><span id="hs">⭐ 0</span></div>
+<div id="songBar"></div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">🎤🐑🌈</div>
+    <h1>Coro das Ovelhas</h1>
+    <p>As 7 Ovelhas Coloridas formam um coro espacial de <b>Dó a Si</b>! Toca na ovelha iluminada com a <b>estrela dourada ⭐</b> (ou usa as teclas <b>1 a 7</b>) para cantar <b>8 obras clássicas de domínio público</b> ou desafia o <b>Modo Maestro Infinito</b>!</p>
+    <div class="kbs"><span class="kb">Toque / Clique</span> Cantar Nota <span class="kb">Teclas 1-7</span> Dó a Si</div>
+    <button class="btn" id="go">▶ Reger o Coro</button>
+  </div>
+</div>
+<script>
+/* Melodias tradicionais e clássicas 100% de domínio público */
+const W=700,H=480,cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='coro-ovelhas',$=id=>document.getElementById(id);
+const NOTES=[
+  {n:'DÓ',f:261.63,s:'arcoiris',c:'#ff85a2'},
+  {n:'RÉ',f:293.66,s:'laranja',c:'#ff9f1c'},
+  {n:'MI',f:329.63,s:'verde',c:'#06d6a0'},
+  {n:'FÁ',f:349.23,s:'azul',c:'#4cc9f0'},
+  {n:'SOL',f:392.00,s:'roxa',c:'#9b5de5'},
+  {n:'LÁ',f:440.00,s:'rosa',c:'#ff9ecd'},
+  {n:'SI',f:493.88,s:'melancia',c:'#ef476f'}
+];
+const IMGS=NOTES.map(n=>OC.img('ovelha-'+n.s));
+const SONGS=[
+  {title:'⭐ Brilha Estrelinha',seq:[0,0,4,4,5,5,4,3,3,2,2,1,1,0,4,4,3,3,2,2,1,4,4,3,3,2,2,1]},
+  {title:'🎻 Ode à Alegria (Beethoven)',seq:[2,2,3,4,4,3,2,1,0,0,1,2,2,1,1,2,2,3,4,4,3,2,1,0,0,1,2,1,0,0]},
+  {title:'🔔 Irmão Tiago',seq:[0,1,2,0,0,1,2,0,2,3,4,2,3,4,4,5,4,3,2,0,4,5,4,3,2,0,0,4,0]},
+  {title:'🌉 Ponte de Londres',seq:[4,5,4,3,2,3,4,1,2,3,2,3,4,4,5,4,3,2,3,4,1,4,2,0]},
+  {title:'🎹 Primavera (Vivaldi)',seq:[0,2,2,2,1,0,4,4,3,2,2,2,1,0,4,4,3,2,3,4,3,2,1,0]},
+  {title:'🌙 Luar Suave (Debussy)',seq:[4,2,4,2,1,2,3,1,0,2,4,5,4,2,1,0]},
+  {title:'🏔️ Gruta do Rei (Grieg)',seq:[0,1,2,3,4,2,4,3,1,3,2,0,2,0,1,2,3,4,2,4,6,4,2,4,3]},
+  {title:'♾️ Desafio do Maestro',seq:[]}
+];
+let songIdx=0,step=0,score=0,combo=1,songsCleared=0,singT=[0,0,0,0,0,0,0],activeSeq=[];
+
+function buildBar(){
+  $('songBar').innerHTML=SONGS.map((s,i)=>`<button class="sbtn ${i===songIdx?'on':''}" data-i="${i}">${s.title}</button>`).join('');
+}
+$('songBar').onclick=e=>{
+  const b=e.target.closest('.sbtn');if(!b)return;
+  selectSong(+b.dataset.i);
+};
+
+function selectSong(idx){
+  songIdx=idx;step=0;
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  if(idx===SONGS.length-1){
+    const len=18+Math.min(30,campLv*2);
+    activeSeq=Array.from({length:len},(_,k)=>(campLv*3+k*5)%7);
+  }else{
+    activeSeq=SONGS[idx].seq;
+  }
+  buildBar();
+  updHUD();
+}
+
+function updHUD(){
+  const sg=SONGS[songIdx];
+  $('hm').textContent=`🎶 ${sg.title} (Nv.${OC.diff.level})`;
+  $('hp').textContent=`Nota: ${step}/${activeSeq.length}`;
+  $('hs').textContent=`⭐ ${score} (x${combo})`;
+}
+function sing(i){
+  const n=NOTES[i];
+  singT[i]=0.35;
+  OC.tone(n.f,0.32,'triangle',0.2);
+  OC.tone(n.f*2,0.22,'sine',0.08);
+  const sx=75+i*90;
+  if(activeSeq[step]===i){
+    step++;
+    score+=Math.round(25*combo*(OC.diff?OC.diff.mult:1));
+    combo=Math.min(8,combo+1);
+    OC.fx.burst(sx,290,n.c,14);
+    OC.fx.floatText(sx,230,`♪ ${n.n}!`,'#ffd166');
+    updHUD();
+    if(step>=activeSeq.length){
+      songsCleared++;
+      const needSongs=Math.min(3,1+Math.floor(((OC.diff&&OC.diff.level)||1)/25));
+      if(songsCleared<needSongs&&songIdx<SONGS.length-2){
+        OC.sfx.levelUp();
+        setTimeout(()=>selectSong((songIdx+1)%SONGS.length),380);
+      }else{
+        setTimeout(()=>{
+          songsCleared=0;
+          OC.end({id:ID,win:true,stars:3,score,title:'Concerto Estelar!',text:`O Coro das Ovelhas brilhou no Nível ${OC.diff.level} com ${score} pontos!`,retry:()=>{step=0;score=0;combo=1;updHUD();}});
+        },420);
+      }
+    }
+  }else{
+    combo=1;updHUD();
+    OC.fx.burst(sx,290,n.c,6);
+  }
+}
+cv.addEventListener('pointerdown',e=>{
+  const p=P(e);
+  for(let i=0;i<7;i++){
+    const sx=75+i*90;
+    if(Math.hypot(p.x-sx,p.y-300)<46){sing(i);return;}
+  }
+});
+addEventListener('keydown',e=>{
+  const k=parseInt(e.key,10);
+  if(k>=1&&k<=7)sing(k-1);
+});
+
+function update(dt){
+  for(let i=0;i<7;i++)if(singT[i]>0)singT[i]=Math.max(0,singT[i]-dt);
+}
+function draw(now,dt){
+  OC.fx.drawStars(ctx,W,H,now);
+  const want=activeSeq[step];
+  for(let i=0;i<7;i++){
+    const n=NOTES[i],sx=75+i*90,isWant=(i===want),jump=singT[i]*55;
+    ctx.save();
+    ctx.fillStyle=isWant?'rgba(255,209,102,0.3)':'rgba(255,255,255,0.08)';
+    ctx.strokeStyle=isWant?'#ffd166':n.c;ctx.lineWidth=isWant?4:2.5;
+    ctx.beginPath();ctx.roundRect(sx-38,245-jump,76,125,20);ctx.fill();ctx.stroke();
+    if(isWant){
+      ctx.font='26px sans-serif';ctx.textAlign='center';
+      ctx.fillText('⭐',sx,222+Math.sin(now*0.008)*6);
+    }
+    ctx.drawImage(IMGS[i],sx-30,258-jump,60,60);
+    ctx.fillStyle='#fff';ctx.font='700 16px Fredoka,sans-serif';ctx.textAlign='center';
+    ctx.fillText(n.n,sx,346-jump);
+    ctx.fillStyle='#ffd166';ctx.font='700 12px Nunito,sans-serif';
+    ctx.fillText(`[${i+1}]`,sx,364-jump);
+    ctx.restore();
+  }
+  OC.fx.update(ctx,dt);
+}
+$('go').onclick=()=>{$('ov').classList.add('hide');songsCleared=0;score=0;combo=1;selectSong((((OC.diff&&OC.diff.level)||1)-1)%SONGS.length);};
+selectSong(0);
+OC.loop(update,draw);
+</script>
+</body>
+</html>

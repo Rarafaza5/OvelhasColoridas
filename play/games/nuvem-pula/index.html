@@ -27,7 +27,12 @@ function gen(){
   if(Math.random()<.65)clouds.push({x:60+Math.random()*(W-120),y:genY+55,vx:(Math.random()<.5?1:-1)*(55+Math.random()*55)});
  }
 }
-function upd(){$('hs').textContent=`☁️ ${score} m`;$('ho').textContent=`☀️ ${Math.ceil(heat)}%`;$('hb').textContent='🏆 '+Math.max(best,score)}
+function upd(){
+ const goalAlt=180+((OC.diff&&OC.diff.level)||1)*25;
+ $('hs').textContent=`☁️ ${score}/${goalAlt} m (Nv.${OC.diff.level})`;
+ $('ho').textContent=`☀️ ${Math.ceil(heat)}%`;
+ $('hb').textContent='🏆 '+Math.max(best,score);
+}
 function update(dt){
  t+=dt;shake=Math.max(0,shake-dt*30);
  if(!running||over)return;

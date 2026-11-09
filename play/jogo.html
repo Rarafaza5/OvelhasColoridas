@@ -3,9 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="child-directed-treatment" content="true">
+<!-- Google Consent Mode v2 — RGPD -->
+<script>
+window.__oc_consent_default_set = true;
+window.dataLayer = window.dataLayer || [];
+function gtag() { dataLayer.push(arguments); }
+gtag('consent', 'default', {
+  analytics_storage: 'denied',
+  ad_storage: 'denied',
+  ad_user_data: 'denied',
+  ad_personalization: 'denied',
+  wait_for_update: 500
+});
+try {
+  var _c = JSON.parse(localStorage.getItem('oc_cookie_consent') || 'null');
+  if (_c) {
+    var _m = typeof _c.marketing !== 'undefined' ? _c.marketing : !!_c.analytics;
+    gtag('consent', 'update', {
+      analytics_storage: _c.analytics ? 'granted' : 'denied',
+      ad_storage: _m ? 'granted' : 'denied',
+      ad_user_data: _m ? 'granted' : 'denied',
+      ad_personalization: _m ? 'granted' : 'denied'
+    });
+  }
+} catch (e) {}
+window.adsbygoogle = window.adsbygoogle || [];
+window.adsbygoogle.requestNonPersonalizedAds = 1;
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8653418731294447"
+     crossorigin="anonymous"></script>
 <title>Jogar | Ovelhas Play</title>
 <link rel="icon" type="image/png" href="../assets/personagens/ovelha-arcoiris.png">
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/fonts/fonts.css">
+<link rel="stylesheet" href="../cookie-consent.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:radial-gradient(circle at 30% 0%,#1f1650,#0a0e27 70%);color:#f0edff;font-family:Nunito,sans-serif;min-height:100vh}
@@ -18,8 +49,12 @@ header{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:10px
 .pill:hover{border-color:#ffd166;color:#ffd166;transform:translateY(-1px)}
 .pill.rnd{background:linear-gradient(135deg,#00f5d4,#9b5de5);border:0;color:#fff}
 .me{color:#ffd166;border-color:#ffd16666;background:#ffd16622}
-.wrap{max-width:1120px;margin:0 auto;padding:16px}
+.wrap{max-width:1120px;margin:0 auto;padding:16px;transition:max-width .25s}
+.wrap.theater{max-width:1480px}
+.wrap.theater .frame{height:min(83vh,calc((100vw - 32px)*.78))}
 .stage{position:relative;border-radius:26px;overflow:hidden;border:2px solid #ffffff26;background:#070a1e;box-shadow:0 20px 60px #000b}
+.stage.fs-fallback{position:fixed;inset:0;z-index:9999;border-radius:0;border:0;display:flex;flex-direction:column}
+.stage.fs-fallback .frame{flex:1;height:100%!important}
 .loader{position:absolute;inset:0;bottom:54px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(circle,#1e1854,#090d24);z-index:4;transition:opacity .3s}
 .loader.hide{opacity:0;pointer-events:none}
 .loader img{width:84px;animation:bnc .6s ease-in-out infinite alternate}
@@ -41,6 +76,8 @@ h2{font:700 1.5rem Fredoka,sans-serif;margin:26px 0 12px}
 .tile img{position:absolute;left:50%;bottom:10%;width:60%;height:60%;object-fit:contain;transform:translateX(-50%);filter:drop-shadow(0 5px 8px #0007)}
 .tile .nm{position:absolute;inset:auto 0 0;padding:18px 6px 7px;text-align:center;font:700 .9rem Fredoka,sans-serif;background:linear-gradient(transparent,#000d)}
 .tile .emo{position:absolute;right:8px;top:4px;font-size:1.6rem}
+.ad-slot{margin:24px auto 8px;padding:12px 16px;border-radius:18px;background:rgba(15,21,56,.6);border:1px solid rgba(255,255,255,.12);text-align:center;max-width:970px;min-height:110px}
+.ad-label{font:800 .68rem Nunito,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#c9c6e8;opacity:.75;margin-bottom:6px}
 @media(max-width:760px){.info{grid-template-columns:1fr}.me{display:none}.frame{height:70vh}}
 </style>
 </head>
@@ -50,7 +87,7 @@ h2{font:700 1.5rem Fredoka,sans-serif;margin:26px 0 12px}
   <span class="sp"></span>
   <button class="pill rnd" id="rnd">🎲 Outro Jogo</button>
   <span class="pill me" id="me"></span>
-  <a class="pill" href="index.html">← Todos (28)</a>
+  <a class="pill" id="backAll" href="index.html">← Todos (42)</a>
 </header>
 <div class="wrap">
   <div class="stage">
@@ -58,40 +95,80 @@ h2{font:700 1.5rem Fredoka,sans-serif;margin:26px 0 12px}
     <iframe class="frame" id="fr" allow="autoplay; fullscreen" title="Jogo"></iframe>
     <div class="bar">
       <h1 id="title"></h1>
+      <span class="best" id="campBadge">🗺️ Nv. 1/100</span>
       <span class="best" id="best" hidden></span>
+      <button class="pill" id="campBtn" style="border-color:#ffd16688;color:#ffd166">🗺️ 100 Níveis & Talentos</button>
+      <button class="pill" id="pauseBtn">⏸ Pausa</button>
       <button class="pill" id="rst">🔄 Reiniciar</button>
       <button class="pill" id="fav">♡ Favorito</button>
       <button class="pill" id="bgm">🎵 Música</button>
       <button class="pill" id="mute">🔊 Som</button>
+      <button class="pill" id="snapBtn" title="Guardar foto da partida">📷 Foto</button>
+      <button class="pill" id="theater">↔ Teatro</button>
       <button class="pill" id="full">⛶ Ecrã inteiro</button>
     </div>
   </div>
   <div class="info">
-    <div class="box"><h3>Sobre o jogo</h3><p id="desc"></p><h3 style="margin-top:14px">🎯 Como jogar</h3><p id="how"></p></div>
+    <div class="box">
+      <h3>Sobre o jogo</h3><p id="desc"></p>
+      <h3 style="margin-top:14px">🎯 Como jogar</h3><p id="how"></p>
+      <h3 style="margin-top:14px">🗺️ A Tua Maestria neste Mundo</h3>
+      <div id="masteryStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:8px"></div>
+    </div>
     <div class="box book"><img src="../assets/capa-livro.png" alt=""><div><h3>📖 O livro</h3><p>Gostas das Ovelhas Coloridas? Descobre a aventura completa no espaço!</p><a class="b" href="../index.html#sobre">Conhecer o livro</a></div></div>
   </div>
   <h2>🎮 Mais jogos para ti</h2><div class="grid" id="more"></div>
+  <aside class="ad-slot" aria-label="Publicidade">
+    <div class="ad-label">Publicidade</div>
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-8653418731294447"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </aside>
 </div>
 <script src="games.js"></script>
 <script>
-const $=id=>document.getElementById(id),get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
-const id=new URLSearchParams(location.search).get('g');
-const g=OP_GAMES.find(x=>x.id===id);
-if(!g)location.replace('index.html');
+const $=id=>document.getElementById(id);
+const memStore={};
+const get=(k,d)=>{try{const raw=localStorage.getItem(k);if(raw===null)return memStore[k]??d;return JSON.parse(raw)??d}catch(e){return memStore[k]??d}};
+const set=(k,v)=>{memStore[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const rawId=new URLSearchParams(location.search).get('g');
+const REDIRECTS={'ovelha-ninja':'tear-constelacoes','simon-ovelhas':'eco-estrelas'};
+const id=REDIRECTS[rawId]||rawId;
+const g=OP_GAMES.find(x=>x.id===id)||OP_GAMES[0];
+$('backAll').textContent='← Todos ('+OP_GAMES.length+')';
 document.title=g.name+' | Ovelhas Play';
 $('title').textContent=g.emoji+' '+g.name;$('desc').textContent=g.desc;$('how').textContent=g.how;
 $('ldImg').src=OP_SPRITE(g.sheep);
-$('fr').onload=()=>{setTimeout(()=>$('ld').classList.add('hide'),120);$('fr').focus()};
-$('fr').addEventListener('pointerdown',()=>$('fr').focus());
+const hideLoader=()=>{if($('ld'))$('ld').classList.add('hide');};
+$('fr').onload=()=>{setTimeout(hideLoader,120);try{$('fr').focus()}catch(e){}};
+setTimeout(hideLoader,2200);
+$('fr').addEventListener('pointerdown',()=>{try{$('fr').focus()}catch(e){}});
 $('fr').src='games/'+g.id+'/index.html';
-localStorage.setItem('op_recent',JSON.stringify([g.id,...get('op_recent',[]).filter(x=>x!==g.id)].slice(0,12)));
+set('op_recent',[g.id,...get('op_recent',[]).filter(x=>x!==g.id)].slice(0,12));
 const st=()=>{
-  const s=get('op_stars',0),b=get('op_best_'+g.id,0);
+  const s=get('op_stars',0),b=get('op_best_'+g.id,0),camp=get('op_camp_'+g.id,{cur:1,unlocked:1,stars:{},wins:0,timeSec:0,diff:1});
+  const cStars=Object.values(camp.stars||{}).reduce((a,v)=>a+(v||0),0);
+  const diffs=['🌱 Cordeirinho','🐑 Pastor Estelar','🚀 Comandante','👑 Mestre','🌌 Lenda'];
   $('me').textContent='⭐ '+s;
+  $('campBadge').textContent=`🗺️ Nv. ${camp.cur||1}/100 · ⭐ ${cStars}/300`;
   if(b>0){$('best').hidden=false;$('best').textContent='🏆 Recorde: '+b}
+  const ms=$('masteryStats');
+  if(ms){
+    const min=Math.floor((camp.timeSec||0)/60);
+    ms.innerHTML=`
+      <div style="padding:8px 10px;border-radius:12px;background:#0c1130;border:1px solid #ffffff1a"><small style="color:#c9c6e8;font-weight:800">Nível Desbloqueado</small><div style="font:700 1.05rem Fredoka,sans-serif;color:#00f5d4">${camp.unlocked||1} / 100</div></div>
+      <div style="padding:8px 10px;border-radius:12px;background:#0c1130;border:1px solid #ffffff1a"><small style="color:#c9c6e8;font-weight:800">Estrelas Campanha</small><div style="font:700 1.05rem Fredoka,sans-serif;color:#ffd166">⭐ ${cStars} / 300</div></div>
+      <div style="padding:8px 10px;border-radius:12px;background:#0c1130;border:1px solid #ffffff1a"><small style="color:#c9c6e8;font-weight:800">Dificuldade Ativa</small><div style="font:700 .95rem Fredoka,sans-serif;color:#ff85a2">${diffs[camp.diff??1]||diffs[1]}</div></div>
+      <div style="padding:8px 10px;border-radius:12px;background:#0c1130;border:1px solid #ffffff1a"><small style="color:#c9c6e8;font-weight:800">Vitórias &amp; Tempo</small><div style="font:700 .95rem Fredoka,sans-serif;color:#fff">🏆 ${camp.wins||0} · ⏱ ${min}m</div></div>
+    `;
+  }
 };
 st();
-addEventListener('message',e=>{if(e.data&&(e.data.op==='stars'||e.data.op==='best'))st()});
+addEventListener('message',e=>{if(e.data&&(e.data.op==='stars'||e.data.op==='best'||e.data.op==='camp'))st()});
+$('campBtn').onclick=()=>{try{$('fr').contentWindow.postMessage({op:'openCamp'},'*');$('fr').focus()}catch(e){}};
 const isFav=()=>get('op_favs',[]).includes(g.id);
 const paintFav=()=>{$('fav').textContent=isFav()?'♥ Favorito':'♡ Favorito';$('fav').style.color=isFav()?'#ff85a2':''};paintFav();
 $('fav').onclick=()=>{let f=get('op_favs',[]);f=isFav()?f.filter(x=>x!==g.id):[...f,g.id];localStorage.setItem('op_favs',JSON.stringify(f));paintFav()};
@@ -99,10 +176,41 @@ let muted=get('op_muted',false);$('mute').textContent=muted?'🔇 Silêncio':'�
 $('mute').onclick=()=>{muted=!muted;localStorage.setItem('op_muted',muted);$('mute').textContent=muted?'🔇 Silêncio':'🔊 Som';$('fr').contentWindow.postMessage({op:'mute',v:muted},'*')};
 let bgm=get('op_bgm',true);$('bgm').style.opacity=bgm?1:.55;
 $('bgm').onclick=()=>{bgm=!bgm;localStorage.setItem('op_bgm',bgm);$('bgm').style.opacity=bgm?1:.55;$('fr').contentWindow.postMessage({op:'bgm',v:bgm},'*')};
+$('pauseBtn').onclick=()=>{try{$('fr').contentWindow.postMessage({op:'pause'},'*');$('fr').focus()}catch(e){}};
 $('rst').onclick=()=>{$( 'ld').classList.remove('hide');$('fr').contentWindow.location.reload()};
 $('rnd').onclick=()=>{const pool=OP_GAMES.filter(x=>x.id!==g.id);location.href='jogo.html?g='+pool[Math.floor(Math.random()*pool.length)].id};
-$('full').onclick=()=>{const f=$('fr');(f.requestFullscreen||f.webkitRequestFullscreen).call(f)};
+$('theater').onclick=()=>{document.querySelector('.wrap').classList.toggle('theater');$('fr').focus()};
+$('snapBtn').onclick=()=>{
+  try{
+    const cv=$('fr').contentDocument.querySelector('canvas');
+    if(!cv)return;
+    const a=document.createElement('a');
+    a.download=`OvelhasPlay_${g.id}.png`;
+    a.href=cv.toDataURL('image/png');
+    a.click();
+  }catch(e){}
+  $('fr').focus();
+};
+$('full').onclick=()=>{
+  const stg=document.querySelector('.stage'),f=$('fr');
+  if(document.fullscreenElement||document.webkitFullscreenElement){
+    (document.exitFullscreen||document.webkitExitFullscreen).call(document);
+    return;
+  }
+  if(stg.classList.contains('fs-fallback')){
+    stg.classList.remove('fs-fallback');
+    return;
+  }
+  const req=f.requestFullscreen||f.webkitRequestFullscreen||stg.requestFullscreen||stg.webkitRequestFullscreen;
+  if(req){
+    try{req.call(f);}catch(e){stg.classList.toggle('fs-fallback');}
+  }else{
+    stg.classList.toggle('fs-fallback');
+  }
+  try{f.focus()}catch(e){}
+};
 $('more').innerHTML=OP_GAMES.filter(x=>x.id!==g.id).sort((a,b)=>(b.cat===g.cat)-(a.cat===g.cat)).slice(0,12).map(x=>`<a class="tile" href="jogo.html?g=${x.id}" style="--c1:${x.bg[0]};--c2:${x.bg[1]}"><span class="emo">${x.emoji}</span><img src="${OP_SPRITE(x.sheep)}" alt=""><div class="nm">${x.name}</div></a>`).join('');
 </script>
+<script src="../cookie-consent.js"></script>
 </body>
 </html>

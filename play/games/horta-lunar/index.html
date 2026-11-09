@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Horta Lunar</title>
+<script src="../../oc.js"></script>
+<style>
+#shop{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:6;flex-wrap:wrap;justify-content:center;width:min(96vw,650px)}
+.hbtn{pointer-events:auto;padding:6px 11px;border-radius:14px;border:2px solid rgba(255,255,255,.24);background:rgba(15,21,56,.9);color:#fff;font:700 .78rem Fredoka,sans-serif;cursor:pointer}
+.hbtn.on{border-color:#ffd166;background:#2b2168}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud">
+  <span id="hc">🪙 Moedas: 30</span>
+  <span id="ho">🧺 Colheitas: 0</span>
+  <span id="hr">🌧️ Rega Nv.1 | 🤖 Drones: 0</span>
+</div>
+<div id="shop">
+  <button class="hbtn on" id="s0">💠 Flor Azul (5🪙)</button>
+  <button class="hbtn" id="s1">🍓 Morango (15🪙)</button>
+  <button class="hbtn" id="s2">🥜 Amendoim (40🪙)</button>
+  <button class="hbtn" id="s3">🍉 Melancia (90🪙)</button>
+  <button class="hbtn" id="s4">🌟 Lã Dourada (200🪙)</button>
+  <button class="hbtn" id="upW" style="background:#06d6a0;color:#05261c">⚡ Rega</button>
+  <button class="hbtn" id="upD" style="background:#4cc9f0;color:#041e2e">🤖 Drone</button>
+</div>
+<div class="ov" id="ov">
+  <div class="card">
+    <div style="font-size:3rem">🌱🌙🐘</div>
+    <h1>Horta Lunar</h1>
+    <p>Cultiva <b>5 espécies bioluminescentes</b> na Lua com a Ovelha Verde e o Elefante Amendoim! Toca num canteiro para plantar, regar e colher, desbloqueia <b>🤖 Drones de Rega Automática</b> e cumpre Encomendas VIP para subir na Campanha!</p>
+    <div class="kbs"><span class="kb">Tocar Canteiro</span> Plantar / Regar / Colher</div>
+    <button class="btn" id="go">▶ Cuidar da Horta</button>
+  </div>
+</div>
+<script>
+const W=660,H=500,cv=document.getElementById('c'),ctx=cv.getContext('2d'),P=OC.fit(cv,W,H);
+const ID='horta-lunar',$=id=>document.getElementById(id);
+const imgGreen=OC.img('ovelha-verde'),imgEle=OC.img('elefante-amendoim');
+const CROPS=[
+  {n:'Flor Azul',cost:5,sell:14,time:4,emo:'💠',c:'#4cc9f0'},
+  {n:'Morango Cósmico',cost:15,sell:42,time:6.5,emo:'🍓',c:'#ff85a2'},
+  {n:'Amendoim Dourado',cost:40,sell:115,time:9.5,emo:'🥜',c:'#ffd166'},
+  {n:'Melancia Estelar',cost:90,sell:260,time:13,emo:'🍉',c:'#ef476f'},
+  {n:'Flor de Lã Dourada',cost:200,sell:600,time:17,emo:'🌟',c:'#00f5d4'}
+];
+let S=OC.get('op_horta_save',null);
+if(!S||!S.plots){
+  S={coins:35,harvests:0,waterLv:1,droneLv:0,plots:Array.from({length:9},()=>({crop:-1,prog:0}))};
+}
+if(typeof S.droneLv!=='number')S.droneLv=0;
+function save(){OC.set('op_horta_save',S);OC.best(ID,S.harvests*30+S.coins);}
+let selCrop=0,sessionHarvests=0;
+['s0','s1','s2','s3','s4'].forEach((id,i)=>$(id).onclick=()=>{
+  selCrop=i;['s0','s1','s2','s3','s4'].forEach((x,j)=>$(x).classList.toggle('on',j===i));OC.sfx.click();
+});
+$('upW').onclick=()=>{
+  const cost=50*S.waterLv;
+  if(S.coins<cost){OC.sfx.bad();return;}
+  S.coins-=cost;S.waterLv++;OC.sfx.win();save();updHUD();
+};
+$('upD').onclick=()=>{
+  const cost=80*(S.droneLv+1);
+  if(S.coins<cost){OC.sfx.bad();return;}
+  S.coins-=cost;S.droneLv++;OC.sfx.win();save();updHUD();
+};
+function updHUD(){
+  $('hc').textContent=`🪙 Moedas: ${S.coins}`;
+  $('ho').textContent=`🧺 Colheitas: ${S.harvests} (Nv.${OC.diff.level})`;
+  $('hr').textContent=`🌧️ Rega Nv.${S.waterLv} | 🤖 Drones: ${S.droneLv}`;
+  $('upW').textContent=`⚡ Rega (${50*S.waterLv}🪙)`;
+  $('upD').textContent=`🤖 Drone (${80*(S.droneLv+1)}🪙)`;
+}
+function plotRect(i){
+  const r=Math.floor(i/3),c=i%3;
+  return {x:155+c*125,y:95+r*105,w:105,h:88};
+}
+cv.addEventListener('pointerdown',e=>{
+  const p=P(e);
+  for(let i=0;i<9;i++){
+    const b=plotRect(i),pl=S.plots[i];
+    if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h){
+      if(pl.crop<0){
+        const cr=CROPS[selCrop];
+        if(S.coins<cr.cost){OC.sfx.bad();OC.fx.floatText(b.x+50,b.y,'Moedas insuficientes!','#ff85a2');return;}
+        S.coins-=cr.cost;pl.crop=selCrop;pl.prog=0;OC.sfx.pop();
+      }else if(pl.prog>=1){
+        const cr=CROPS[pl.crop]||CROPS[0];
+        const gain=Math.round(cr.sell*(OC.diff?OC.diff.mult:1));
+        S.coins+=gain;S.harvests++;sessionHarvests++;pl.crop=-1;pl.prog=0;
+        OC.sfx.coin();OC.fx.burst(b.x+52,b.y+44,'#ffd166',18);
+        OC.fx.floatText(b.x+52,b.y,`+${gain}🪙`,'#ffd166');
+        const targetHarvests=8+Math.min(12,Math.floor(((OC.diff&&OC.diff.level)||1)/5));
+        if(sessionHarvests>=targetHarvests){
+          sessionHarvests=0;save();updHUD();
+          OC.end({id:ID,win:true,stars:3,score:S.harvests*30+S.coins,title:'Colheita Lunar Abundante!',text:`Completaste a Encomenda Lunar do Nível ${OC.diff.level}! Já tens ${S.harvests} colheitas totais.`,retry:()=>{sessionHarvests=0;}});
+          return;
+        }
+      }else{
+        pl.prog=Math.min(1,pl.prog+0.28*S.waterLv);
+        OC.sfx.click();OC.fx.burst(b.x+52,b.y+44,'#4cc9f0',8);
+      }
+      save();updHUD();return;
+    }
+  }
+});
+function update(dt){
+  for(const pl of S.plots){
+    if(pl.crop>=0&&pl.prog<1){
+      const cr=CROPS[pl.crop]||CROPS[0];
+      const spd=(1+(S.waterLv-1)*0.4+S.droneLv*0.65);
+      pl.prog=Math.min(1,pl.prog+(dt/cr.time)*spd);
+    }
+  }
+}
+function draw(now,dt){
+  OC.fx.drawStars(ctx,W,H,now);
+  ctx.drawImage(imgGreen,48,200,76,76);
+  ctx.drawImage(imgEle,W-124,200,76,76);
+  for(let i=0;i<9;i++){
+    const b=plotRect(i),pl=S.plots[i];
+    ctx.save();
+    const cr=CROPS[pl.crop]||CROPS[0];
+    ctx.fillStyle=pl.crop>=0&&pl.prog>=1?'rgba(255,209,102,0.26)':'rgba(25,33,88,0.9)';
+    ctx.strokeStyle=pl.crop>=0?(pl.prog>=1?'#ffd166':cr.c):'rgba(255,255,255,0.22)';
+    ctx.lineWidth=3;
+    ctx.beginPath();ctx.roundRect(b.x,b.y,b.w,b.h,18);ctx.fill();ctx.stroke();
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    if(pl.crop<0){
+      ctx.fillStyle='rgba(255,255,255,0.45)';ctx.font='700 13px Nunito,sans-serif';
+      ctx.fillText('+ Plantar',b.x+b.w/2,b.y+b.h/2);
+    }else{
+      ctx.font=(20+Math.floor(pl.prog*16))+'px sans-serif';
+      ctx.fillText(cr.emo,b.x+b.w/2,b.y+36);
+      ctx.fillStyle='#0d1233';ctx.fillRect(b.x+14,b.y+66,b.w-28,10);
+      ctx.fillStyle=pl.prog>=1?'#ffd166':'#06d6a0';
+      ctx.fillRect(b.x+14,b.y+66,(b.w-28)*pl.prog,10);
+    }
+    ctx.restore();
+  }
+  OC.fx.update(ctx,dt);
+}
+$('go').onclick=()=>{$('ov').classList.add('hide');OC.music.start();sessionHarvests=0;updHUD();};
+updHUD();
+OC.loop(update,draw);
+</script>
+</body>
+</html>

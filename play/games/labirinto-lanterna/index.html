@@ -30,16 +30,18 @@ function genMaze(n){
  return cells;
 }
 function startLv(){
- const sz=Math.min(11,6+lv);maze=genMaze(sz);
+ const campLv=(OC.diff&&OC.diff.level)||1;
+ const effLv=lv+Math.floor((campLv-1)/4);
+ const sz=Math.min(13,6+effLv);maze=genMaze(sz);
  pl={x:.5,y:.5,r:.28};exit={r:sz-1,c:sz-1};
- need=Math.min(6,2+lv);saved=0;bat=100;lost=[];bats=[];ghosts=[];
+ need=Math.min(8,2+effLv);saved=0;bat=100;lost=[];bats=[];ghosts=[];
  const free=()=>{let r,c;do{r=Math.floor(Math.random()*sz);c=Math.floor(Math.random()*sz)}while((r<2&&c<2)||(r===exit.r&&c===exit.c));return{x:c+.5,y:r+.5}};
  for(let i=0;i<need;i++)lost.push({...free(),c:(i+1)%7,got:false});
- for(let i=0;i<2;i++)bats.push({...free(),got:false});
- for(let i=0;i<Math.floor(lv/2);i++){const p=free();ghosts.push({x:p.x,y:p.y,vx:(Math.random()<.5?1:-1)*1.4,vy:0})}
+ for(let i=0;i<3;i++)bats.push({...free(),got:false});
+ for(let i=0;i<Math.min(5,Math.floor(effLv/2));i++){const p=free();ghosts.push({x:p.x,y:p.y,vx:(Math.random()<.5?1:-1)*1.4,vy:0})}
  upd();
 }
-function upd(){$('hl').textContent='Nível '+lv;$('hs').textContent=`🐑 ${saved}/${need}`;$('hb').textContent=`🔋 ${Math.ceil(bat)}%`}
+function upd(){$('hl').textContent=`Andar ${lv}/5 (Nv.${OC.diff.level})`;$('hs').textContent=`🐑 ${saved}/${need}`;$('hb').textContent=`🔋 ${Math.ceil(bat)}%`}
 function tryMove(dx,dy){
  const moveAxis=(ax,d)=>{
   const nx=pl.x+(ax==='x'?d:0),ny=pl.y+(ax==='y'?d:0);

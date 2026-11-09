@@ -189,8 +189,10 @@ function loop(now){
       if(keys.r)rover.ang+=2.6*dt;
     }
 
+    const campLv=(OC.diff&&OC.diff.level)||1;
+    const goalDist=750+campLv*50;
     const distM=Math.max(0,Math.floor((rover.x-100)/5));
-    document.getElementById('ds').textContent=distM;
+    document.getElementById('ds').textContent=`${distM}/${goalDist}m (Nv.${campLv})`;
     document.getElementById('fl').textContent=Math.round(rover.fuel);
 
     const camX=rover.x-W*0.28;
@@ -238,9 +240,9 @@ function loop(now){
     }
     ctx.restore();
 
-    if(distM>=800){
+    if(distM>=goalDist){
       st='end';
-      OC.end({win:true,stars:3,score:sc+400,title:'Engenheiro de Rovers!',msg:`O teu veículo personalizado percorreu os 800m da Lua Amendoim!`,onRetry:()=>{sc=0;startRun();st='play';}});
+      OC.end({win:true,stars:3,score:sc+goalDist,title:'Engenheiro de Rovers!',msg:`O teu veículo personalizado percorreu os ${goalDist}m do Nível ${campLv} na Lua Amendoim!`,onRetry:()=>{sc=0;startRun();st='play';}});
     }else if(rover.fuel<=0 && Math.abs(rover.vx)<8){
       st='end';
       OC.end({win:distM>=400,stars:distM>=550?2:1,score:sc+distM,title:'Sem Combustível!',msg:`O teu Rover alcançou ${distM}m! Ajusta as peças na oficina para ir mais longe.`,onRetry:()=>{phase='build';st='play';}});

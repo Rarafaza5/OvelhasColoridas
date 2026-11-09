@@ -23,7 +23,7 @@ function init(){
   camX=-200;camY=0;score=0;combo=0;comboT=0;lives=3;inv=0;stun=0;boost=0;objs=[];genX=500;PT=[];TX=[];shake=0;over=false;hold=false;jumpBuf=0;t=0;airT=0;
   gen();hud();
 }
-function hud(){$('hs').textContent='⭐ '+Math.floor(score)+'  · 🏆 '+Math.max(best,Math.floor(score));$('hc').textContent=combo>1?'🔥 Combo x'+combo:'';$('hl').textContent='❤'.repeat(Math.max(0,lives))+'🖤'.repeat(3-Math.max(0,lives))}
+function hud(){$('hs').textContent=`⭐ ${Math.floor(score)} (Nv.${OC.diff.level}) · 🏆 ${Math.max(best,Math.floor(score))}`;$('hc').textContent=combo>1?'🔥 Combo x'+combo:'';$('hl').textContent='❤'.repeat(Math.max(0,lives))+'🖤'.repeat(3-Math.max(0,lives))}
 function gen(){
   while(genX<p.x+1100){
     const d=Math.min(1,genX/20000),r=Math.random();

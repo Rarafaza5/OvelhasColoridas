@@ -31,17 +31,20 @@ let items=[],jellies=[],pings=[];
 
 function init(){
   const W=c.width,H=c.height;
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  const goalPearls=10+Math.min(10,Math.floor(campLv/5));
   ox=100;pearls=0;sc=0;
   sub={x:W/2,y:110,vx:0,vy:0};
   items=[];jellies=[];pings=[];
-  for(let i=0;i<10;i++){
+  for(let i=0;i<goalPearls;i++){
     items.push({
       x:70+Math.random()*(W-140),
       y:H*(0.32+Math.random()*0.6),
       lit:1.5,got:false
     });
   }
-  for(let i=0;i<6;i++){
+  const jCount=6+Math.min(6,Math.floor(campLv/8));
+  for(let i=0;i<jCount;i++){
     jellies.push({
       x:80+Math.random()*(W-160),
       y:H*(0.35+Math.random()*0.55),
@@ -54,7 +57,7 @@ function init(){
 
 function updHUD(){
   document.getElementById('ox').textContent=Math.max(0,Math.round(ox));
-  document.getElementById('pr').textContent=pearls;
+  document.getElementById('pr').textContent=`${pearls}/${items.length||10} (Nv.${OC.diff.level})`;
 }
 
 function emitSonar(){
@@ -143,9 +146,9 @@ function loop(now){
         OC.fx.burst(it.x,it.y,'#00f5d4',20);
         OC.fx.floatText(it.x,it.y,'+PÉROLA & O2!','#ffd166');
         updHUD();
-        if(pearls>=10){
+        if(pearls>=items.length){
           st='end';
-          OC.end({win:true,stars:3,score:sc+Math.round(ox)*5,title:'Explorador Abissal!',msg:'Recolheste todas as 10 Pérolas Estelares do Oceano da Lua Azul!',onRetry:()=>{init();st='play';}});
+          OC.end({win:true,stars:3,score:sc+Math.round(ox)*5,title:'Explorador Abissal!',msg:`Recolheste todas as ${items.length} Pérolas Estelares do Nível ${OC.diff.level}!`,onRetry:()=>{init();st='play';}});
         }
       }
     }

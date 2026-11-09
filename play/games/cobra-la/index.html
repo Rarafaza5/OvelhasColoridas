@@ -27,7 +27,7 @@ function spawnStray(){
  const cols=[1,2,3,5];
  strays.push({x:130+Math.random()*(W-260),y:110+Math.random()*(H-220),c:cols[Math.floor(Math.random()*cols.length)],wob:Math.random()*6});
 }
-function upd(){$('hs').textContent=`⭐ ${score} · ❤️`.repeat(1)+('❤️'.repeat(Math.max(0,lives)));$('hw').textContent=`🐑 Fila: ${train.length+1}`;$('hb').textContent='🏆 '+Math.max(best,score)}
+function upd(){$('hs').textContent=`⭐ ${score} (Nv.${OC.diff.level}) · `+'❤️'.repeat(Math.max(0,lives));$('hw').textContent=`🐑 Fila: ${train.length+1}`;$('hb').textContent='🏆 '+Math.max(best,score)}
 function burst(px,py,c,n=14){for(let i=0;i<n;i++){const a=Math.random()*TAU,v=40+Math.random()*160;parts.push({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:.5,m:.5,c,r:2.5+Math.random()*3.5})}}
 function update(dt){
  t+=dt;shake=Math.max(0,shake-dt*30);

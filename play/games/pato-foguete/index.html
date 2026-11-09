@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Pato Magnético</title>
-<link rel="stylesheet" href="../../oc.css">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -168,11 +167,17 @@ function loop(now){
       if(it.type==='peanut' && !it.got && d<it.r+26){
         it.got=true;
         sc+=2;
-        document.getElementById('sc').textContent=sc;
+        const goalNuts=45+((OC.diff&&OC.diff.level)||1)*8;
+        document.getElementById('sc').textContent=`${sc}/${goalNuts} (Nv.${OC.diff.level})`;
         OC.sfx.pop();
         OC.fx.burst(it.x,iy,'#F7B731',10);
         OC.fx.floatText(it.x,iy-15,'+2 🥜','#FFD93D');
-        items.splice(i,1);continue;
+        items.splice(i,1);
+        if(sc>=goalNuts){
+          st='end';
+          OC.end({win:true,stars:hp===3?3:2,score:sc*10,title:'Meta Magnética Concluída!',msg:`O Pato Magnético recolheu ${sc} pontos no Nível ${OC.diff.level}!`,onRetry:()=>{init();st='play';}});
+        }
+        continue;
       }else if(it.type==='drone' && !it.hit && duck.inv<=0 && d<it.r+22){
         it.hit=true;
         hp--;

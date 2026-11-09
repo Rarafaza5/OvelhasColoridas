@@ -13,9 +13,9 @@
 <body>
 <canvas id="c"></canvas>
 <div class="hud">
-  <div class="pill">✨ Luz Estelar: <span id="sl">50</span> (+<span id="cps">2</span>/s)</div>
+  <div class="pill">🗺️ Missão Nv.<span id="clv">1</span> · ✨ Luz: <span id="sl">50</span> (+<span id="cps">2</span>/s)</div>
   <div class="pill">🥚 Criaturas: <span id="cnt">1</span></div>
-  <div class="pill">🏆 Poder da Equipa: <span id="pw">10</span></div>
+  <div class="pill">🏆 Poder: <span id="pw">10</span> / <span id="tg">50</span></div>
 </div>
 <div id="bar">
   <button class="ibtn" id="bEgg1">🥚 Chocar Ovo Comum (25✨)</button>
@@ -58,10 +58,13 @@ function totalPower(){
 
 function updUI(){
   const pw=Math.round(totalPower());
+  const clvEl=document.getElementById('clv');if(clvEl)clvEl.textContent=OC.diff.level;
+  const tgEl=document.getElementById('tg');if(tgEl)tgEl.textContent=30+OC.diff.level*20;
   document.getElementById('sl').textContent=Math.floor(D.light);
   document.getElementById('cps').textContent=pw;
   document.getElementById('cnt').textContent=D.pets.length;
   document.getElementById('pw').textContent=pw*5;
+  OC.best('incubadora-cosmica',pw*5);
 }
 
 function hatch(rare){
@@ -97,10 +100,9 @@ document.getElementById('bMerge').onclick=()=>{
 document.getElementById('bBoss').onclick=()=>{
   const bonus=Math.round(totalPower()*8);
   D.light+=bonus;
-  OC.sfx.win();OC.addStars(2);
-  OC.fx.burst(c.width/2,c.height/2,'#00f5d4',28);
-  OC.fx.floatText(c.width/2,c.height*0.35,`⚔️ EXPEDIÇÃO VENCIDA! +${bonus}✨`,'#ffd166');
+  const pw=Math.round(totalPower())*5;
   save();updUI();
+  OC.end({id:'incubadora-cosmica',win:true,stars:3,score:pw,title:'Expedição Estelar Vencida!',text:`A tua equipa de Guardiões (Poder ${pw}) recolheu +${bonus}✨ Luz Estelar!`,retry:()=>{updUI();}});
 };
 
 c.addEventListener('pointerdown',e=>{

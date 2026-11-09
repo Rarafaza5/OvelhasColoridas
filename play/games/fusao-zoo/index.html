@@ -23,7 +23,7 @@ function init(){
  cur=rnd();next=rnd();goalLv=3;upd();
 }
 function upd(){
- $('hs').textContent='⭐ '+score;
+ $('hs').textContent=`⭐ ${score} (Nv.${OC.diff.level})`;
  $('ho').textContent='🔮 Cria: '+TITLES[goalLv];
  $('hb').textContent='🏆 '+Math.max(best,score);
 }

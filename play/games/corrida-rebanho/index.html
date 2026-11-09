@@ -8,18 +8,22 @@
 <button class="btn" id="go">▶ Começar Corrida</button></div>
 <script>
 const W=800,H=460,cv=document.getElementById('c'),x=cv.getContext('2d'),P=OC.fit(cv,W,H);
-const ID='corrida-rebanho',GOAL=4200,$=id=>document.getElementById(id);
+const ID='corrida-rebanho',$=id=>document.getElementById(id);
+let GOAL=4200;
 const IM=OC.SHEEP.map(n=>OC.img('ovelha-'+n));
 const LANES=[165,235,305,375];
 let racers,objs,parts,running=false,over=false,t=0,stars=[];
 for(let i=0;i<60;i++)stars.push([Math.random()*W,Math.random()*130,Math.random()*1.5+.3]);
 function init(){
+ const campLv=(OC.diff&&OC.diff.level)||1;
+ GOAL=3800+campLv*180;
+ const aiScale=0.96+Math.min(0.16,campLv*0.002);
  over=false;parts=[];objs=[];
  racers=[
   {x:0,lane:1,y:LANES[1],v:230,c:0,boost:0,stun:0,pl:true,name:'Tu'},
-  {x:0,lane:0,y:LANES[0],v:225,c:1,boost:0,stun:0,ai:1,name:'Ovelha Azul'},
-  {x:0,lane:2,y:LANES[2],v:228,c:3,boost:0,stun:0,ai:1.03,name:'Ovelha Verde'},
-  {x:0,lane:3,y:LANES[3],v:232,c:5,boost:0,stun:0,ai:1.06,name:'Ovelha Laranja'}
+  {x:0,lane:0,y:LANES[0],v:225,c:1,boost:0,stun:0,ai:1*aiScale,name:'Ovelha Azul'},
+  {x:0,lane:2,y:LANES[2],v:228,c:3,boost:0,stun:0,ai:1.03*aiScale,name:'Ovelha Verde'},
+  {x:0,lane:3,y:LANES[3],v:232,c:5,boost:0,stun:0,ai:1.06*aiScale,name:'Ovelha Laranja'}
  ];
  for(let px=320;px<GOAL-180;px+=135){
   const l=Math.floor(Math.random()*4),r=Math.random();

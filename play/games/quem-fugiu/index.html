@@ -39,9 +39,11 @@ const pos=n=>{
 };
 function place(el,p){el.style.left=p[0]+'%';el.style.top=p[1]+'%'}
 async function round(){
- locked=true;$('lv').textContent='🕵️ Nível '+lv;$('sc').textContent='⭐ '+score+(streak>1?` 🔥x${streak}`:'');
+ const campLv=(OC.diff&&OC.diff.level)||1;
+ const goalRounds=6+Math.min(6,Math.floor(campLv/8));
+ locked=true;$('lv').textContent=`🕵️ Ronda ${lv}/${goalRounds} (Nv.${campLv})`;$('sc').textContent='⭐ '+score+(streak>1?` 🔥x${streak}`:'');
  $('lf').textContent='❤️'.repeat(lives)+'🖤'.repeat(3-lives);$('opts').innerHTML='';
- const n=Math.min(9,lv+2);ids=sh(ALL).slice(0,n);gone=ids[Math.floor(Math.random()*n)];
+ const n=Math.min(9,lv+2+Math.floor(campLv/15));ids=sh(ALL).slice(0,n);gone=ids[Math.floor(Math.random()*n)];
  [...$('f').querySelectorAll('.sp')].forEach(e=>e.remove());
  const ps=sh(pos(n)),els=ids.map((id,i)=>{
   const e=document.createElement('div');e.className='sp';e.innerHTML=`<img src="${OC.A}${id}.png">`;
@@ -76,9 +78,12 @@ async function pick(b,id){
  }
  const g=$('f').querySelector('.sp.gone');if(g)g.classList.remove('gone');
  await wait(1350);
- if(lives<=0){
+ const campLv=(OC.diff&&OC.diff.level)||1;
+ const goalRounds=6+Math.min(6,Math.floor(campLv/8));
+ if(lives<=0||lv>goalRounds){
   OC.best('quem-fugiu',score);
-  OC.end({id:'quem-fugiu',title:lv>=8?'Super Detetive!':'Fim da investigação!',text:`Chegaste ao nível ${lv} com ${score} pontos! Recorde: ${OC.best('quem-fugiu')}.`,stars:Math.max(1,(lv-1)*2),retry:start});
+  const won=lv>goalRounds||lv>=5;
+  OC.end({id:'quem-fugiu',win:won,title:won?'Super Detetive Estelar!':'Fim da investigação!',text:`Chegaste à ronda ${lv-1}/${goalRounds} do Nível ${campLv} com ${score} pontos!`,stars:lives===3?3:2,score,retry:start});
  }else round();
 }
 function start(){lv=1;lives=3;score=0;streak=0;round()}

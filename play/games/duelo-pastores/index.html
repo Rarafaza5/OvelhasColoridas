@@ -17,7 +17,11 @@ const MINIS=['🏒 Hóquei Espacial','🪢 Cabo de Guerra','⭐ Chuva de Estrela
 let cpu=true,sc1=0,sc2=0,round=0,mode=0,banner='',banT=0,running=false,over=false,st={},keys={};
 $('mode').onclick=()=>{cpu=!cpu;$('mode').textContent=cpu?'🤖 Modo: 1 Jogador (vs Robô)':'👫 Modo: 2 Jogadores no mesmo ecrã';OC.sfx.pop()};
 function startMatch(){sc1=0;sc2=0;round=0;over=false;upd();nextMini()}
-function upd(){$('s1').textContent=`🔵 J1: ${sc1}`;$('s2').textContent=`🌸 ${cpu?'Robô':'J2'}: ${sc2}`}
+function upd(){
+ const needWins=3+Math.min(2,Math.floor(((OC.diff&&OC.diff.level)||1)/25));
+ $('s1').textContent=`🔵 J1: ${sc1}/${needWins}`;
+ $('s2').textContent=`🌸 ${cpu?'Robô':'J2'}: ${sc2}/${needWins} (Nv.${OC.diff.level})`;
+}
 function nextMini(){
  mode=round%MINIS.length;round++;
  banner=MINIS[mode];banT=1.6;$('gm').textContent=banner;OC.sfx.good();

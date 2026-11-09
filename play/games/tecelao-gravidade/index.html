@@ -67,7 +67,7 @@ function loadLevel(){
 
 function updUI(){
   const L=LEVELS[lvIdx];
-  document.getElementById('lv').textContent=lvIdx+1;
+  document.getElementById('lv').textContent=`${lvIdx+1}/${LEVELS.length} (Nv.${OC.diff.level})`;
   document.getElementById('bd').textContent=Math.round(spent);
   document.getElementById('mx').textContent=L.budget;
   document.getElementById('stTxt').textContent=mode==='build'?'🛠️ Modo: Construção':'🚜 A Testar Tensão...';

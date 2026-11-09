@@ -21,7 +21,7 @@ function init(){score=0;mult=1;combo=0;comboT=0;over=false;balls=3;extraGiven=fa
  targets=tcols.map((c,i)=>({x:75+i*62.5,y:105,r:11,c,lit:false,f:0}));bumpers.forEach(b=>b.s=0);
  newBall();upd()}
 function newBall(){ball={x:130+Math.random()*140,y:70,vx:(Math.random()-.5)*160,vy:50};nudges=2;spawnT=.6;stuckT=0;ball.hold=true}
-function upd(){$('hs').textContent='⭐ '+score;$('hm').textContent=mult>1?'x'+mult+(combo>2?' 🔥'+combo:''):(combo>2?'🔥'+combo:'');$('hb').textContent='🐑'.repeat(Math.max(0,balls))+' · 🏆'+best}
+function upd(){$('hs').textContent=`⭐ ${score} (Nv.${OC.diff.level})`;$('hm').textContent=mult>1?'x'+mult+(combo>2?' 🔥'+combo:''):(combo>2?'🔥'+combo:'');$('hb').textContent='🐑'.repeat(Math.max(0,balls))+' · 🏆'+best}
 function burst(px,py,col,n=12,sp=200){for(let i=0;i<n;i++){const a=Math.random()*6.283,s=Math.random()*sp+40;parts.push({x:px,y:py,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:.5+Math.random()*.4,m:.9,c:col,r:2+Math.random()*3})}}
 function add(n,px,py,col){const v=n*mult;score+=v;pops.push({x:px,y:py,t:'+'+v,l:.8,c:col||'#fff'});
  if(!extraGiven&&score>=10000){extraGiven=true;balls++;pops.push({x:200,y:330,t:'BOLA EXTRA! 🐑',l:1.6,c:'#ffd166'});OC.sfx.win()}upd()}

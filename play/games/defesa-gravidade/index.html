@@ -45,9 +45,11 @@ function init(){
 }
 
 function updUI(){
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  const maxWaves=5+Math.min(5,Math.floor(campLv/10));
   document.getElementById('hp').textContent=Math.max(0,hp);
   document.getElementById('en').textContent=energy;
-  document.getElementById('wv').textContent=wave;
+  document.getElementById('wv').textContent=`${wave}/${maxWaves} (Nv.${campLv})`;
 }
 
 document.getElementById('bAddShd').onclick=()=>{
@@ -146,11 +148,14 @@ function loop(now){
           OC.sfx.coin();
           OC.fx.burst(mx,my,m.star?'#ffd166':'#06d6a0',16);
           meteors.splice(i,1);
-          wave=Math.min(5,1+Math.floor(cleared/10));
+          const campLv=(OC.diff&&OC.diff.level)||1;
+          const maxWaves=5+Math.min(5,Math.floor(campLv/10));
+          const goalCleared=maxWaves*9;
+          wave=Math.min(maxWaves,1+Math.floor(cleared/9));
           updUI();
-          if(cleared>=45){
+          if(cleared>=goalCleared){
             st='end';
-            OC.end({win:true,stars:3,score:sc+hp*5,title:'Atmosfera Impenetrável!',msg:`Protegeste o planeta durante as 5 tempestades cósmicas!`,onRetry:()=>{init();st='play';}});
+            OC.end({win:true,stars:3,score:sc+hp*5,title:'Atmosfera Impenetrável!',msg:`Protegeste o planeta durante as ${maxWaves} tempestades cósmicas do Nível ${campLv}!`,onRetry:()=>{init();st='play';}});
           }
           continue;
         }

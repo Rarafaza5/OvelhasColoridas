@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Raio Trator</title>
-<link rel="stylesheet" href="../../oc.css">
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -171,14 +170,15 @@ function loop(now){
         sh.y+=sh.vy*dt;
         if(Math.hypot(sh.x-ufo.x,sh.y-ufo.y)<44){
           sc++;
-          document.getElementById('sc').textContent=sc;
+          const goalSheep=15+Math.min(15,Math.floor(((OC.diff&&OC.diff.level)||1)/4));
+          document.getElementById('sc').textContent=`${sc}/${goalSheep} (Nv.${OC.diff.level})`;
           OC.sfx.pop();
           OC.fx.burst(ufo.x,ufo.y+20,'#FFD93D',18);
           OC.fx.floatText(ufo.x,ufo.y,'+1 RESGATADA!','#FFD93D');
           sheepList.splice(i,1);
-          if(sc>=15){
+          if(sc>=goalSheep){
             st='end';
-            OC.end({win:true,stars:hp===3?3:2,score:sc*100+hp*150,title:'Rebanho Abduzido com Amor!',msg:'Resgataste todas as 15 ovelhas para a nave-mãe!',onRetry:()=>{init();st='play';}});
+            OC.end({win:true,stars:hp===3?3:2,score:sc*100+hp*150,title:'Rebanho Abduzido com Amor!',msg:`Resgataste todas as ${goalSheep} ovelhas do Nível ${OC.diff.level} para a nave-mãe!`,onRetry:()=>{init();st='play';}});
           }
           continue;
         }

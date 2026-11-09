@@ -70,7 +70,9 @@ function startWave(){
 }
 
 function updUI(){
-  document.getElementById('wv').textContent=wave;
+  const campLv=(OC.diff&&OC.diff.level)||1;
+  const maxW=4+Math.min(4,Math.floor(campLv/12));
+  document.getElementById('wv').textContent=`${wave}/${maxW} (Nv.${campLv})`;
   document.getElementById('ap').textContent=ap;
   document.getElementById('bMove').classList.toggle('act',actMode==='move');
   document.getElementById('bAtk').classList.toggle('act',actMode==='atk');
@@ -139,10 +141,12 @@ c.addEventListener('pointerdown',e=>{
 
 function checkWaveClear(){
   if(!units.some(u=>u.team==='enemy')){
+    const campLv=(OC.diff&&OC.diff.level)||1;
+    const maxW=4+Math.min(4,Math.floor(campLv/12));
     sc+=100*wave;
-    if(wave>=4){
+    if(wave>=maxW){
       st='end';
-      OC.end({win:true,stars:3,score:sc,title:'Estratega Supremo!',msg:`Venceste todas as 4 batalhas táticas com ${sc} pontos!`,onRetry:()=>{wave=1;sc=0;startWave();st='play';}});
+      OC.end({win:true,stars:3,score:sc,title:'Estratega Supremo!',msg:`Venceste todas as ${maxW} batalhas táticas do Nível ${campLv} com ${sc} pontos!`,onRetry:()=>{wave=1;sc=0;startWave();st='play';}});
     }else{
       wave++;OC.sfx.win();
       OC.fx.floatText(c.width/2,c.height*0.4,`BATALHA ${wave}!`,'#ffd166');
